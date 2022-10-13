@@ -1,0 +1,34 @@
+{
+  "name": "sims-template-transform-poc",
+  "version": "1.0.0",
+  "license": "ISC",
+  "scripts": {
+    "start": "ts-node src/index",
+    "start:reload": "./node_modules/.bin/nodemon src/index.ts --exec ts-node",
+    "lint": "eslint . --ignore-pattern 'node_modules' --ext .ts",
+    "lint-fix": "eslint . --fix --ignore-pattern 'node_modules' --ext .ts",
+    "format": "prettier --check \"./src/**/*.{js,jsx,ts,tsx,css,scss}\"",
+    "format-fix": "prettier --write \"./src/**/*.{js,jsx,ts,tsx,json,css,scss}\""
+  },
+  "dependencies": {
+    "fast-json-patch": "~3.1.1",
+    "jsonpath-plus": "~7.2.0",
+    "lodash": "~4.17.21",
+    "typescript": "~4.1.6",
+    "xlsx": "~0.18.5"
+  },
+  "devDependencies": {
+    "@types/fast-json-patch": "~1.1.5",
+    "@types/lodash": "~4.14.186",
+    "@types/node": "~14.14.31",
+    "@typescript-eslint/eslint-plugin": "~4.33.0",
+    "@typescript-eslint/parser": "~4.33.0",
+    "eslint-config-prettier": "~6.15.0",
+    "eslint-plugin-prettier": "~3.3.1",
+    "eslint": "~7.32.0",
+    "nodemon": "~2.0.14",
+    "prettier-plugin-organize-imports": "~2.3.4",
+    "prettier": "~2.2.1",
+    "ts-node": "~10.4.0"
+  }
+}
