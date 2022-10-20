@@ -54,14 +54,18 @@ export class XLSXTransform {
   start() {
     // Prepare the raw data, by adding keys and other meta to the raw row objects
     const preparedRowObjects = this.prepareRowObjects();
+    fs.writeFileSync(path.join(__dirname, 'output', '1.json'), JSON.stringify(preparedRowObjects, null, 2));
 
     // Recurse through the data, and create a hierarchical structure for each logical record
     const hierarchicalRowObjects = this.buildRowObjectsHierarchy(preparedRowObjects);
+    fs.writeFileSync(path.join(__dirname, 'output', '2.json'), JSON.stringify(hierarchicalRowObjects, null, 2));
 
     //
     const processedHierarchicalRowObjects = this.processHierarchicalRowObjects(hierarchicalRowObjects);
+    fs.writeFileSync(path.join(__dirname, 'output', '3.json'), JSON.stringify(processedHierarchicalRowObjects, null, 2));
 
     const preparedRowObjectsForJSONToSheet = this.prepareRowObjectsForJSONToSheet(processedHierarchicalRowObjects);
+    fs.writeFileSync(path.join(__dirname, 'output', '4.json'), JSON.stringify(preparedRowObjectsForJSONToSheet, null, 2));
 
     Object.entries(preparedRowObjectsForJSONToSheet).map(([key, value]) => {
       const worksheet = xlsx.utils.json_to_sheet(value);
@@ -495,7 +499,6 @@ export class XLSXTransform {
 
     Object.entries(groupedByDWCSheetName).forEach(([key, value]) => {
       const keys = this.schemaParser.getDWCSheetKeyBySheetName(key);
-
       uniqueGroupedByDWCSheetName[key] = filterDuplicateKeys(value, keys) as any;
     });
 
