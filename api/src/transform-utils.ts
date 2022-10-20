@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import { JSONPath, JSONPathOptions } from 'jsonpath-plus';
 import path from 'path';
 import xlsx from 'xlsx';
-import SchemaParser, { SheetSchema, TransformSchema } from './schema-utils';
+import SchemaParser, { TemplateSchema, TransformSchema } from './schema-utils';
 import { getWorksheetByName, getWorksheetRange } from './xlsx-utils';
 
 /**
@@ -51,8 +51,13 @@ export class XLSXTransform {
     this.schemaParser = new SchemaParser(schema);
   }
 
+  /**
+   * Run the transformation process.
+   *
+   * @memberof XLSXTransform
+   */
   start() {
-    // Prepare the raw data, by adding keys and other meta to the raw row objects
+    // Prepare the raw data, by adding keys and other dwcMeta to the raw row objects
     const preparedRowObjects = this.prepareRowObjects();
     fs.writeFileSync(path.join(__dirname, 'output', '1.json'), JSON.stringify(preparedRowObjects, null, 2));
 
@@ -60,13 +65,15 @@ export class XLSXTransform {
     const hierarchicalRowObjects = this.buildRowObjectsHierarchy(preparedRowObjects);
     fs.writeFileSync(path.join(__dirname, 'output', '2.json'), JSON.stringify(hierarchicalRowObjects, null, 2));
 
-    //
+    // Iterate over the hierarchical row objects, flattening and mapping each one
     const processedHierarchicalRowObjects = this.processHierarchicalRowObjects(hierarchicalRowObjects);
     fs.writeFileSync(path.join(__dirname, 'output', '3.json'), JSON.stringify(processedHierarchicalRowObjects, null, 2));
 
+    // Iterate over the mapped records, group them by dwc sheet name, and remove duplicate records per sheet
     const preparedRowObjectsForJSONToSheet = this.prepareRowObjectsForJSONToSheet(processedHierarchicalRowObjects);
     fs.writeFileSync(path.join(__dirname, 'output', '4.json'), JSON.stringify(preparedRowObjectsForJSONToSheet, null, 2));
 
+    // Process the final objects into the format required to convert them into CSV format
     Object.entries(preparedRowObjectsForJSONToSheet).map(([key, value]) => {
       const worksheet = xlsx.utils.json_to_sheet(value);
 
@@ -80,13 +87,19 @@ export class XLSXTransform {
     });
   }
 
+  /**
+   * Modifies the raw row objects returned by xlsx, and adds identifiers used in later steps (keys, etc)
+   *
+   * @return {*}
+   * @memberof XLSXTransform
+   */
   prepareRowObjects() {
     const output: Record<string, RowObject[]> = {};
 
     this.workbook.SheetNames.forEach((sheetName) => {
-      const sheetSchema = this.schemaParser.getSheetConfigForSheetName(sheetName);
+      const templateSchema = this.schemaParser.getSheetConfigForSheetName(sheetName);
 
-      if (!sheetSchema) {
+      if (!templateSchema) {
         // Skip worksheet as no transform schema was provided
         return;
       }
@@ -107,7 +120,7 @@ export class XLSXTransform {
 
       const numberOfRows = range['e']['r'];
 
-      const preparedRowObjects = this._prepareRowObjects(worksheetJSON, sheetSchema, numberOfRows);
+      const preparedRowObjects = this._prepareRowObjects(worksheetJSON, templateSchema, numberOfRows);
 
       output[sheetName] = preparedRowObjects;
     });
@@ -115,19 +128,23 @@ export class XLSXTransform {
     return output;
   }
 
-  _prepareRowObjects(worksheetJSON: Record<string, any>[], sheetSchema: SheetSchema, length: number): RowObject[] {
+  _prepareRowObjects(
+    worksheetJSON: Record<string, any>[],
+    templateSchema: TemplateSchema,
+    length: number
+  ): RowObject[] {
     const worksheetJSONWithKey: RowObject[] = [];
 
     for (let i = 0; i < length; i++) {
-      const primaryKey = this._getKeyForRowObject(worksheetJSON[i], sheetSchema.primaryKey);
+      const primaryKey = this._getKeyForRowObject(worksheetJSON[i], templateSchema.primaryKey);
 
       if (!primaryKey) {
         continue;
       }
 
-      const parentKey = this._getKeyForRowObject(worksheetJSON[i], sheetSchema.parentKey);
+      const parentKey = this._getKeyForRowObject(worksheetJSON[i], templateSchema.parentKey);
 
-      const childKeys = sheetSchema.foreignKeys
+      const childKeys = templateSchema.foreignKeys
         .map((foreignKeys: { name: string; primaryKey: string[] }) => {
           return this._getKeyForRowObject(worksheetJSON[i], foreignKeys.primaryKey);
         })
@@ -135,10 +152,10 @@ export class XLSXTransform {
 
       worksheetJSONWithKey.push({
         _data: { ...worksheetJSON[i] },
-        _name: sheetSchema.name,
+        _name: templateSchema.name,
         _key: primaryKey,
         _parentKey: parentKey,
-        _type: sheetSchema.type,
+        _type: templateSchema.type,
         _childKeys: childKeys || [],
         _children: []
       });
@@ -217,6 +234,7 @@ export class XLSXTransform {
   processHierarchicalRowObjects(hierarchicalRowObjects: { _children: RowObject[] }) {
     const mapRowObjects: Record<string, Record<string, string>[]>[] = [];
 
+    // for each hierarchicalRowObjects
     for (let rowIndex = 0; rowIndex < hierarchicalRowObjects._children.length; rowIndex++) {
       const hierarchicalRowObject = hierarchicalRowObjects._children[rowIndex];
 
@@ -242,8 +260,8 @@ export class XLSXTransform {
       [{ _children: [{ ...hierarchicalRowObject }] }]
     ];
 
-    const prepgetCombinations = (source: AtLeast<RowObject, '_children'>[]): Record<string, RowObject[]> => {
-      const prepgetCombinations: Record<string, RowObject[]> = {};
+    const prepGetCombinations = (source: AtLeast<RowObject, '_children'>[]): Record<string, RowObject[]> => {
+      const prepGetCombinations: Record<string, RowObject[]> = {};
 
       for (let sourceIndex = 0; sourceIndex < source.length; sourceIndex++) {
         if (source[sourceIndex]._type === 'leaf') {
@@ -256,21 +274,21 @@ export class XLSXTransform {
         for (let childrenIndex = 0; childrenIndex < children.length; childrenIndex++) {
           const child = children[childrenIndex];
 
-          if (!prepgetCombinations[child._name]) {
-            prepgetCombinations[child._name] = [];
+          if (!prepGetCombinations[child._name]) {
+            prepGetCombinations[child._name] = [];
           }
 
-          prepgetCombinations[child._name].push(child);
+          prepGetCombinations[child._name].push(child);
         }
       }
 
-      return prepgetCombinations;
+      return prepGetCombinations;
     };
 
     const loop = (flatIndex: number, source: AtLeast<RowObject, '_children'>[]) => {
       // Grab all of the children of the current `source` and build an object in the format needed by the `getCombinations`
       // function.
-      const preppedForgetCombinations = prepgetCombinations(source);
+      const preppedForgetCombinations = prepGetCombinations(source);
 
       // Loop over the prepped records, and build an array of objects which contain all of the possible combinations
       // of the records. See function for more details.

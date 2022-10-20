@@ -2,7 +2,7 @@ import { getMultipleValuesByName, getValueByName } from '../json-path-queries';
 import { TransformSchema } from '../schema-utils';
 
 export const schema: TransformSchema = {
-  sheets: [
+  templateMeta: [
     {
       name: 'Block Summary',
       primaryKey: ['Study Area', 'Block ID/SU ID', 'Stratum'],
@@ -176,7 +176,7 @@ export const schema: TransformSchema = {
               columnName: 'individualCount',
               columnValue: [
                 {
-                  value: '99'
+                  value: '1'
                 }
               ]
             },
@@ -352,22 +352,22 @@ export const schema: TransformSchema = {
       ]
     }
   ],
-  meta: [
+  dwcMeta: [
     {
       name: 'event',
-      key: ['eventID']
+      primaryKey: ['eventID']
     },
     {
       name: 'occurrence',
-      key: ['occurrenceID']
+      primaryKey: ['occurrenceID']
     },
     {
       name: 'location',
-      key: ['eventID']
+      primaryKey: ['eventID']
     },
     {
       name: 'measurementOrFact',
-      key: ['eventID', 'occurrenceID']
+      primaryKey: ['eventID', 'occurrenceID']
     }
   ]
 };

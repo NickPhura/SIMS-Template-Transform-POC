@@ -1,6 +1,6 @@
 import { JSONPath } from 'jsonpath-plus';
 
-export type SheetSchema = {
+export type TemplateSchema = {
   /**
    * The name of the sheet.
    *
@@ -120,46 +120,62 @@ export type MapSchema = {
   fields: MapFieldSchema[];
 };
 
-export type MetaSchema = {
+export type DwcSchema = {
   name: string;
-  key: string[];
+  primaryKey: string[];
 };
 
 export type TransformSchema = {
   /**
-   * Defines the structure of the template.
+   * Defines the structure of the template, and any other relevant meta.
    *
-   * The template, and the corresponding sheets definition, must correspond to a valid tree structure, with no loops.
+   * The template, and the corresponding templateMeta definition, must correspond to a valid tree structure, with no loops.
    *
-   * @type {SheetSchema[]}
+   * @type {TemplateSchema[]}
    */
-  sheets: SheetSchema[];
+  templateMeta: TemplateSchema[];
   /**
-   * Defines the mapping from parsed raw template data to DarwinCore (DWC) sheets.
+   * Defines the mapping from parsed raw template data to DarwinCore (DWC) templateMeta.
    *
    * @type {MapSchema[]}
    */
   map: MapSchema[];
   /**
-   * Additional meta needed by various steps of the transformation.
+   * Defines dwc specific meta needed by various steps of the transformation.
    *
-   * @type {MetaSchema[]}
+   * @type {DwcSchema[]}
    */
-  meta: MetaSchema[];
+  dwcMeta: DwcSchema[];
 };
 
+/**
+ * Provides helper functions for fetching data from a raw transform schema
+ *
+ * @class SchemaParser
+ */
 class SchemaParser {
   rawSchema: TransformSchema;
 
-  transformQueue: (SheetSchema & { distanceToRoot: number })[] = [];
+  transformQueue: (TemplateSchema & { distanceToRoot: number })[] = [];
 
   constructor(schemaJSON: TransformSchema) {
     this.rawSchema = schemaJSON;
 
-    this.buildTransformQueue();
+    this._buildTransformQueue();
   }
 
-  buildTransformQueue() {
+  /**
+   * Recurse through the template schema and build a modified version which has all items arranged in processing order
+   * (example: the root element is at index=0 in the array, etc) and where each item includes a new value
+   * `distanceToRoot` which indicates which tier of the tree that item is at (example: the root element is at
+   * `distanceToRoot=0`, its direct children are at `distanceToRoot=1`, etc)
+   *
+   * Note: This step could in be removed if the order of the transform schema was assumed to be correct by default and
+   * the `distanceToRoot` field was added to the type as a required field, and assumed to be set correctly.
+   *
+   * @memberof SchemaParser
+   */
+  _buildTransformQueue() {
     const rootSheetSchema = this.getRootSheetConfig();
 
     if (!rootSheetSchema) {
@@ -168,7 +184,7 @@ class SchemaParser {
 
     this.transformQueue.push({ ...rootSheetSchema, distanceToRoot: 0 });
 
-    const buildTransformQueue = (sheetNames: string[], distanceToRoot: number) => {
+    const loop = (sheetNames: string[], distanceToRoot: number) => {
       let nextSheetNames: string[] = [];
 
       sheetNames.forEach((sheetName) => {
@@ -187,31 +203,57 @@ class SchemaParser {
         return;
       }
 
-      buildTransformQueue(nextSheetNames, distanceToRoot + 1);
+      loop(nextSheetNames, distanceToRoot + 1);
     };
 
-    buildTransformQueue(
+    loop(
       rootSheetSchema.foreignKeys.map((item) => item.name),
       1
     );
   }
 
-  getRootSheetConfig(): SheetSchema | undefined {
-    return Object.values(this.rawSchema.sheets).find((sheet) => sheet.type === 'root');
+  /**
+   * Find and return the template element that has `type=root`.
+   *
+   * @return {*}  {(TemplateSchema | undefined)}
+   * @memberof SchemaParser
+   */
+  getRootSheetConfig(): TemplateSchema | undefined {
+    return Object.values(this.rawSchema.templateMeta).find((sheet) => sheet.type === 'root');
   }
 
-  getSheetConfigForSheetName(sheetName: string): SheetSchema | undefined {
-    return Object.values(this.rawSchema.sheets).find((sheet) => sheet.name === sheetName);
+  /**
+   * Find and return the template element that has `name=<sheetName>`
+   *
+   * @param {string} sheetName
+   * @return {*}  {(TemplateSchema | undefined)}
+   * @memberof SchemaParser
+   */
+  getSheetConfigForSheetName(sheetName: string): TemplateSchema | undefined {
+    return Object.values(this.rawSchema.templateMeta).find((sheet) => sheet.name === sheetName);
   }
 
+  /**
+   * Get a list of all unique DWC sheet names.
+   *
+   * @return {*}  {string[]}
+   * @memberof SchemaParser
+   */
   getDWCSheetNames(): string[] {
     const names: string[] = JSONPath({ path: '$.[name]', json: this.rawSchema.map });
 
     return Array.from(new Set(names));
   }
 
+  /**
+   * Find and return a DWC sheet key where `name=<sheetName>`.
+   *
+   * @param {string} sheetName
+   * @return {*}  {string[]}
+   * @memberof SchemaParser
+   */
   getDWCSheetKeyBySheetName(sheetName: string): string[] {
-    const result = JSONPath({ path: `$..[?(@.name === '${sheetName}' )][key]`, json: this.rawSchema.meta });
+    const result = JSONPath({ path: `$..[?(@.name === '${sheetName}' )][primaryKey]`, json: this.rawSchema.dwcMeta });
 
     return result[0];
   }
