@@ -6,7 +6,7 @@ import { TransformSchema } from '../schema-utils';
 // what are the differences between unclassified and unclassified age/sex?
 // what else in these templates do we need to transform?
 export const schema: TransformSchema = {
-  sheets: [
+  templateMeta: [
     {
       name: 'Effort & Site Conditions',
       primaryKey: ['THIS_NEEDS_A_KEY'],
@@ -740,22 +740,22 @@ export const schema: TransformSchema = {
       ]
     },
   ],
-  meta: [
+  dwcMeta: [
     {
       name: 'event',
-      key: ['eventID']
+      primaryKey: ['eventID']
     },
     {
       name: 'occurrence',
-      key: ['occurrenceID']
+      primaryKey: ['occurrenceID']
     },
     {
       name: 'location',
-      key: ['occurrenceID']
+      primaryKey: ['occurrenceID']
     },
     {
       name: 'measurementOrFact',
-      key: ['eventID', 'occurrenceID']
+      primaryKey: ['eventID', 'occurrenceID']
     }
   ]
 }

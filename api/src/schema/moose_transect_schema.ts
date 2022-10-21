@@ -1,23 +1,7 @@
 import { createPathField, createValueField, getMultipleValuesByName, getValueByName } from '../json-path-queries';
-import { SheetSchema, TransformSchema } from '../schema-utils';
-
-
-const createChildrenSheets = () => {
-
-}
-
-const createSheet = (name: string, keys: string[], parentKeys: string[], type: 'root' | 'leaf' | '', foreignKeys: {name: string, primaryKey: string[]}[]): SheetSchema => {
-  return {
-    name,
-    primaryKey: keys,
-    parentKey: parentKeys,
-    type, 
-    foreignKeys
-  } as SheetSchema;
-}
-
+import { TransformSchema } from '../schema-utils';
 export const schema: TransformSchema = {
-  sheets: [
+  templateMeta: [
     {
       name: 'Effort & Site Conditions',
       primaryKey: ['Study Area', 'Date'],
@@ -826,22 +810,22 @@ export const schema: TransformSchema = {
       ]
     },
   ],
-  meta: [
+  dwcMeta: [
     {
       name: 'event',
-      key: ['eventID']
+      primaryKey: ['eventID']
     },
     {
       name: 'occurrence',
-      key: ['occurrenceID']
+      primaryKey: ['occurrenceID']
     },
     {
       name: 'location',
-      key: ['occurrenceID']
+      primaryKey: ['occurrenceID']
     },
     {
       name: 'measurementOrFact',
-      key: ['eventID', 'occurrenceID']
+      primaryKey: ['eventID', 'occurrenceID']
     }
   ]
 };
