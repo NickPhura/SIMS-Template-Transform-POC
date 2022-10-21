@@ -43,6 +43,29 @@ export const schema: TransformSchema = {
   ],
   map: [
     {
+      name: 'record-level',
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Effort & Site Conditions', '_key')]
+            }
+          ]
+        },
+        {
+          columnName: 'occurrenceID',
+          columnValue: [
+            {
+              paths: [getValueByName('Observations', '_key')]
+            }
+          ]
+        },
+        createValueField('type', 'Human Observed'),
+        createValueField('basisOfRecord', 'Occurrence')
+      ]
+    },
+    {
       // safe to ignore the marked animals for now
       // what if we can't find a proper unique identifier for a sheet? is that when it becomes a leaf? just to roll it all up?
       // the add for the maps, are there other special functions we could leverage?
@@ -836,7 +859,7 @@ export const schema: TransformSchema = {
             }
           ]
         },
-        createValueField('measurementType', 'Veg Cover (%)'),
+        createValueField('measurementType', 'Veg Cover'),
         createPathField('measurementValue', 'Observations', ['Veg Cover (%)']),
         createValueField('measurementUnit', '%')
       ]
@@ -861,13 +884,192 @@ export const schema: TransformSchema = {
             }
           ]
         },
-        createValueField('measurementType', 'Snow Cover (%)'),
+        createValueField('measurementType', 'Snow Cover'),
         createPathField('measurementValue', 'Observations', ['Snow Cover (%)']),
         createValueField('measurementUnit', '%')
       ]
     },
+    {
+      name: 'measurementOrFact',
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Effort & Site Conditions ', '_key')]
+            }
+          ]
+        },
+        {
+          columnName: 'occurrenceID',
+          columnValue: [
+            {
+              paths: [getValueByName('Observations', '_key')],
+              postfix: 'MF:3'
+            }
+          ]
+        },
+        createValueField('measurementType', 'Perpendicular Distance from Transect'),
+        createPathField('measurementValue', 'Observations', ['Perpendicular Distance From Transect Line (m)']),
+        createValueField('measurementUnit', 'm')
+      ]
+    },
+    {
+      name: 'measurementOrFact',
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Effort & Site Conditions ', '_key')]
+            }
+          ]
+        },
+        {
+          columnName: 'occurrenceID',
+          columnValue: [
+            {
+              paths: [getValueByName('Observations', '_key')],
+              postfix: 'MF:4'
+            }
+          ]
+        },
+        createValueField('measurementType', 'Total Distance Flown'),
+        createPathField('measurementValue', 'Observations', ['Total Distance Flown (km)']),
+        createValueField('measurementUnit', 'km')
+      ]
+    },
+    {
+      name: 'measurementOrFact',
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Effort & Site Conditions ', '_key')]
+            }
+          ]
+        },
+        {
+          columnName: 'occurrenceID',
+          columnValue: [
+            {
+              paths: [getValueByName('Observations', '_key')],
+              postfix: 'MF:5'
+            }
+          ]
+        },
+        createValueField('measurementType', 'Total Time'),
+        createPathField('measurementValue', 'Effort & Site Conditions', ['Total Time (hours)']),
+        createValueField('measurementUnit', 'hrs')
+      ]
+    },
+    {
+      name: 'measurementOrFact',
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Effort & Site Conditions ', '_key')]
+            }
+          ]
+        },
+        {
+          columnName: 'occurrenceID',
+          columnValue: [
+            {
+              paths: [getValueByName('Observations', '_key')],
+              postfix: 'MF:6'
+            }
+          ]
+        },
+        createValueField('measurementType', 'Total Time'),
+        createPathField('measurementValue', 'Effort & Site Conditions', ['Total Time (mins)']),
+        createValueField('measurementUnit', 'mins')
+      ]
+    },
+    {
+      name: 'measurementOrFact',
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Effort & Site Conditions ', '_key')]
+            }
+          ]
+        },
+        {
+          columnName: 'occurrenceID',
+          columnValue: [
+            {
+              paths: [getValueByName('Observations', '_key')],
+              postfix: 'MF:7'
+            }
+          ]
+        },
+        createValueField('measurementType', 'Time'),
+        createPathField('measurementValue', 'Effort & Site Conditions', ['Total Time (hours)']),
+        createValueField('measurementUnit', 'hrs')
+      ]
+    },
+    {
+      name: 'measurementOrFact',
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Effort & Site Conditions ', '_key')]
+            }
+          ]
+        },
+        {
+          columnName: 'occurrenceID',
+          columnValue: [
+            {
+              paths: [getValueByName('Observations', '_key')],
+              postfix: 'MF:8'
+            }
+          ]
+        },
+        createValueField('measurementType', 'Time'),
+        createPathField('measurementValue', 'Effort & Site Conditions', ['Time (mins)/km']),
+        createValueField('measurementUnit', 'km/mins')
+      ]
+    },
+    {
+      name: 'measurementOrFact',
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Effort & Site Conditions ', '_key')]
+            }
+          ]
+        },
+        {
+          columnName: 'occurrenceID',
+          columnValue: [
+            {
+              paths: [getValueByName('Observations', '_key')],
+              postfix: 'MF:9'
+            }
+          ]
+        },
+        createValueField('measurementType', 'Snow Cover'),
+        createPathField('measurementValue', 'Effort & Site Conditions', ['Snow Cover']),
+        createValueField('measurementUnit', '%')
+      ]
+    }
   ],
   dwcMeta: [
+    {
+      name: 'record-level',
+      primaryKey: ['eventID', 'occurrenceID']
+    },
     {
       name: 'event',
       primaryKey: ['eventID']
