@@ -4,7 +4,7 @@ import { JSONPath, JSONPathOptions } from 'jsonpath-plus';
 import path from 'path';
 import xlsx from 'xlsx';
 import SchemaParser, { TemplateSchema, TransformSchema } from './schema-utils';
-import { getWorksheetByName, getWorksheetRange } from './xlsx-utils';
+import { getWorksheetByName, getWorksheetRange, trimWorksheetCells } from './xlsx-utils';
 
 /**
  * Defines a type that indicates a `Partial` value, but with some exceptions.
@@ -105,6 +105,9 @@ export class XLSXTransform {
       }
 
       const worksheet = getWorksheetByName(this.workbook, sheetName);
+
+      // trim all whitespace on string values
+      trimWorksheetCells(worksheet);
 
       const range = getWorksheetRange(worksheet);
 

@@ -16,7 +16,7 @@ export const schema: TransformSchema = {
     },
     {
       name: 'Observations',
-      primaryKey: ['Study Area', 'Block ID/SU ID', 'Transect ID'],
+      primaryKey: ['Lat', 'Long'],
       parentKey: ['Study Area', 'Date'],
       type: '',
       foreignKeys: [
@@ -26,13 +26,13 @@ export const schema: TransformSchema = {
         }
       ]
     },
-    {
-      name: 'Marked Animals',
-      primaryKey: ['Study Area', 'Transect ID'],
-      parentKey: ['Study Area', 'Transect ID'],
-      type: '',
-      foreignKeys: []
-    },
+    // {
+    //   name: 'Marked Animals',
+    //   primaryKey: ['Study Area', 'Transect ID'],
+    //   parentKey: ['Study Area', 'Transect ID'],
+    //   type: '',
+    //   foreignKeys: []
+    // },
     // {
     //   name: 'Incidental Observations',
     //   primaryKey: [],
@@ -43,16 +43,14 @@ export const schema: TransformSchema = {
   ],
   map: [
     {
-      // are certain things required for DwC objects? like if an event is present we need to have at least 3 of the event properties or are we just trying to fill as many of the dwc properties we can?
+      // safe to ignore the marked animals for now
       // what if we can't find a proper unique identifier for a sheet? is that when it becomes a leaf? just to roll it all up?
-      // do we have a list of bare minimum fields we need for biohhub? I guess it just w/e we can get from it
-      // coordinates, species? that is assumed per template kinda...
       // the add for the maps, are there other special functions we could leverage?
       // is the incidental sheet self contained or should it be apart of the OG transform?
-      // effort & site conditions, what makes this particular page unique? can they have two of the same days
-      // bulls - unclassified missing a single item because transect ID 4 is repeated
-      // lone cows missing a single item because transect ID is repeated
       // what life stage are the RISC/ Oswald Bulls?
+      // using LAT LONG OR UTM DATA AS UNIQUE IDENTIFIERS
+      // will need a way to potentially track unique keys before validation happens
+      // what is going to happen with blank rows?
       name: 'event',
       fields: [
         {
@@ -108,7 +106,7 @@ export const schema: TransformSchema = {
               join: ' '
             },
             {
-              paths: [getMultipleValuesByName('Observations', ['Lat', 'Long '])],
+              paths: [getMultipleValuesByName('Observations', ['Lat', 'Long'])],
               join: ' '
             }
           ]
@@ -144,24 +142,11 @@ export const schema: TransformSchema = {
             }
           ]
         },
-        {
-          columnName: 'individualCount',
-          columnValue: [
-            {
-              paths: [getValueByName('Observations', 'Yearling Bulls')]
-            }
-          ]
-        },
+        createPathField('individualCount', 'Observations', ['Yearling Bulls']),
+        createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'yearling'),
-        {
-          columnName: 'occurrenceRemarks',
-          columnValue: [
-            {
-              paths: [getValueByName('Observations', 'Observation Comments')]
-            }
-          ]
-        }
+        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
       ]
     },
     {
@@ -186,6 +171,7 @@ export const schema: TransformSchema = {
           ]
         },
         createPathField('individualCount', 'Observations', ['Sub-Prime Bulls']),
+        createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'sub-prime'),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
@@ -213,6 +199,7 @@ export const schema: TransformSchema = {
           ]
         },
         createPathField('individualCount', 'Observations', ['Prime Bulls']),
+        createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'prime'),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
@@ -240,6 +227,7 @@ export const schema: TransformSchema = {
           ]
         },
         createPathField('individualCount', 'Observations', ['Senior Bulls']),
+        createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'senior'),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
@@ -267,6 +255,7 @@ export const schema: TransformSchema = {
           ]
         },
         createPathField('individualCount', 'Observations', ['RISC Class I Bulls']),
+        createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'juvenile'),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
@@ -294,6 +283,7 @@ export const schema: TransformSchema = {
           ]
         },
         createPathField('individualCount', 'Observations', ['RISC Class II Bulls']),
+        createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'juvenile'),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
@@ -321,6 +311,7 @@ export const schema: TransformSchema = {
           ]
         },
         createPathField('individualCount', 'Observations', ['RISC Class III Bulls']),
+        createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'juvenile'),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
@@ -348,6 +339,7 @@ export const schema: TransformSchema = {
           ]
         },
         createPathField('individualCount', 'Observations', ['Oswald (1997) Class I Bulls']),
+        createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'juvenile'),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
@@ -375,6 +367,7 @@ export const schema: TransformSchema = {
           ]
         },
         createPathField('individualCount', 'Observations', ['Oswald (1997) Class II Bulls']),
+        createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'juvenile'),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
@@ -402,6 +395,7 @@ export const schema: TransformSchema = {
           ]
         },
         createPathField('individualCount', 'Observations', ['Oswald (1997) Class III Bulls']),
+        createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'juvenile'),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
@@ -429,6 +423,7 @@ export const schema: TransformSchema = {
           ]
         },
         createPathField('individualCount', 'Observations', ['Adult Bulls - Unclassified']),
+        createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'adult'),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
@@ -456,6 +451,7 @@ export const schema: TransformSchema = {
           ]
         },
         createPathField('individualCount', 'Observations', ['Bulls - Unclassified']),
+        createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'unknown bulls'),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
@@ -483,6 +479,7 @@ export const schema: TransformSchema = {
           ]
         },
         createPathField('individualCount', 'Observations', ['Lone Cows']),
+        createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'female'),
         createValueField('lifeStage', 'unknown'),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
@@ -510,6 +507,7 @@ export const schema: TransformSchema = {
           ]
         },
         createPathField('individualCount', 'Observations', ['Lone calf']),
+        createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'juvenile'),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
@@ -540,11 +538,62 @@ export const schema: TransformSchema = {
               ]
             },
             createValueField('individualCount', '1'),
+            createPathField('taxonID', 'Observations', ['Species']),
             createValueField('sex', 'unknown'),
             createValueField('lifeStage', 'juvenile'),
             createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
           ]
-        }
+        },
+        {
+          name: 'measurementOrFact',
+          fields: [
+            {
+              columnName: 'eventID',
+              columnValue: [
+                {
+                  paths: [getValueByName('Effort & Site Conditions ', '_key')]
+                }
+              ]
+            },
+            {
+              columnName: 'occurrenceID',
+              columnValue: [
+                {
+                  paths: [getValueByName('Observations', '_key')],
+                  postfix: '15:1'
+                }
+              ]
+            },
+            createValueField('measurementType', 'Veg Cover (%)'),
+            createPathField('measurementValue', 'Observations', ['Veg Cover (%)']),
+            createValueField('measurementUnit', '%')
+          ]
+        },
+        {
+          name: 'measurementOrFact',
+          fields: [
+            {
+              columnName: 'eventID',
+              columnValue: [
+                {
+                  paths: [getValueByName('Effort & Site Conditions ', '_key')]
+                }
+              ]
+            },
+            {
+              columnName: 'occurrenceID',
+              columnValue: [
+                {
+                  paths: [getValueByName('Observations', '_key')],
+                  postfix: '15:2'
+                }
+              ]
+            },
+            createValueField('measurementType', 'Snow Cover (%)'),
+            createPathField('measurementValue', 'Observations', ['Snow Cover (%)']),
+            createValueField('measurementUnit', '%')
+          ]
+        },
       ],
       fields: [
         {
@@ -565,6 +614,7 @@ export const schema: TransformSchema = {
           ]
         },
         createPathField('individualCount', 'Observations', ['Cow W/1 calf']),
+        createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'female'),
         createValueField('lifeStage', 'adult'),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
@@ -595,6 +645,7 @@ export const schema: TransformSchema = {
               ]
             },
             createValueField('individualCount', '1'),
+            createPathField('taxonID', 'Observations', ['Species']),
             createValueField('sex', 'unknown'),
             createValueField('lifeStage', 'juvenile'),
             createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
@@ -621,6 +672,7 @@ export const schema: TransformSchema = {
               ]
             },
             createValueField('individualCount', '1'),
+            createPathField('taxonID', 'Observations', ['Species']),
             createValueField('sex', 'unknown'),
             createValueField('lifeStage', 'juvenile'),
             createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
@@ -646,6 +698,7 @@ export const schema: TransformSchema = {
           ]
         },
         createPathField('individualCount', 'Observations', ['Cow W/2 calves']),
+        createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'female'),
         createValueField('lifeStage', 'adult'),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
@@ -673,6 +726,7 @@ export const schema: TransformSchema = {
           ]
         },
         createPathField('individualCount', 'Observations', ['Adult Unclassified Sex']),
+        createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'unknown'),
         createValueField('lifeStage', 'adult'),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
@@ -700,6 +754,7 @@ export const schema: TransformSchema = {
           ]
         },
         createPathField('individualCount', 'Observations', ['Unclassified Age/Sex']),
+        createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'unknown'),
         createValueField('lifeStage', 'unknown'),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
@@ -727,6 +782,7 @@ export const schema: TransformSchema = {
           ]
         },
         createPathField('individualCount', 'Observations', ['Spike/Fork Bulls']),
+        createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'adult'),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
@@ -754,6 +810,7 @@ export const schema: TransformSchema = {
           ]
         },
         createPathField('individualCount', 'Observations', ['3 Brow/10 Points Bulls']),
+        createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'adult'),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
