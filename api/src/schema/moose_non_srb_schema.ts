@@ -6,11 +6,10 @@ import { TransformSchema } from '../schema-utils';
 // what are the differences between unclassified and unclassified age/sex?
 // what else in these templates do we need to transform?
 // date mis matched in file, going to cause problems finding data for later
-// 
+// need a mechanism to switch between ids
 
 // REQUIRED VALIDATION
 // dates need to be the same
-
 export const schema: TransformSchema = {
   templateMeta: [
     {
