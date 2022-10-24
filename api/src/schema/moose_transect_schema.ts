@@ -11,6 +11,10 @@ export const schema: TransformSchema = {
         {
           name: 'Observations',
           primaryKey: ['Study Area', 'Date']
+        },
+        {
+          name: 'Incidental Observations',
+          primaryKey: ['Study Area', 'Date']
         }
       ]
     },
@@ -19,12 +23,7 @@ export const schema: TransformSchema = {
       primaryKey: ['Lat', 'Long'],
       parentKey: ['Study Area', 'Date'],
       type: '',
-      foreignKeys: [
-        {
-          name: 'Marked Animals',
-          primaryKey: ['Study Area', 'Transect ID']
-        }
-      ]
+      foreignKeys: []
     },
     // {
     //   name: 'Marked Animals',
@@ -33,13 +32,13 @@ export const schema: TransformSchema = {
     //   type: '',
     //   foreignKeys: []
     // },
-    // {
-    //   name: 'Incidental Observations',
-    //   primaryKey: [],
-    //   parentKey: [],
-    //   type: '',
-    //   foreignKeys: []
-    // }
+    {
+      name: 'Incidental Observations',
+      primaryKey: ['Lat', 'Long'],
+      parentKey: ['Study Area', 'Date'],
+      type: '',
+      foreignKeys: []
+    }
   ],
   map: [
     {
@@ -67,8 +66,6 @@ export const schema: TransformSchema = {
     },
     {
       // safe to ignore the marked animals for now
-      // what if we can't find a proper unique identifier for a sheet? is that when it becomes a leaf? just to roll it all up?
-      // the add for the maps, are there other special functions we could leverage?
       // is the incidental sheet self contained or should it be apart of the OG transform?
       // what life stage are the RISC/ Oswald Bulls?
       // using LAT LONG OR UTM DATA AS UNIQUE IDENTIFIERS
@@ -812,6 +809,209 @@ export const schema: TransformSchema = {
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'adult'),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ]
+    },
+    {
+      name: 'occurrence',
+      condition:[{ if: getValueByName('Incidental Observations', 'Adult Males')}],
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Effort & Site Conditions', '_key')]
+            }
+          ]
+        },
+        {
+          columnName: 'occurrenceID',
+          columnValue: [
+            {
+              paths: [getValueByName('Incidental Observations', '_key')],
+              postfix: 'INC:1'
+            }
+          ]
+        },
+        createPathField('individualCount', 'Incidental Observations', ['Adult Males']),
+        createPathField('taxonID', 'Incidental Observations', ['Species']),
+        createValueField('sex', 'male'),
+        createValueField('lifeStage', 'adult'),
+        createPathField('occurrenceRemarks', 'Incidental Observations', ['Incidental Observation Comments']),
+        createPathField('behavior', 'Incidental Observations', ['Activity'])
+      ]
+    },
+    {
+      name: 'occurrence',
+      condition:[{ if: getValueByName('Incidental Observations', 'Adult Females')}],
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Effort & Site Conditions', '_key')]
+            }
+          ]
+        },
+        {
+          columnName: 'occurrenceID',
+          columnValue: [
+            {
+              paths: [getValueByName('Incidental Observations', '_key')],
+              postfix: 'INC:2'
+            }
+          ]
+        },
+        createPathField('individualCount', 'Incidental Observations', ['Adult Females']),
+        createPathField('taxonID', 'Incidental Observations', ['Species']),
+        createValueField('sex', 'female'),
+        createValueField('lifeStage', 'adult'),
+        createPathField('occurrenceRemarks', 'Incidental Observations', ['Incidental Observation Comments']),
+        createPathField('behavior', 'Incidental Observations', ['Activity'])
+      ]
+    },
+    {
+      name: 'occurrence',
+      condition:[{ if: getValueByName('Incidental Observations', 'Adults - Unclassified Sex')}],
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Effort & Site Conditions', '_key')]
+            }
+          ]
+        },
+        {
+          columnName: 'occurrenceID',
+          columnValue: [
+            {
+              paths: [getValueByName('Incidental Observations', '_key')],
+              postfix: 'INC:3'
+            }
+          ]
+        },
+        createPathField('individualCount', 'Incidental Observations', ['Adults - Unclassified Sex']),
+        createPathField('taxonID', 'Incidental Observations', ['Species']),
+        createValueField('sex', 'unknown'),
+        createValueField('lifeStage', 'adult'),
+        createPathField('occurrenceRemarks', 'Incidental Observations', ['Incidental Observation Comments']),
+        createPathField('behavior', 'Incidental Observations', ['Activity'])
+      ]
+    },
+    {
+      name: 'occurrence',
+      condition:[{ if: getValueByName('Incidental Observations', 'Juvenile Males')}],
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Effort & Site Conditions', '_key')]
+            }
+          ]
+        },
+        {
+          columnName: 'occurrenceID',
+          columnValue: [
+            {
+              paths: [getValueByName('Incidental Observations', '_key')],
+              postfix: 'INC:4'
+            }
+          ]
+        },
+        createPathField('individualCount', 'Incidental Observations', ['Juvenile Males']),
+        createPathField('taxonID', 'Incidental Observations', ['Species']),
+        createValueField('sex', 'male'),
+        createValueField('lifeStage', 'juvenile'),
+        createPathField('occurrenceRemarks', 'Incidental Observations', ['Incidental Observation Comments']),
+        createPathField('behavior', 'Incidental Observations', ['Activity'])
+      ]
+    },
+    {
+      name: 'occurrence',
+      condition:[{ if: getValueByName('Incidental Observations', 'Juvenile Females')}],
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Effort & Site Conditions', '_key')]
+            }
+          ]
+        },
+        {
+          columnName: 'occurrenceID',
+          columnValue: [
+            {
+              paths: [getValueByName('Incidental Observations', '_key')],
+              postfix: 'INC:5'
+            }
+          ]
+        },
+        createPathField('individualCount', 'Incidental Observations', ['Juvenile Females']),
+        createPathField('taxonID', 'Incidental Observations', ['Species']),
+        createValueField('sex', 'female'),
+        createValueField('lifeStage', 'juvenile'),
+        createPathField('occurrenceRemarks', 'Incidental Observations', ['Incidental Observation Comments']),
+        createPathField('behavior', 'Incidental Observations', ['Activity'])
+      ]
+    },
+    {
+      name: 'occurrence',
+      condition:[{ if: getValueByName('Incidental Observations', 'Juveniles - Unclassified Sex')}],
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Effort & Site Conditions', '_key')]
+            }
+          ]
+        },
+        {
+          columnName: 'occurrenceID',
+          columnValue: [
+            {
+              paths: [getValueByName('Incidental Observations', '_key')],
+              postfix: 'INC:6'
+            }
+          ]
+        },
+        createPathField('individualCount', 'Incidental Observations', ['Juveniles - Unclassified Sex']),
+        createPathField('taxonID', 'Incidental Observations', ['Species']),
+        createValueField('sex', 'unknown'),
+        createValueField('lifeStage', 'juvenile'),
+        createPathField('occurrenceRemarks', 'Incidental Observations', ['Incidental Observation Comments']),
+        createPathField('behavior', 'Incidental Observations', ['Activity'])
+      ]
+    },
+    {
+      name: 'occurrence',
+      condition:[{ if: getValueByName('Incidental Observations', 'Unknown Age/Sex')}],
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Effort & Site Conditions', '_key')]
+            }
+          ]
+        },
+        {
+          columnName: 'occurrenceID',
+          columnValue: [
+            {
+              paths: [getValueByName('Incidental Observations', '_key')],
+              postfix: 'INC:7'
+            }
+          ]
+        },
+        createPathField('individualCount', 'Incidental Observations', ['Unknown Age/Sex']),
+        createPathField('taxonID', 'Incidental Observations', ['Species']),
+        createValueField('sex', 'unknown'),
+        createValueField('lifeStage', 'unknown'),
+        createPathField('occurrenceRemarks', 'Incidental Observations', ['Incidental Observation Comments']),
+        createPathField('behavior', 'Incidental Observations', ['Activity'])
       ]
     },
     {
