@@ -28,7 +28,7 @@ const ajv = new Ajv();
 ajv.validate(transformationJSONSchema, schema);
 
 if (ajv.errors) {
-  throw new Error(JSON.stringify(ajv.errors, null, 2));
+  throw new Error(JSON.stringify(ajv.errors));
 }
 
 const templateBuffer = fs.readFileSync(path.join(__dirname, 'input', TEMPLATE_NAME));
