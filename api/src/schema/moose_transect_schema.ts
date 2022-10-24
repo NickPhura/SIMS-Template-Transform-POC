@@ -166,7 +166,8 @@ export const schema: TransformSchema = {
         createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'yearling'),
-        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments']),
+        createPathField('behavior', 'Observations', ['Activity'])
       ]
     },
     {
@@ -194,7 +195,8 @@ export const schema: TransformSchema = {
         createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'sub-prime'),
-        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments']),
+        createPathField('behavior', 'Observations', ['Activity'])
       ]
     },
     {
@@ -222,7 +224,8 @@ export const schema: TransformSchema = {
         createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'prime'),
-        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments']),
+        createPathField('behavior', 'Observations', ['Activity'])
       ]
     },
     {
@@ -250,7 +253,8 @@ export const schema: TransformSchema = {
         createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'senior'),
-        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments']),
+        createPathField('behavior', 'Observations', ['Activity'])
       ]
     },
     {
@@ -278,7 +282,8 @@ export const schema: TransformSchema = {
         createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'juvenile'),
-        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments']),
+        createPathField('behavior', 'Observations', ['Activity'])
       ]
     },
     {
@@ -306,7 +311,8 @@ export const schema: TransformSchema = {
         createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'juvenile'),
-        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments']),
+        createPathField('behavior', 'Observations', ['Activity'])
       ]
     },
     {
@@ -334,7 +340,8 @@ export const schema: TransformSchema = {
         createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'juvenile'),
-        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments']),
+        createPathField('behavior', 'Observations', ['Activity'])
       ]
     },
     {
@@ -362,7 +369,8 @@ export const schema: TransformSchema = {
         createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'juvenile'),
-        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments']),
+        createPathField('behavior', 'Observations', ['Activity'])
       ]
     },
     {
@@ -390,7 +398,8 @@ export const schema: TransformSchema = {
         createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'juvenile'),
-        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments']),
+        createPathField('behavior', 'Observations', ['Activity'])
       ]
     },
     {
@@ -418,7 +427,8 @@ export const schema: TransformSchema = {
         createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'juvenile'),
-        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments']),
+        createPathField('behavior', 'Observations', ['Activity'])
       ]
     },
     {
@@ -446,7 +456,8 @@ export const schema: TransformSchema = {
         createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'adult'),
-        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments']),
+        createPathField('behavior', 'Observations', ['Activity'])
       ]
     },
     {
@@ -474,7 +485,8 @@ export const schema: TransformSchema = {
         createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'unknown bulls'),
-        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments']),
+        createPathField('behavior', 'Observations', ['Activity'])
       ]
     },
     {
@@ -502,7 +514,8 @@ export const schema: TransformSchema = {
         createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'female'),
         createValueField('lifeStage', 'unknown'),
-        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments']),
+        createPathField('behavior', 'Observations', ['Activity'])
       ]
     },
     {
@@ -530,7 +543,8 @@ export const schema: TransformSchema = {
         createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'juvenile'),
-        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments']),
+        createPathField('behavior', 'Observations', ['Activity'])
       ]
     },
     {
@@ -561,7 +575,8 @@ export const schema: TransformSchema = {
             createPathField('taxonID', 'Observations', ['Species']),
             createValueField('sex', 'unknown'),
             createValueField('lifeStage', 'juvenile'),
-            createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+            createPathField('occurrenceRemarks', 'Observations', ['Observation Comments']),
+        createPathField('behavior', 'Observations', ['Activity'])
           ]
         },
         {
@@ -612,7 +627,8 @@ export const schema: TransformSchema = {
         createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'female'),
         createValueField('lifeStage', 'adult'),
-        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments']),
+        createPathField('behavior', 'Observations', ['Activity'])
       ]
     },
     {
@@ -643,7 +659,8 @@ export const schema: TransformSchema = {
             createPathField('taxonID', 'Observations', ['Species']),
             createValueField('sex', 'unknown'),
             createValueField('lifeStage', 'juvenile'),
-            createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+            createPathField('occurrenceRemarks', 'Observations', ['Observation Comments']),
+        createPathField('behavior', 'Observations', ['Activity'])
           ]
         },
         {
@@ -670,7 +687,8 @@ export const schema: TransformSchema = {
             createPathField('taxonID', 'Observations', ['Species']),
             createValueField('sex', 'unknown'),
             createValueField('lifeStage', 'juvenile'),
-            createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+            createPathField('occurrenceRemarks', 'Observations', ['Observation Comments']),
+        createPathField('behavior', 'Observations', ['Activity'])
           ]
         }
       ],
@@ -696,7 +714,8 @@ export const schema: TransformSchema = {
         createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'female'),
         createValueField('lifeStage', 'adult'),
-        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments']),
+        createPathField('behavior', 'Observations', ['Activity'])
       ]
     },
     {
@@ -724,7 +743,8 @@ export const schema: TransformSchema = {
         createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'unknown'),
         createValueField('lifeStage', 'adult'),
-        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments']),
+        createPathField('behavior', 'Observations', ['Activity'])
       ]
     },
     {
@@ -752,7 +772,8 @@ export const schema: TransformSchema = {
         createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'unknown'),
         createValueField('lifeStage', 'unknown'),
-        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments']),
+        createPathField('behavior', 'Observations', ['Activity'])
       ]
     },
     {
@@ -780,7 +801,8 @@ export const schema: TransformSchema = {
         createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'adult'),
-        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments']),
+        createPathField('behavior', 'Observations', ['Activity'])
       ]
     },
     {
@@ -808,7 +830,8 @@ export const schema: TransformSchema = {
         createPathField('taxonID', 'Observations', ['Species']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'adult'),
-        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments']),
+        createPathField('behavior', 'Observations', ['Activity'])
       ]
     },
     {
