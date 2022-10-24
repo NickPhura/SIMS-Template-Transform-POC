@@ -4,7 +4,7 @@ import { JSONPath, JSONPathOptions } from 'jsonpath-plus';
 import path from 'path';
 import xlsx from 'xlsx';
 import SchemaParser, { TemplateSchema, TransformSchema } from './schema-utils';
-import { getWorksheetByName, getWorksheetRange } from './xlsx-utils';
+import { getWorksheetByName, getWorksheetRange, trimWorksheetCells } from './xlsx-utils';
 
 /**
  * Defines a type that indicates a `Partial` value, but with some exceptions.
@@ -59,15 +59,19 @@ export class XLSXTransform {
   start() {
     // Prepare the raw data, by adding keys and other dwcMeta to the raw row objects
     const preparedRowObjects = this.prepareRowObjects();
+    fs.writeFileSync(path.join(__dirname, 'output', '1.json'), JSON.stringify(preparedRowObjects, null, 2));
 
     // Recurse through the data, and create a hierarchical structure for each logical record
     const hierarchicalRowObjects = this.buildRowObjectsHierarchy(preparedRowObjects);
+    fs.writeFileSync(path.join(__dirname, 'output', '2.json'), JSON.stringify(hierarchicalRowObjects, null, 2));
 
     // Iterate over the hierarchical row objects, flattening and mapping each one
     const processedHierarchicalRowObjects = this.processHierarchicalRowObjects(hierarchicalRowObjects);
+    fs.writeFileSync(path.join(__dirname, 'output', '3.json'), JSON.stringify(processedHierarchicalRowObjects, null, 2));
 
     // Iterate over the mapped records, group them by dwc sheet name, and remove duplicate records per sheet
     const preparedRowObjectsForJSONToSheet = this.prepareRowObjectsForJSONToSheet(processedHierarchicalRowObjects);
+    fs.writeFileSync(path.join(__dirname, 'output', '4.json'), JSON.stringify(preparedRowObjectsForJSONToSheet, null, 2));
 
     // Process the final objects into the format required to convert them into CSV format
     Object.entries(preparedRowObjectsForJSONToSheet).map(([key, value]) => {
@@ -101,6 +105,9 @@ export class XLSXTransform {
       }
 
       const worksheet = getWorksheetByName(this.workbook, sheetName);
+
+      // trim all whitespace on string values
+      trimWorksheetCells(worksheet);
 
       const range = getWorksheetRange(worksheet);
 
@@ -513,7 +520,6 @@ export class XLSXTransform {
 
     Object.entries(groupedByDWCSheetName).forEach(([key, value]) => {
       const keys = this.schemaParser.getDWCSheetKeyBySheetName(key);
-
       uniqueGroupedByDWCSheetName[key] = filterDuplicateKeys(value, keys) as any;
     });
 
