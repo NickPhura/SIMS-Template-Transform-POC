@@ -574,7 +574,7 @@ export const schema: TransformSchema = {
               columnName: 'eventID',
               columnValue: [
                 {
-                  paths: [getValueByName('Effort & Site Conditions ', '_key')]
+                  paths: [getValueByName('Effort & Site Conditions', '_key')]
                 }
               ]
             },
@@ -591,32 +591,7 @@ export const schema: TransformSchema = {
             createPathField('measurementValue', 'Observations', ['Veg Cover (%)']),
             createValueField('measurementUnit', '%')
           ]
-        },
-        {
-          name: 'measurementOrFact',
-          fields: [
-            {
-              columnName: 'eventID',
-              columnValue: [
-                {
-                  paths: [getValueByName('Effort & Site Conditions ', '_key')]
-                }
-              ]
-            },
-            {
-              columnName: 'occurrenceID',
-              columnValue: [
-                {
-                  paths: [getValueByName('Observations', '_key')],
-                  postfix: '15:2'
-                }
-              ]
-            },
-            createValueField('measurementType', 'Snow Cover (%)'),
-            createPathField('measurementValue', 'Observations', ['Snow Cover (%)']),
-            createValueField('measurementUnit', '%')
-          ]
-        },
+        }
       ],
       fields: [
         {
@@ -846,7 +821,7 @@ export const schema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions ', '_key')]
+              paths: [getValueByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -855,7 +830,7 @@ export const schema: TransformSchema = {
           columnValue: [
             {
               paths: [getValueByName('Observations', '_key')],
-              postfix: 'MF:1'
+              
             }
           ]
         },
@@ -871,7 +846,7 @@ export const schema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions ', '_key')]
+              paths: [getValueByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -880,7 +855,7 @@ export const schema: TransformSchema = {
           columnValue: [
             {
               paths: [getValueByName('Observations', '_key')],
-              postfix: 'MF:2'
+              
             }
           ]
         },
@@ -896,7 +871,7 @@ export const schema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions ', '_key')]
+              paths: [getValueByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -905,7 +880,7 @@ export const schema: TransformSchema = {
           columnValue: [
             {
               paths: [getValueByName('Observations', '_key')],
-              postfix: 'MF:3'
+              
             }
           ]
         },
@@ -921,7 +896,7 @@ export const schema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions ', '_key')]
+              paths: [getValueByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -930,7 +905,7 @@ export const schema: TransformSchema = {
           columnValue: [
             {
               paths: [getValueByName('Observations', '_key')],
-              postfix: 'MF:4'
+              
             }
           ]
         },
@@ -946,7 +921,7 @@ export const schema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions ', '_key')]
+              paths: [getValueByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -955,7 +930,7 @@ export const schema: TransformSchema = {
           columnValue: [
             {
               paths: [getValueByName('Observations', '_key')],
-              postfix: 'MF:5'
+              
             }
           ]
         },
@@ -971,7 +946,7 @@ export const schema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions ', '_key')]
+              paths: [getValueByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -980,7 +955,7 @@ export const schema: TransformSchema = {
           columnValue: [
             {
               paths: [getValueByName('Observations', '_key')],
-              postfix: 'MF:6'
+              
             }
           ]
         },
@@ -996,7 +971,7 @@ export const schema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions ', '_key')]
+              paths: [getValueByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -1005,7 +980,7 @@ export const schema: TransformSchema = {
           columnValue: [
             {
               paths: [getValueByName('Observations', '_key')],
-              postfix: 'MF:7'
+              
             }
           ]
         },
@@ -1021,7 +996,7 @@ export const schema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions ', '_key')]
+              paths: [getValueByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -1030,7 +1005,7 @@ export const schema: TransformSchema = {
           columnValue: [
             {
               paths: [getValueByName('Observations', '_key')],
-              postfix: 'MF:8'
+              
             }
           ]
         },
@@ -1046,7 +1021,7 @@ export const schema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions ', '_key')]
+              paths: [getValueByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -1055,7 +1030,7 @@ export const schema: TransformSchema = {
           columnValue: [
             {
               paths: [getValueByName('Observations', '_key')],
-              postfix: 'MF:9'
+              
             }
           ]
         },
