@@ -10,8 +10,8 @@ export const schema: TransformSchema = {
       type: 'root',
       foreignKeys: [
         {
-          name: 'Strata Metadata',
-          primaryKey: ['Stratum']
+          name: 'Observations',
+          primaryKey: ['Study Area', 'Block ID/SU ID', 'Stratum']
         },
         {
           name: 'Effort & Site Conditions',
@@ -20,52 +20,28 @@ export const schema: TransformSchema = {
       ]
     },
     {
-      name: 'Strata Metadata',
-      primaryKey: ['Stratum'],
-      parentKey: ['Stratum'],
-      type: '',
-      foreignKeys: []
-    },
-    {
       name: 'Effort & Site Conditions',
       primaryKey: ['Study Area', 'Block ID/SU ID'],
       parentKey: ['Study Area', 'Block ID/SU ID'],
       type: '',
-      foreignKeys: [
-        {
-          name: 'Observations',
-          primaryKey: ['Study Area', 'Block ID/SU ID']
-        }
-      ]
+      foreignKeys: []
     },
     {
       name: 'Observations',
-      primaryKey: ['GPS Unit Name', 'Waypoint'],
-      parentKey: ['Study Area', 'Block ID/SU ID'],
-      type: '',
-      foreignKeys: [
-        {
-          name: 'UTM_LatLong',
-          primaryKey: ['GPS Unit Name', 'Waypoint']
-        }
-      ]
-    },
-    {
-      name: 'UTM_LatLong',
-      primaryKey: ['GPS Unit Name', 'Waypoint'],
-      parentKey: ['GPS Unit Name', 'Waypoint'],
+      primaryKey: ['Study Area', 'Block ID/SU ID', 'Stratum'],
+      parentKey: ['Study Area', 'Block ID/SU ID', 'Stratum'],
       type: '',
       foreignKeys: [
         {
           name: 'Marked Animals',
-          primaryKey: ['GPS Unit Name', 'Waypoint']
+          primaryKey: ['Group Label']
         }
       ]
     },
     {
       name: 'Marked Animals',
-      primaryKey: ['WLH ID'],
-      parentKey: ['GPS Unit Name', 'Waypoint'],
+      primaryKey: ['Wildlife Health ID'],
+      parentKey: ['Group Label'],
       type: '',
       foreignKeys: []
     }
@@ -86,6 +62,9 @@ export const schema: TransformSchema = {
           columnName: 'eventDate',
           columnValue: [
             {
+              paths: [getValueByName('Observations', 'Date')]
+            },
+            {
               paths: [getValueByName('Effort & Site Conditions', 'Date')]
             }
           ]
@@ -94,7 +73,7 @@ export const schema: TransformSchema = {
           columnName: 'eventRemarks',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions', 'Effort & Site Comments')]
+              paths: [getValueByName('Block Summary', 'Block Summary Comments')]
             }
           ]
         }
@@ -115,10 +94,12 @@ export const schema: TransformSchema = {
           columnName: 'verbatimCoordinates',
           columnValue: [
             {
-              paths: [getMultipleValuesByName('UTM_LatLong', ['UTM Zone ', 'Easting', 'Northing'])]
+              paths: [getMultipleValuesByName('Observations', ['UTM Zone', 'Easting', 'Northing'])],
+              join: ' '
             },
             {
-              paths: [getMultipleValuesByName('UTM_LatLong', ['Lat', 'Long'])]
+              paths: [getMultipleValuesByName('Observations', ['Lat (DD)', 'Long (DD)'])],
+              join: ' '
             }
           ]
         },
@@ -126,23 +107,7 @@ export const schema: TransformSchema = {
           columnName: 'verbatimSRS',
           columnValue: [
             {
-              paths: [getValueByName('UTM_LatLong', 'GPS Datum')]
-            }
-          ]
-        },
-        {
-          columnName: 'verbatimElevation',
-          columnValue: [
-            {
-              paths: [getValueByName('UTM_LatLong', 'Waypoint Elevation (m)')]
-            }
-          ]
-        },
-        {
-          columnName: 'locationRemarks',
-          columnValue: [
-            {
-              paths: [getValueByName('UTM_LatLong', 'Location Comments')]
+              paths: [getValueByName('Observations', 'Datum')]
             }
           ]
         }
@@ -150,155 +115,7 @@ export const schema: TransformSchema = {
     },
     {
       name: 'occurrence',
-      condition: [{ if: getValueByName('Observations', 'Cow W/1 calf') }],
-      add: [
-        {
-          name: 'occurrence',
-          fields: [
-            {
-              columnName: 'eventID',
-              columnValue: [
-                {
-                  paths: [getValueByName('Block Summary', '_key')]
-                }
-              ]
-            },
-            {
-              columnName: 'occurrenceID',
-              columnValue: [
-                {
-                  paths: [getValueByName('Observations', '_key')],
-                  postfix: '1'
-                }
-              ]
-            },
-            {
-              columnName: 'individualCount',
-              columnValue: [
-                {
-                  value: '1'
-                }
-              ]
-            },
-            {
-              columnName: 'sex',
-              columnValue: [
-                {
-                  value: 'unknown'
-                }
-              ]
-            },
-            {
-              columnName: 'lifeStage',
-              columnValue: [
-                {
-                  value: 'juvenile'
-                }
-              ]
-            },
-            {
-              columnName: 'occurrenceRemarks',
-              columnValue: [
-                {
-                  paths: [getValueByName('Observations', 'Observation Comments')]
-                }
-              ]
-            }
-          ]
-        },
-        {
-          name: 'measurementOrFact',
-          fields: [
-            {
-              columnName: 'eventID',
-              columnValue: [
-                {
-                  paths: [getValueByName('Block Summary', '_key')]
-                }
-              ]
-            },
-            {
-              columnName: 'occurrenceID',
-              columnValue: [
-                {
-                  paths: [getValueByName('Observations', '_key')],
-                  postfix: '1'
-                }
-              ]
-            },
-            {
-              columnName: 'measurementType',
-              columnValue: [
-                {
-                  value: '% Veg Cover'
-                }
-              ]
-            },
-            {
-              columnName: 'measurementValue',
-              columnValue: [
-                {
-                  paths: [getValueByName('Observations', '% Veg Cover')]
-                }
-              ]
-            },
-            {
-              columnName: 'measurementUnit',
-              columnValue: [
-                {
-                  value: '%'
-                }
-              ]
-            }
-          ]
-        },
-        {
-          name: 'measurementOrFact',
-          fields: [
-            {
-              columnName: 'eventID',
-              columnValue: [
-                {
-                  paths: [getValueByName('Block Summary', '_key')]
-                }
-              ]
-            },
-            {
-              columnName: 'occurrenceID',
-              columnValue: [
-                {
-                  paths: [getValueByName('Observations', '_key')],
-                  postfix: '1'
-                }
-              ]
-            },
-            {
-              columnName: 'measurementType',
-              columnValue: [
-                {
-                  value: '% Snow Cover'
-                }
-              ]
-            },
-            {
-              columnName: 'measurementValue',
-              columnValue: [
-                {
-                  paths: [getValueByName('Observations', '% Snow Cover')]
-                }
-              ]
-            },
-            {
-              columnName: 'measurementUnit',
-              columnValue: [
-                {
-                  value: '%'
-                }
-              ]
-            }
-          ]
-        }
-      ],
+      condition: [{ if: getValueByName('Observations', 'Spike/Fork Bulls') }],
       fields: [
         {
           columnName: 'eventID',
@@ -313,74 +130,20 @@ export const schema: TransformSchema = {
           columnValue: [
             {
               paths: [getValueByName('Observations', '_key')],
-              postfix: '0'
+              postfix: 'auto'
             }
           ]
         },
-        {
-          columnName: 'individualCount',
-          columnValue: [
-            {
-              paths: [getValueByName('Observations', 'Cow W/1 calf')]
-            }
-          ]
-        },
-        {
-          columnName: 'sex',
-          columnValue: [
-            {
-              value: 'female'
-            }
-          ]
-        },
-        {
-          columnName: 'lifeStage',
-          columnValue: [
-            {
-              value: 'adult'
-            }
-          ]
-        },
-        {
-          columnName: 'occurrenceRemarks',
-          columnValue: [
-            {
-              paths: [getValueByName('Observations', 'Observation Comments')]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      name: 'occurrence',
-      condition: [{ if: getValueByName('Observations', 'Yearling Bulls')}],
-      fields: [
-        {
-          columnName: 'eventID',
-          columnValue: [
-            {
-              paths: [getValueByName('Block Summary', '_key')]
-            }
-          ]
-        },
-        {
-          columnName: 'occurrenceID',
-          columnValue: [
-            {
-              paths: [getValueByName('Observations', '_key')],
-              postfix: '2'
-            }
-          ]
-        },
-        createPathField('individualCount', 'Observations', ['Yearling Bulls']),
+        createPathField('individualCount', 'Observations', ['Spike/Fork Bulls']),
         createValueField('sex', 'male'),
-        createValueField('lifeStage', 'juvenile'),
+        createValueField('lifeStage', 'unknown'),
+        createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
       ]
     },
     {
       name: 'occurrence',
-      condition: [{ if: getValueByName('Observations', 'Adult Bulls - Unclassified')}],
+      condition: [{ if: getValueByName('Observations', 'Sub-Prime Bulls') }],
       fields: [
         {
           columnName: 'eventID',
@@ -395,46 +158,20 @@ export const schema: TransformSchema = {
           columnValue: [
             {
               paths: [getValueByName('Observations', '_key')],
-              postfix: '3'
-            }
-          ]
-        },
-        createPathField('individualCount', 'Observations', ['Adult Bulls - Unclassified']),
-        createValueField('sex', 'male'),
-        createValueField('lifeStage', 'adult'),
-        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
-      ]
-    },
-    {
-      name: 'occurrence',
-      condition: [{ if: getValueByName('Observations', 'Sub-Prime Bulls')}],
-      fields: [
-        {
-          columnName: 'eventID',
-          columnValue: [
-            {
-              paths: [getValueByName('Block Summary', '_key')]
-            }
-          ]
-        },
-        {
-          columnName: 'occurrenceID',
-          columnValue: [
-            {
-              paths: [getValueByName('Observations', '_key')],
-              postfix: '4'
+              postfix: 'auto'
             }
           ]
         },
         createPathField('individualCount', 'Observations', ['Sub-Prime Bulls']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'adult'),
+        createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
       ]
     },
     {
       name: 'occurrence',
-      condition: [{ if: getValueByName('Observations', 'Prime Bulls')}],
+      condition: [{ if: getValueByName('Observations', 'Prime Bulls') }],
       fields: [
         {
           columnName: 'eventID',
@@ -449,19 +186,20 @@ export const schema: TransformSchema = {
           columnValue: [
             {
               paths: [getValueByName('Observations', '_key')],
-              postfix: '5'
+              postfix: 'auto'
             }
           ]
         },
         createPathField('individualCount', 'Observations', ['Prime Bulls']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'adult'),
+        createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
       ]
     },
     {
       name: 'occurrence',
-      condition: [{ if: getValueByName('Observations', 'Senior Bulls')}],
+      condition: [{ if: getValueByName('Observations', 'Senior Bulls') }],
       fields: [
         {
           columnName: 'eventID',
@@ -476,19 +214,20 @@ export const schema: TransformSchema = {
           columnValue: [
             {
               paths: [getValueByName('Observations', '_key')],
-              postfix: '6'
+              postfix: 'auto'
             }
           ]
         },
         createPathField('individualCount', 'Observations', ['Senior Bulls']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'adult'),
+        createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
       ]
     },
     {
       name: 'occurrence',
-      condition: [{ if: getValueByName('Observations', 'Bulls - Unclassified')}],
+      condition: [{ if: getValueByName('Observations', '3 Brow/10 Points Bulls') }],
       fields: [
         {
           columnName: 'eventID',
@@ -503,19 +242,272 @@ export const schema: TransformSchema = {
           columnValue: [
             {
               paths: [getValueByName('Observations', '_key')],
-              postfix: '7'
+              postfix: 'auto'
+            }
+          ]
+        },
+        createPathField('individualCount', 'Observations', ['3 Brow/10 Points Bulls']),
+        createValueField('sex', 'male'),
+        createValueField('lifeStage', 'adult'),
+        createPathField('taxonID', 'Observations', ['Species']),
+        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ]
+    },
+    {
+      name: 'occurrence',
+      condition: [{ if: getValueByName('Observations', 'BC RISC Yearling Bulls') }],
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Block Summary', '_key')]
+            }
+          ]
+        },
+        {
+          columnName: 'occurrenceID',
+          columnValue: [
+            {
+              paths: [getValueByName('Observations', '_key')],
+              postfix: 'auto'
+            }
+          ]
+        },
+        createPathField('individualCount', 'Observations', ['BC RISC Yearling Bulls']),
+        createValueField('sex', 'male'),
+        createValueField('lifeStage', 'adult'),
+        createPathField('taxonID', 'Observations', ['Species']),
+        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ]
+    },
+    {
+      name: 'occurrence',
+      condition: [{ if: getValueByName('Observations', 'BC RISC Class I Bulls') }],
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Block Summary', '_key')]
+            }
+          ]
+        },
+        {
+          columnName: 'occurrenceID',
+          columnValue: [
+            {
+              paths: [getValueByName('Observations', '_key')],
+              postfix: 'auto'
+            }
+          ]
+        },
+        createPathField('individualCount', 'Observations', ['BC RISC Class I Bulls']),
+        createValueField('sex', 'male'),
+        createValueField('lifeStage', 'adult'),
+        createPathField('taxonID', 'Observations', ['Species']),
+        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ]
+    },
+    {
+      name: 'occurrence',
+      condition: [{ if: getValueByName('Observations', 'BC RISC Class II Bulls') }],
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Block Summary', '_key')]
+            }
+          ]
+        },
+        {
+          columnName: 'occurrenceID',
+          columnValue: [
+            {
+              paths: [getValueByName('Observations', '_key')],
+              postfix: 'auto'
+            }
+          ]
+        },
+        createPathField('individualCount', 'Observations', ['BC RISC Class II Bulls']),
+        createValueField('sex', 'male'),
+        createValueField('lifeStage', 'adult'),
+        createPathField('taxonID', 'Observations', ['Species']),
+        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ]
+    },
+    {
+      name: 'occurrence',
+      condition: [{ if: getValueByName('Observations', 'BC RISC Class III Bulls') }],
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Block Summary', '_key')]
+            }
+          ]
+        },
+        {
+          columnName: 'occurrenceID',
+          columnValue: [
+            {
+              paths: [getValueByName('Observations', '_key')],
+              postfix: 'auto'
+            }
+          ]
+        },
+        createPathField('individualCount', 'Observations', ['BC RISC Class III Bulls']),
+        createValueField('sex', 'male'),
+        createValueField('lifeStage', 'adult'),
+        createPathField('taxonID', 'Observations', ['Species']),
+        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ]
+    },
+    {
+      name: 'occurrence',
+      condition: [{ if: getValueByName('Observations', 'Oswald (1997) Class I Bulls') }],
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Block Summary', '_key')]
+            }
+          ]
+        },
+        {
+          columnName: 'occurrenceID',
+          columnValue: [
+            {
+              paths: [getValueByName('Observations', '_key')],
+              postfix: 'auto'
+            }
+          ]
+        },
+        createPathField('individualCount', 'Observations', ['Oswald (1997) Class I Bulls']),
+        createValueField('sex', 'male'),
+        createValueField('lifeStage', 'adult'),
+        createPathField('taxonID', 'Observations', ['Species']),
+        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ]
+    },
+    {
+      name: 'occurrence',
+      condition: [{ if: getValueByName('Observations', 'Oswald (1997) Class II Bulls') }],
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Block Summary', '_key')]
+            }
+          ]
+        },
+        {
+          columnName: 'occurrenceID',
+          columnValue: [
+            {
+              paths: [getValueByName('Observations', '_key')],
+              postfix: 'auto'
+            }
+          ]
+        },
+        createPathField('individualCount', 'Observations', ['Oswald (1997) Class II Bulls']),
+        createValueField('sex', 'male'),
+        createValueField('lifeStage', 'adult'),
+        createPathField('taxonID', 'Observations', ['Species']),
+        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ]
+    },
+    {
+      name: 'occurrence',
+      condition: [{ if: getValueByName('Observations', 'Oswald (1997) Class III Bulls') }],
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Block Summary', '_key')]
+            }
+          ]
+        },
+        {
+          columnName: 'occurrenceID',
+          columnValue: [
+            {
+              paths: [getValueByName('Observations', '_key')],
+              postfix: 'auto'
+            }
+          ]
+        },
+        createPathField('individualCount', 'Observations', ['Oswald (1997) Class III Bulls']),
+        createValueField('sex', 'male'),
+        createValueField('lifeStage', 'adult'),
+        createPathField('taxonID', 'Observations', ['Species']),
+        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ]
+    },
+    {
+      name: 'occurrence',
+      condition: [{ if: getValueByName('Observations', 'Adult Bulls - Unclassified') }],
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Block Summary', '_key')]
+            }
+          ]
+        },
+        {
+          columnName: 'occurrenceID',
+          columnValue: [
+            {
+              paths: [getValueByName('Observations', '_key')],
+              postfix: 'auto'
+            }
+          ]
+        },
+        createPathField('individualCount', 'Observations', ['Adult Bulls - Unclassified']),
+        createValueField('sex', 'male'),
+        createValueField('lifeStage', 'adult'),
+        createPathField('taxonID', 'Observations', ['Species']),
+        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ]
+    },
+    {
+      name: 'occurrence',
+      condition: [{ if: getValueByName('Observations', 'Bulls - Unclassified') }],
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Block Summary', '_key')]
+            }
+          ]
+        },
+        {
+          columnName: 'occurrenceID',
+          columnValue: [
+            {
+              paths: [getValueByName('Observations', '_key')],
+              postfix: 'auto'
             }
           ]
         },
         createPathField('individualCount', 'Observations', ['Bulls - Unclassified']),
         createValueField('sex', 'male'),
         createValueField('lifeStage', 'unknown'),
+        createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
       ]
     },
     {
       name: 'occurrence',
-      condition: [{ if: getValueByName('Observations', 'Lone Cows')}],
+      condition: [{ if: getValueByName('Observations', 'Cow') }],
       fields: [
         {
           columnName: 'eventID',
@@ -530,19 +522,20 @@ export const schema: TransformSchema = {
           columnValue: [
             {
               paths: [getValueByName('Observations', '_key')],
-              postfix: '8'
+              postfix: 'auto'
             }
           ]
         },
-        createPathField('individualCount', 'Observations', ['Lone Cows']),
+        createPathField('individualCount', 'Observations', ['Cow']),
         createValueField('sex', 'female'),
         createValueField('lifeStage', 'adult'),
+        createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
       ]
     },
     {
       name: 'occurrence',
-      condition: [{ if: getValueByName('Observations', 'Lone calf')}],
+      condition: [{ if: getValueByName('Observations', 'Calves') }],
       fields: [
         {
           columnName: 'eventID',
@@ -557,19 +550,48 @@ export const schema: TransformSchema = {
           columnValue: [
             {
               paths: [getValueByName('Observations', '_key')],
-              postfix: '9'
+              postfix: 'auto'
             }
           ]
         },
-        createPathField('individualCount', 'Observations', ['Lone calf']),
-        createValueField('sex', 'female'),
+        createPathField('individualCount', 'Observations', ['Calves']),
+        createValueField('sex', 'unknown'),
+        createValueField('lifeStage', 'juvenile'),
+        createPathField('taxonID', 'Observations', ['Species']),
+        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ]
+    },
+    {
+      name: 'occurrence',
+      condition: [{ if: getValueByName('Observations', 'Adult Unclassified Sex') }],
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Block Summary', '_key')]
+            }
+          ]
+        },
+        {
+          columnName: 'occurrenceID',
+          columnValue: [
+            {
+              paths: [getValueByName('Observations', '_key')],
+              postfix: 'auto'
+            }
+          ]
+        },
+        createPathField('individualCount', 'Observations', ['Adult Unclassified Sex']),
+        createValueField('sex', 'unknown'),
         createValueField('lifeStage', 'adult'),
+        createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
       ]
     },
     {
       name: 'occurrence',
-      condition: [{ if: getValueByName('Observations', 'Unclassified')}],
+      condition: [{ if: getValueByName('Observations', 'Unclassified Age/Sex') }],
       fields: [
         {
           columnName: 'eventID',
@@ -584,19 +606,19 @@ export const schema: TransformSchema = {
           columnValue: [
             {
               paths: [getValueByName('Observations', '_key')],
-              postfix: '10'
+              postfix: 'auto'
             }
           ]
         },
-        createPathField('individualCount', 'Observations', ['Unclassified']),
+        createPathField('individualCount', 'Observations', ['Unclassified Age/Sex']),
         createValueField('sex', 'unknown'),
         createValueField('lifeStage', 'unknown'),
+        createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
       ]
     },
     {
-      name: 'occurrence',
-      condition: [{ if: getValueByName('Observations', 'No. Spike/Fork')}],
+      name: 'organism',
       fields: [
         {
           columnName: 'eventID',
@@ -607,23 +629,275 @@ export const schema: TransformSchema = {
           ]
         },
         {
-          columnName: 'occurrenceID',
+          columnName: 'organismID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
-              postfix: '11'
+              paths: [getMultipleValuesByName('Marked Animals', ['Wildlife Health ID', 'Animal ID'])],
+              join: '|'
             }
           ]
         },
-        createPathField('individualCount', 'Observations', ['No. Spike/Fork']),
-        createValueField('sex', 'male'),
-        createValueField('lifeStage', 'unknown'),
-        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+        createPathField('organismRemarks', 'Marked Animals', ['Marked Animals Comments'])
       ]
     },
     {
-      name: 'occurrence',
-      condition: [{ if: getValueByName('Observations', '3 brow/10 points')}],
+      name: 'measurementOrFact',
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Block Summary', '_key')]
+            }
+          ]
+        },
+        createValueField('measurementType', 'Study Area'),
+        createValueField('measurementUnit', 'Text'),
+        createPathField('measurementValue', 'Block Summary', ['Study Area'])
+      ]
+    },
+    {
+      name: 'measurementOrFact',
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Block Summary', '_key')]
+            }
+          ]
+        },
+        createValueField('measurementType', 'Block ID/SU ID'),
+        createValueField('measurementUnit', 'ID'),
+        createPathField('measurementValue', 'Block Summary', ['Block ID/SU ID'])
+      ]
+    },
+    {
+      name: 'measurementOrFact',
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Block Summary', '_key')]
+            }
+          ]
+        },
+        createValueField('measurementType', 'Stratum'),
+        createValueField('measurementUnit', 'Text'),
+        createPathField('measurementValue', 'Block Summary', ['Stratum'])
+      ]
+    },
+    {
+      name: 'measurementOrFact',
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Block Summary', '_key')]
+            }
+          ]
+        },
+        createValueField('measurementType', 'Stratum/Block Area'),
+        createValueField('measurementUnit', 'km2'),
+        createPathField('measurementValue', 'Block Summary', ['Stratum/Block Area (km2)'])
+      ]
+    },
+    {
+      name: 'measurementOrFact',
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Block Summary', '_key')]
+            }
+          ]
+        },
+        createValueField('measurementType', 'Sampled'),
+        createValueField('measurementUnit', 'Y/N'),
+        createPathField('measurementValue', 'Block Summary', ['Sampled (Y/N)'])
+      ]
+    },
+    {
+      name: 'measurementOrFact',
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Block Summary', '_key')]
+            }
+          ]
+        },
+        createValueField('measurementType', 'Group Label'),
+        createValueField('measurementUnit', 'Text'),
+        createPathField('measurementValue', 'Observations', ['Group Label'])
+      ]
+    },
+    {
+      name: 'measurementOrFact',
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Block Summary', '_key')]
+            }
+          ]
+        },
+        createValueField('measurementType', 'Cow W/1 calf'),
+        createValueField('measurementUnit', 'Number'),
+        createPathField('measurementValue', 'Observations', ['Cow W/1 calf'])
+      ]
+    },
+    {
+      name: 'measurementOrFact',
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Block Summary', '_key')]
+            }
+          ]
+        },
+        createValueField('measurementType', 'Cow W/2 calves'),
+        createValueField('measurementUnit', 'Number'),
+        createPathField('measurementValue', 'Observations', ['Cow W/2 calves'])
+      ]
+    },
+    {
+      name: 'measurementOrFact',
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Block Summary', '_key')]
+            }
+          ]
+        },
+        createValueField('measurementType', 'Sign Type'),
+        createValueField('measurementUnit', 'Text'),
+        createPathField('measurementValue', 'Observations', ['Sign Type'])
+      ]
+    },
+    {
+      name: 'measurementOrFact',
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Block Summary', '_key')]
+            }
+          ]
+        },
+        createValueField('measurementType', 'Age of Sign'),
+        createValueField('measurementUnit', 'Text'),
+        createPathField('measurementValue', 'Observations', ['Age of Sign'])
+      ]
+    },
+    {
+      name: 'measurementOrFact',
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Block Summary', '_key')]
+            }
+          ]
+        },
+        createValueField('measurementType', 'Veg Cover'),
+        createValueField('measurementUnit', '%'),
+        createPathField('measurementValue', 'Observations', ['Veg Cover (%)'])
+      ]
+    },
+    {
+      name: 'measurementOrFact',
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Block Summary', '_key')]
+            }
+          ]
+        },
+        createValueField('measurementType', 'Snow Cover'),
+        createValueField('measurementUnit', '%'),
+        createPathField('measurementValue', 'Observations', ['Snow Cover (%)'])
+      ]
+    },
+    {
+      name: 'measurementOrFact',
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Block Summary', '_key')]
+            }
+          ]
+        },
+        createValueField('measurementType', 'Activity'),
+        createValueField('measurementUnit', 'Text'),
+        createPathField('measurementValue', 'Observations', ['Activity'])
+      ]
+    },
+    {
+      name: 'measurementOrFact',
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Block Summary', '_key')]
+            }
+          ]
+        },
+        createValueField('measurementType', 'Number of Marked Animals Observed'),
+        createValueField('measurementUnit', 'Number'),
+        createPathField('measurementValue', 'Observations', ['Number of Marked Animals Observed'])
+      ]
+    },
+    {
+      name: 'measurementOrFact',
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Block Summary', '_key')]
+            }
+          ]
+        },
+        createValueField('measurementType', 'Survey or Telemetry Search'),
+        createValueField('measurementUnit', 'Text'),
+        createPathField('measurementValue', 'Observations', ['Survey or Telemetry Search'])
+      ]
+    },
+    {
+      name: 'measurementOrFact',
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Block Summary', '_key')]
+            }
+          ]
+        },
+        createValueField('measurementType', 'Photos'),
+        createValueField('measurementUnit', 'Text'),
+        createPathField('measurementValue', 'Observations', ['Photos'])
+      ]
+    },
+    {
+      name: 'measurementOrFact',
       fields: [
         {
           columnName: 'eventID',
@@ -634,18 +908,17 @@ export const schema: TransformSchema = {
           ]
         },
         {
-          columnName: 'occurrenceID',
+          columnName: 'organismID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
-              postfix: '12'
+              paths: [getMultipleValuesByName('Marked Animals', ['Wildlife Health ID', 'Animal ID'])],
+              join: '|'
             }
           ]
         },
-        createPathField('individualCount', 'Observations', ['3 brow/10 points']),
-        createValueField('sex', 'male'),
-        createValueField('lifeStage', 'adult'),
-        createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+        createValueField('measurementType', 'Targeted or Non-Targeted'),
+        createValueField('measurementUnit', 'Text'),
+        createPathField('measurementValue', 'Marked Animals', ['Targeted or Non-Targeted'])
       ]
     },
     {
@@ -655,22 +928,22 @@ export const schema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions ', '_key')]
+              paths: [getValueByName('Block Summary', '_key')]
             }
           ]
         },
         {
-          columnName: 'occurrenceID',
+          columnName: 'organismID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
-              postfix: 'MF:1'
+              paths: [getMultipleValuesByName('Marked Animals', ['Wildlife Health ID', 'Animal ID'])],
+              join: '|'
             }
           ]
         },
-        createValueField('measurementType', '% Veg Cover'),
-        createPathField('measurementValue', 'Observations', ['% Veg Cover']),
-        createValueField('measurementUnit', '%')
+        createValueField('measurementType', 'Wildlife Health ID'),
+        createValueField('measurementUnit', 'Text'),
+        createPathField('measurementValue', 'Marked Animals', ['Wildlife Health ID'])
       ]
     },
     {
@@ -680,24 +953,199 @@ export const schema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions ', '_key')]
+              paths: [getValueByName('Block Summary', '_key')]
             }
           ]
         },
         {
-          columnName: 'occurrenceID',
+          columnName: 'organismID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
-              postfix: 'MF:2'
+              paths: [getMultipleValuesByName('Marked Animals', ['Wildlife Health ID', 'Animal ID'])],
+              join: '|'
             }
           ]
         },
-        createValueField('measurementType', '% Snow Cover'),
-        createPathField('measurementValue', 'Observations', ['% Snow Cover']),
-        createValueField('measurementUnit', '%')
+        createValueField('measurementType', 'Animal ID'),
+        createValueField('measurementUnit', 'Text'),
+        createPathField('measurementValue', 'Marked Animals', ['Animal ID'])
       ]
     },
+    {
+      name: 'measurementOrFact',
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Block Summary', '_key')]
+            }
+          ]
+        },
+        {
+          columnName: 'organismID',
+          columnValue: [
+            {
+              paths: [getMultipleValuesByName('Marked Animals', ['Wildlife Health ID', 'Animal ID'])],
+              join: '|'
+            }
+          ]
+        },
+        createValueField('measurementType', 'Telemetry Device ID'),
+        createValueField('measurementUnit', 'Text'),
+        createPathField('measurementValue', 'Marked Animals', ['Telemetry Device ID'])
+      ]
+    },
+    {
+      name: 'measurementOrFact',
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Block Summary', '_key')]
+            }
+          ]
+        },
+        {
+          columnName: 'organismID',
+          columnValue: [
+            {
+              paths: [getMultipleValuesByName('Marked Animals', ['Wildlife Health ID', 'Animal ID'])],
+              join: '|'
+            }
+          ]
+        },
+        createValueField('measurementType', 'Collar/Tag Frequency'),
+        createValueField('measurementUnit', 'Text'),
+        createPathField('measurementValue', 'Marked Animals', ['Collar/Tag Frequency'])
+      ]
+    },
+    {
+      name: 'measurementOrFact',
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Block Summary', '_key')]
+            }
+          ]
+        },
+        {
+          columnName: 'organismID',
+          columnValue: [
+            {
+              paths: [getMultipleValuesByName('Marked Animals', ['Wildlife Health ID', 'Animal ID'])],
+              join: '|'
+            }
+          ]
+        },
+        createValueField('measurementType', 'Frequency'),
+        createPathField('measurementUnit', 'Marked Animals', ['Frequency Unit']),
+        createPathField('measurementValue', 'Marked Animals', ['Frequency'])
+      ]
+    },
+    {
+      name: 'measurementOrFact',
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Block Summary', '_key')]
+            }
+          ]
+        },
+        {
+          columnName: 'organismID',
+          columnValue: [
+            {
+              paths: [getMultipleValuesByName('Marked Animals', ['Wildlife Health ID', 'Animal ID'])],
+              join: '|'
+            }
+          ]
+        },
+        createValueField('measurementType', 'Right Ear Tag ID'),
+        createValueField('measurementUnit', 'Text'),
+        createPathField('measurementValue', 'Marked Animals', ['Right Ear Tag ID'])
+      ]
+    },
+    {
+      name: 'measurementOrFact',
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Block Summary', '_key')]
+            }
+          ]
+        },
+        {
+          columnName: 'organismID',
+          columnValue: [
+            {
+              paths: [getMultipleValuesByName('Marked Animals', ['Wildlife Health ID', 'Animal ID'])],
+              join: '|'
+            }
+          ]
+        },
+        createValueField('measurementType', 'Right Ear Tag Colour'),
+        createValueField('measurementUnit', 'Text'),
+        createPathField('measurementValue', 'Marked Animals', ['Right Ear Tag Colour'])
+      ]
+    },
+    {
+      name: 'measurementOrFact',
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Block Summary', '_key')]
+            }
+          ]
+        },
+        {
+          columnName: 'organismID',
+          columnValue: [
+            {
+              paths: [getMultipleValuesByName('Marked Animals', ['Wildlife Health ID', 'Animal ID'])],
+              join: '|'
+            }
+          ]
+        },
+        createValueField('measurementType', 'Left Ear Tag ID'),
+        createValueField('measurementUnit', 'Text'),
+        createPathField('measurementValue', 'Marked Animals', ['Left Ear Tag ID'])
+      ]
+    },
+    {
+      name: 'measurementOrFact',
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValueByName('Block Summary', '_key')]
+            }
+          ]
+        },
+        {
+          columnName: 'organismID',
+          columnValue: [
+            {
+              paths: [getMultipleValuesByName('Marked Animals', ['Wildlife Health ID', 'Animal ID'])],
+              join: '|'
+            }
+          ]
+        },
+        createValueField('measurementType', 'Left Ear Tag Colour'),
+        createValueField('measurementUnit', 'Text'),
+        createPathField('measurementValue', 'Marked Animals', ['Left Ear Tag Colour'])
+      ]
+    }
   ],
   dwcMeta: [
     {
@@ -705,12 +1153,16 @@ export const schema: TransformSchema = {
       primaryKey: ['eventID']
     },
     {
+      name: 'location',
+      primaryKey: ['eventID']
+    },
+    {
       name: 'occurrence',
       primaryKey: ['occurrenceID']
     },
     {
-      name: 'location',
-      primaryKey: ['eventID']
+      name: 'organism',
+      primaryKey: ['organismID ']
     },
     {
       name: 'measurementOrFact',

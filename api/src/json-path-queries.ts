@@ -15,7 +15,6 @@ export const getValueByName = (sheetName: string, key: string) => getMultipleVal
 export const getMultipleValuesByName = (sheetName: string, keys: string[]) =>
   `$..[?(@._name === '${sheetName}')]..['${keys.join(',')}']`;
 
-
 export const createValueField = (dwcName: string, defaultValue: string) => {
   return {
     columnName: dwcName,
@@ -24,16 +23,16 @@ export const createValueField = (dwcName: string, defaultValue: string) => {
         value: defaultValue
       }
     ]
-  }
-}
-  
+  };
+};
+
 export const createPathField = (dwcName: string, sheet: string, sheetColumns: string[]) => {
   return {
     columnName: dwcName,
     columnValue: [
       {
-        paths: sheetColumns.map(item => getValueByName(sheet, item))
+        paths: sheetColumns.map((item) => getValueByName(sheet, item))
       }
     ]
-  }
-}
+  };
+};

@@ -2,10 +2,9 @@ import Ajv from 'ajv';
 import * as fs from 'fs';
 import path from 'path';
 import xlsx from 'xlsx';
-import { schema } from './schema/moose_non_srb_schema';
+import { schema } from './schema/moose_srb_schema';
 import { transformationJSONSchema } from './transform-schema';
 import { XLSXTransform } from './transform-utils';
-
 
 /*
   Transect
@@ -20,12 +19,13 @@ import { XLSXTransform } from './transform-utils';
     - marked animals need to be added
     - measurement and facts need to be added
 */
-const TEMPLATE_NAME = 'moose_non_srb.xlsx';
+// const TEMPLATE_NAME = 'Moose_Aerial_StratifiedRandomBlock_Recruit_Comp_Survey_2.0.xlsx';
+const TEMPLATE_NAME = 'MU_432_ZoneA_SRB_v2.0.xlsx';
 const TEMPLATE_SCHEMA = schema;
 
 const ajv = new Ajv();
 
-ajv.validate(transformationJSONSchema, schema);
+ajv.validate(transformationJSONSchema, TEMPLATE_SCHEMA);
 
 if (ajv.errors) {
   throw new Error(JSON.stringify(ajv.errors));

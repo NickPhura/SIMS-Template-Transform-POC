@@ -1,3 +1,6 @@
+/**
+ * A JSON-Schema definition for a `TransformSchema`.
+ */
 export const transformationJSONSchema = {
   title: 'Transformation Schema',
   type: 'object',
@@ -138,7 +141,12 @@ export const transformationJSONSchema = {
         condition: {
           type: 'array',
           items: {
-            type: 'string'
+            type: 'object',
+            properties: {
+              if: {
+                type: 'string'
+              }
+            }
           }
         },
         add: {

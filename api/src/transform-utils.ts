@@ -4,6 +4,7 @@ import { JSONPath, JSONPathOptions } from 'jsonpath-plus';
 import path from 'path';
 import xlsx from 'xlsx';
 import SchemaParser, { TemplateSchema, TransformSchema } from './schema-utils';
+import { filterDuplicateKeys, getCombinations } from './utils';
 import { getWorksheetByName, getWorksheetRange, trimWorksheetCells } from './xlsx-utils';
 
 /**
@@ -65,13 +66,19 @@ export class XLSXTransform {
     const hierarchicalRowObjects = this.buildRowObjectsHierarchy(preparedRowObjects);
     fs.writeFileSync(path.join(__dirname, 'output', '2.json'), JSON.stringify(hierarchicalRowObjects, null, 2));
 
-    // Iterate over the hierarchical row objects, flattening and mapping each one
+    // Iterate over the hierarchical row objects, mapping original values to their Darwin Core equivalents
     const processedHierarchicalRowObjects = this.processHierarchicalRowObjects(hierarchicalRowObjects);
-    fs.writeFileSync(path.join(__dirname, 'output', '3.json'), JSON.stringify(processedHierarchicalRowObjects, null, 2));
+    fs.writeFileSync(
+      path.join(__dirname, 'output', '3.json'),
+      JSON.stringify(processedHierarchicalRowObjects, null, 2)
+    );
 
-    // Iterate over the mapped records, group them by dwc sheet name, and remove duplicate records per sheet
+    // Iterate over the Darwin Core records, group them by DWC sheet name, and remove duplicate records in each sheet
     const preparedRowObjectsForJSONToSheet = this.prepareRowObjectsForJSONToSheet(processedHierarchicalRowObjects);
-    fs.writeFileSync(path.join(__dirname, 'output', '4.json'), JSON.stringify(preparedRowObjectsForJSONToSheet, null, 2));
+    fs.writeFileSync(
+      path.join(__dirname, 'output', '4.json'),
+      JSON.stringify(preparedRowObjectsForJSONToSheet, null, 2)
+    );
 
     // Process the final objects into the format required to convert them into CSV format
     Object.entries(preparedRowObjectsForJSONToSheet).map(([key, value]) => {
@@ -188,12 +195,17 @@ export class XLSXTransform {
   buildRowObjectsHierarchy(preparedRowObjects: Record<string, RowObject[]>) {
     const hierarchicalRowObjects: { _children: RowObject[] } = { _children: [] };
 
-    for (let queueIndex = 0; queueIndex < this.schemaParser.transformQueue.length; queueIndex++) {
-      const transformQueueItem = this.schemaParser.transformQueue[queueIndex];
+    for (let queueIndex = 0; queueIndex < this.schemaParser.preparedTransformSchema.templateMeta.length; queueIndex++) {
+      const transformQueueItem = this.schemaParser.preparedTransformSchema.templateMeta[queueIndex];
 
       const sheetName = transformQueueItem.name;
 
       const rowObjects = preparedRowObjects[sheetName];
+
+      if (!rowObjects) {
+        console.log(`buildRowObjectsHierarchy - No rowObjects for sheet name: ${sheetName}.`);
+        continue;
+      }
 
       const distanceToRoot = transformQueueItem.distanceToRoot;
 
@@ -291,23 +303,23 @@ export class XLSXTransform {
     const loop = (flatIndex: number, source: AtLeast<RowObject, '_children'>[]) => {
       // Grab all of the children of the current `source` and build an object in the format needed by the `getCombinations`
       // function.
-      const preppedForgetCombinations = prepGetCombinations(source);
+      const preppedForGetCombinations = prepGetCombinations(source);
 
       // Loop over the prepped records, and build an array of objects which contain all of the possible combinations
       // of the records. See function for more details.
-      const getCombinationsd = getCombinations(preppedForgetCombinations);
+      const combinations = getCombinations(preppedForGetCombinations);
 
-      if (getCombinationsd.length === 0) {
-        // No getCombinationsd elements, which means there were no children to process, indicating we've reached the end of
+      if (combinations.length === 0) {
+        // No combinations elements, which means there were no children to process, indicating we've reached the end of
         // the tree
         return;
       }
 
-      if (getCombinationsd.length > 1) {
+      if (combinations.length > 1) {
         // This for loop is intentionally looping backwards, and stopping 1 element short of the 0'th element.
         // This is because we only want to process the additional elements, pushing them onto the array, and leaving
         // the code further below to handle the 0'th element, which will be set at the current `flatIndex`
-        for (let getCombinationsIndex = getCombinationsd.length - 1; getCombinationsIndex > 0; getCombinationsIndex--) {
+        for (let getCombinationsIndex = combinations.length - 1; getCombinationsIndex > 0; getCombinationsIndex--) {
           let newSource: AtLeast<RowObject, '_children'>[] = [];
           for (let sourceIndex = 0; sourceIndex < source.length; sourceIndex++) {
             if (Object.keys(source[sourceIndex]).length <= 1) {
@@ -315,12 +327,12 @@ export class XLSXTransform {
             }
             newSource.push({ ...source[sourceIndex], _children: [] });
           }
-          newSource = newSource.concat(Object.values(getCombinationsd[getCombinationsIndex]));
+          newSource = newSource.concat(Object.values(combinations[getCombinationsIndex]));
           flattenedRowObjects.push(newSource);
         }
       }
 
-      // Handle the 0'th element of `getCombinationsd`, setting the `newSource` at whatever the current `flatIndex` is
+      // Handle the 0'th element of `combinations`, setting the `newSource` at whatever the current `flatIndex` is
       let newSource: AtLeast<RowObject, '_children'>[] = [];
       for (let sourceIndex = 0; sourceIndex < source.length; sourceIndex++) {
         if (Object.keys(source[sourceIndex]).length <= 1) {
@@ -328,7 +340,7 @@ export class XLSXTransform {
         }
         newSource.push({ ...source[sourceIndex], _children: [] });
       }
-      newSource = newSource.concat(Object.values(getCombinationsd[0]));
+      newSource = newSource.concat(Object.values(combinations[0]));
       flattenedRowObjects[flatIndex] = newSource;
 
       // Recurse into the newSource
@@ -350,7 +362,7 @@ export class XLSXTransform {
 
     const indexBySheetName: Record<string, number> = {};
 
-    const mapSchema = [...this.schemaParser.rawSchema.map];
+    const mapSchema = [...this.schemaParser.preparedTransformSchema.map];
 
     // For each sheet
     for (let mapIndex = 0; mapIndex < mapSchema.length; mapIndex++) {
@@ -388,14 +400,14 @@ export class XLSXTransform {
 
       const fields = mapSchema[mapIndex].fields;
 
-      // For each field in the sheet
+      // For each item in the `fields` array
       for (let fieldIndex = 0; fieldIndex < fields.length; fieldIndex++) {
         let cellValue = '';
 
         const columnName = fields[fieldIndex].columnName;
         const columnValue = fields[fieldIndex].columnValue;
 
-        // For each possible column value of the field
+        // For each item in the `columnValue` array
         for (let columnValueIndex = 0; columnValueIndex < columnValue.length; columnValueIndex++) {
           const columnValueItem = columnValue[columnValueIndex];
 
@@ -430,13 +442,14 @@ export class XLSXTransform {
 
           // Check for path value(s)
           const columnValueItemPaths = columnValueItem.paths;
+
           if (columnValueItemPaths) {
             const pathValues = this._processPaths(columnValueItemPaths, flattenedRow);
 
             let pathValue = '';
             if (Array.isArray(pathValues)) {
               // cell value is the concatenation of multiple values
-              pathValue = pathValues.join(columnValueItem.join || ':') || '';
+              pathValue = (pathValues.length && pathValues.join(columnValueItem.join || ':')) || '';
             } else {
               // cell value is a single value
               pathValue = pathValues || '';
@@ -450,12 +463,17 @@ export class XLSXTransform {
             cellValue = pathValue;
           }
 
-          // Check for additions at the field level
+          // Check for `add` additions at the field level
           const columnValueItemAdd = columnValueItem.add;
           if (columnValueItemAdd && columnValueItemAdd.length) {
             for (let addIndex = 0; addIndex < columnValueItemAdd.length; addIndex++) {
               mapSchema.push(columnValueItemAdd[addIndex]);
             }
+          }
+
+          if (cellValue) {
+            // One of the columnValue array items yielded a non-empty cell value, skip any remaining columnValue items.
+            break;
           }
         }
 
@@ -525,96 +543,4 @@ export class XLSXTransform {
 
     return uniqueGroupedByDWCSheetName;
   }
-}
-
-/**
- * Iterates over an object and returns an array of all unique combinations of values.
- *
- * @example
- * const obj = {
- *   'type1': [1, 2]
- *   'type2': [A, B]
- * }
- *
- * const result = getCombinations(obj);
- *
- * // result = [
- * //   [ 1,A ],
- * //   [ 1,B ],
- * //   [ 2,A ],
- * //   [ 2,B ]
- * // ]
- *
- * @example
- * const obj = {
- *   'type1': [1, 2]
- *   'type2': [A]
- * }
- *
- * const result = getCombinations(obj);
- *
- * // result = [
- * //   [ 1,A ],
- * //   [ 2,A ],
- * // ]
- *
- * @param {Record<string | number, any[]>>} obj
- * @returns An array of all combinations of the incoming `obj` values.
- */
-export function getCombinations<O extends Record<string | number, any[]>>(obj: O) {
-  let combos: { [k in keyof O]: O[k][number] }[] = [];
-  for (const key in obj) {
-    const values = obj[key];
-    const all: typeof combos = [];
-    for (let i = 0; i < values.length; i++) {
-      for (let j = 0; j < (combos.length || 1); j++) {
-        const newCombo = { ...combos[j], [key]: values[i] };
-        all.push(newCombo);
-      }
-    }
-    combos = all;
-  }
-  return combos;
-}
-
-/**
- * Filters objects from an array based on the keys provided.
- *
- * @example
- * const arrayOfObjects = [
- *   {key: 1, name: 1, value: 1},
- *   {key: 1, name: 2, value: 2},
- *   {key: 1, name: 2, value: 3},
- *   {key: 2, name: 3, value: 4}
- * ]
- *
- * const result = filterDuplicateKeys(arrayOfObjects, ['key']);
- *
- * // result = [
- * //   {key: 1, name: 2, value: 3},
- * //   {key: 2, name: 3, value: 4}
- * // ]
- *
- * const result = filterDuplicateKeys(arrayOfObjects, ['key', 'name']);
- *
- * // result = [
- * //   {key: 1, name: 1, value: 1},
- * //   {key: 1, name: 2, value: 3},
- * //   {key: 2, name: 3, value: 4}
- * // ]
- *
- * @param {Record<string, any>[]} arrayOfObjects
- * @param {string[]} keys
- * @return {*}  {object[]}
- * @memberof XLSXTransform
- */
-export function filterDuplicateKeys(arrayOfObjects: Record<string, any>[], keys: string[]): object[] {
-  const keyValues: [string, any][] = arrayOfObjects.map((value) => {
-    const key = keys.map((k) => value[k]).join('|');
-    return [key, value];
-  });
-
-  const kvMap = new Map(keyValues);
-
-  return [...kvMap.values()];
 }

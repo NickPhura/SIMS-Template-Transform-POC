@@ -1,4 +1,7 @@
+import jsonpatch, { Operation } from 'fast-json-patch';
+import * as fs from 'fs';
 import { JSONPath } from 'jsonpath-plus';
+import path from 'path';
 
 export type TemplateSchema = {
   /**
@@ -52,11 +55,13 @@ export type MapColumnValueSchema = {
   /**
    * A static value to append to the end of the final `paths` value.
    *
+   * Use `auto` to automatically use a generated unique integer as the prefix.
+   *
    * Will be joined using the `join` value.
    *
    * @type {string}
    */
-  postfix?: string;
+  postfix?: string | 'auto';
   /**
    * An array of conditions that must be met to proceed processing the schema element.
    *
@@ -148,53 +153,81 @@ export type TransformSchema = {
   dwcMeta: DwcSchema[];
 };
 
+export type PreparedTransformSchema = TransformSchema & {
+  templateMeta: (TemplateSchema & { distanceToRoot: number })[];
+};
+
 /**
  * Provides helper functions for fetching data from a raw transform schema
  *
  * @class SchemaParser
  */
 class SchemaParser {
-  rawSchema: TransformSchema;
+  preparedTransformSchema: PreparedTransformSchema = {
+    templateMeta: [],
+    map: [],
+    dwcMeta: []
+  };
 
-  transformQueue: (TemplateSchema & { distanceToRoot: number })[] = [];
+  constructor(transformSchema: TransformSchema) {
+    this._processRawTransformSchema(transformSchema);
 
-  constructor(schemaJSON: TransformSchema) {
-    this.rawSchema = schemaJSON;
-
-    this._buildTransformQueue();
+    fs.writeFileSync(path.join(__dirname, 'output', '0.json'), JSON.stringify(this.preparedTransformSchema, null, 2));
   }
 
   /**
-   * Recurse through the template schema and build a modified version which has all items arranged in processing order
-   * (example: the root element is at index=0 in the array, etc) and where each item includes a new value
-   * `distanceToRoot` which indicates which tier of the tree that item is at (example: the root element is at
-   * `distanceToRoot=0`, its direct children are at `distanceToRoot=1`, etc)
+   * Process the original transform schema, building a modified version that contains additional generated data used by
+   * the transform process.
+   *
+   * @param {TransformSchema} transformSchema
+   * @memberof SchemaParser
+   */
+  _processRawTransformSchema(transformSchema: TransformSchema) {
+    // prepare the `templateMeta` portion of the original transform schema
+    this.preparedTransformSchema.templateMeta = this._processTemplateMeta(transformSchema.templateMeta);
+    // prepare the `map` portion of the original transform schema
+    this.preparedTransformSchema.map = this._processMap(transformSchema.map);
+    // // prepare the `dwcMeta` portion of the original transform schema
+    this.preparedTransformSchema.dwcMeta = this._processDWCMeta(transformSchema.dwcMeta);
+  }
+
+  /**
+   * Prepare the `templateMeta` portion of the transform schema.
+   *
+   * Recurse through the 'templateMeta' portion of the transform schema and build a modified version which has all items
+   * arranged in processing order (example: the root element is at index=0 in the array, etc) and where each item
+   * includes a new value `distanceToRoot` which indicates which tier of the tree that item is at (example: the root
+   * element is at `distanceToRoot=0`, its direct children are at `distanceToRoot=1`, etc)
    *
    * Note: This step could in be removed if the order of the transform schema was assumed to be correct by default and
    * the `distanceToRoot` field was added to the type as a required field, and assumed to be set correctly.
    *
+   * @param {TransformSchema['templateMeta']} templateMeta
+   * @return {*}  {PreparedTransformSchema['templateMeta']}
    * @memberof SchemaParser
    */
-  _buildTransformQueue() {
-    const rootSheetSchema = this.getRootSheetConfig();
+  _processTemplateMeta(templateMeta: TransformSchema['templateMeta']): PreparedTransformSchema['templateMeta'] {
+    const preparedTemplateMeta = [];
+
+    const rootSheetSchema = Object.values(templateMeta).find((sheet) => sheet.type === 'root');
 
     if (!rootSheetSchema) {
-      throw Error('No root schema was defined');
+      throw Error('No root template meta schema was defined');
     }
 
-    this.transformQueue.push({ ...rootSheetSchema, distanceToRoot: 0 });
+    preparedTemplateMeta.push({ ...rootSheetSchema, distanceToRoot: 0 });
 
     const loop = (sheetNames: string[], distanceToRoot: number) => {
       let nextSheetNames: string[] = [];
 
       sheetNames.forEach((sheetName) => {
-        const sheetSchema = this.getSheetConfigForSheetName(sheetName);
+        const sheetSchema = Object.values(templateMeta).find((sheet) => sheet.name === sheetName);
 
         if (!sheetSchema) {
           return;
         }
 
-        this.transformQueue.push({ ...sheetSchema, distanceToRoot: distanceToRoot });
+        preparedTemplateMeta.push({ ...sheetSchema, distanceToRoot: distanceToRoot });
 
         nextSheetNames = nextSheetNames.concat(sheetSchema.foreignKeys.map((item) => item.name));
       });
@@ -210,16 +243,47 @@ class SchemaParser {
       rootSheetSchema.foreignKeys.map((item) => item.name),
       1
     );
+
+    return preparedTemplateMeta;
   }
 
   /**
-   * Find and return the template element that has `type=root`.
+   * Prepare the `map` portion of the transform schema.
    *
-   * @return {*}  {(TemplateSchema | undefined)}
+   * @param {TransformSchema['map']} map
+   * @return {*}  {PreparedTransformSchema['map']}
    * @memberof SchemaParser
    */
-  getRootSheetConfig(): TemplateSchema | undefined {
-    return Object.values(this.rawSchema.templateMeta).find((sheet) => sheet.type === 'root');
+  _processMap(map: TransformSchema['map']): PreparedTransformSchema['map'] {
+    const preparedMap = map;
+
+    // Replace `postfix: 'auto'` with an incrementing number.
+    let autoIncrement = 0;
+
+    const pathsToPatch = JSONPath<string[]>({
+      json: map,
+      path: `$..[?(@.postfix === 'auto' )]`,
+      resultType: 'pointer'
+    });
+
+    const patchOperations: Operation[] = pathsToPatch.map((pathToPatch) => {
+      return { op: 'replace', path: `${pathToPatch}/postfix`, value: String(autoIncrement++) };
+    });
+
+    jsonpatch.applyPatch(preparedMap, patchOperations);
+
+    return preparedMap;
+  }
+
+  /**
+   * Prepare the `dwcMeta` portion of the transform schema.
+   *
+   * @param {TransformSchema['dwcMeta']} dwcMeta
+   * @return {*}  {PreparedTransformSchema['dwcMeta']}
+   * @memberof SchemaParser
+   */
+  _processDWCMeta(dwcMeta: TransformSchema['dwcMeta']): PreparedTransformSchema['dwcMeta'] {
+    return dwcMeta;
   }
 
   /**
@@ -230,7 +294,7 @@ class SchemaParser {
    * @memberof SchemaParser
    */
   getSheetConfigForSheetName(sheetName: string): TemplateSchema | undefined {
-    return Object.values(this.rawSchema.templateMeta).find((sheet) => sheet.name === sheetName);
+    return Object.values(this.preparedTransformSchema.templateMeta).find((sheet) => sheet.name === sheetName);
   }
 
   /**
@@ -240,7 +304,7 @@ class SchemaParser {
    * @memberof SchemaParser
    */
   getDWCSheetNames(): string[] {
-    const names: string[] = JSONPath({ path: '$.[name]', json: this.rawSchema.map });
+    const names = JSONPath<string[]>({ path: '$.[name]', json: this.preparedTransformSchema.map });
 
     return Array.from(new Set(names));
   }
@@ -253,7 +317,10 @@ class SchemaParser {
    * @memberof SchemaParser
    */
   getDWCSheetKeyBySheetName(sheetName: string): string[] {
-    const result = JSONPath({ path: `$..[?(@.name === '${sheetName}' )][primaryKey]`, json: this.rawSchema.dwcMeta });
+    const result = JSONPath<string[][]>({
+      path: `$..[?(@.name === '${sheetName}' )][primaryKey]`,
+      json: this.preparedTransformSchema.dwcMeta
+    });
 
     return result[0];
   }
