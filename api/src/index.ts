@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import path from 'path';
 import xlsx from 'xlsx';
 import { schema } from './schema/moose_srb_schema';
-import { transformationJSONSchema } from './transform-schema';
+import { transformationConfigJSONSchema } from './transform-json-schema';
 import { XLSXTransform } from './transform-utils';
 
 /*
@@ -20,12 +20,13 @@ import { XLSXTransform } from './transform-utils';
     - measurement and facts need to be added
 */
 // const TEMPLATE_NAME = 'Moose_Aerial_StratifiedRandomBlock_Recruit_Comp_Survey_2.0.xlsx';
-const TEMPLATE_NAME = 'MU_432_ZoneA_SRB_v2.0.xlsx';
+const TEMPLATE_NAME = 'MU_432_ZoneA_SRB_v2.0_Fixed.xlsx';
 const TEMPLATE_SCHEMA = schema;
 
-const ajv = new Ajv();
+fs.writeFileSync(path.join(__dirname, 'output', 'schema.json'), JSON.stringify(schema, null, 2));
 
-ajv.validate(transformationJSONSchema, TEMPLATE_SCHEMA);
+const ajv = new Ajv();
+ajv.validate(transformationConfigJSONSchema, TEMPLATE_SCHEMA);
 
 if (ajv.errors) {
   throw new Error(JSON.stringify(ajv.errors));

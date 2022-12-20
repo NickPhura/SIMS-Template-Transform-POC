@@ -1,7 +1,7 @@
 import jsonpatch, { Operation } from 'fast-json-patch';
-import * as fs from 'fs';
 import { JSONPath } from 'jsonpath-plus';
-import path from 'path';
+
+export type JSONPath = string;
 
 export type TemplateSchema = {
   /**
@@ -9,7 +9,7 @@ export type TemplateSchema = {
    *
    * @type {string}
    */
-  name: string;
+  sheetName: string;
   /**
    * An array of json path query strings.
    *
@@ -18,7 +18,21 @@ export type TemplateSchema = {
   primaryKey: string[];
   parentKey: string[];
   type: 'root' | 'leaf' | '';
-  foreignKeys: { name: string; primaryKey: string[] }[];
+  foreignKeys: ForeignKeySchema[];
+};
+
+export type SchemaCondition = {
+  type: 'and' | 'or';
+  checks: IfNotEmptyCheck[];
+};
+
+export type IfNotEmptyCheck = {
+  ifNotEmpty: JSONPath;
+};
+
+export type ForeignKeySchema = {
+  sheetName: string;
+  primaryKey: string[];
 };
 
 export type MapColumnValueSchema = {
@@ -33,9 +47,9 @@ export type MapColumnValueSchema = {
    * If an array of values is returned, they will be joined using the specified `join` string.
    * If `join` string is not specified, a colon `:` will be used as the default `join` string.
    *
-   * @type {string[]}
+   * @type {JSONPath[]}
    */
-  paths?: string[];
+  paths?: JSONPath[];
   /**
    * A static value to be used, in place of any `paths`.
    *
@@ -53,29 +67,53 @@ export type MapColumnValueSchema = {
    */
   join?: string;
   /**
-   * A static value to append to the end of the final `paths` value.
-   *
-   * Use `auto` to automatically use a generated unique integer as the prefix.
+   * A value to append to the end of the final `paths` value.
    *
    * Will be joined using the `join` value.
    *
-   * @type {string}
+   * @type {MapColumnValuePostfixSchema}
    */
-  postfix?: string | 'auto';
+  postfix?: MapColumnValuePostfixSchema;
   /**
-   * An array of conditions that must be met to proceed processing the schema element.
+   * A condition, which contains one or more checks that must be met in order to proceed processing the schema element.
    *
-   * If multiple conditions are specified, all conditions must be met.
-   *
-   * @type {{ if: string }[]}
+   * @type {SchemaCondition}
    */
-  condition?: { if: string }[];
+  condition?: SchemaCondition;
   /**
    * An array of additional Schemas to add to process. Used to create additional records.
    *
    * @type {MapSchema[]}
    */
   add?: MapSchema[];
+};
+
+export type MapColumnValuePostfixSchema = {
+  /**
+   * An array of json path query strings.
+   *
+   * If multiple query strings are provided, they will be fetched in order, and the first one that returns a non-empty
+   * value will be used.
+   *
+   * A single query string may return one value, or an array of values.
+   *
+   * @type {JSONPath[]}
+   */
+  paths?: JSONPath[];
+  /**
+   * A static value to append to the end of the final `paths` value.
+   *
+   * Note:
+   * - `auto` - Will be replaced with a generated number at template preparation time. This number will be unique within
+   *   the transformation schema, but not unique within the transformed data.
+   * - `unique` - Will be replaced with a unique number at transformation time. This number will be unique within the
+   *   transformed data.
+   *
+   * If `value` is set in addition to `paths`, the `paths` will be ignored.
+   *
+   * @type {(string | 'auto' | 'unique')}
+   */
+  value?: string | 'auto' | 'unique';
 };
 
 export type MapFieldSchema = {
@@ -102,15 +140,13 @@ export type MapSchema = {
    *
    * @type {string}
    */
-  name: string;
+  sheetName: string;
   /**
-   * An array of conditions that must be met to proceed processing the schema element.
+   * A condition, which contains one or more checks that must be met in order to proceed processing the schema element.
    *
-   * If multiple conditions are specified, all conditions must be met.
-   *
-   * @type {{ if: string }[]}
+   * @type {SchemaCondition}
    */
-  condition?: { if: string }[];
+  condition?: SchemaCondition;
   /**
    * An array of additional Schemas to add to process. Used to create additional records.
    *
@@ -126,7 +162,7 @@ export type MapSchema = {
 };
 
 export type DwcSchema = {
-  name: string;
+  sheetName: string;
   primaryKey: string[];
 };
 
@@ -171,8 +207,6 @@ class SchemaParser {
 
   constructor(transformSchema: TransformSchema) {
     this._processRawTransformSchema(transformSchema);
-
-    fs.writeFileSync(path.join(__dirname, 'output', '0.json'), JSON.stringify(this.preparedTransformSchema, null, 2));
   }
 
   /**
@@ -221,7 +255,7 @@ class SchemaParser {
       let nextSheetNames: string[] = [];
 
       sheetNames.forEach((sheetName) => {
-        const sheetSchema = Object.values(templateMeta).find((sheet) => sheet.name === sheetName);
+        const sheetSchema = Object.values(templateMeta).find((sheet) => sheet.sheetName === sheetName);
 
         if (!sheetSchema) {
           return;
@@ -229,7 +263,7 @@ class SchemaParser {
 
         preparedTemplateMeta.push({ ...sheetSchema, distanceToRoot: distanceToRoot });
 
-        nextSheetNames = nextSheetNames.concat(sheetSchema.foreignKeys.map((item) => item.name));
+        nextSheetNames = nextSheetNames.concat(sheetSchema.foreignKeys.map((item) => item.sheetName));
       });
 
       if (!nextSheetNames.length) {
@@ -240,7 +274,7 @@ class SchemaParser {
     };
 
     loop(
-      rootSheetSchema.foreignKeys.map((item) => item.name),
+      rootSheetSchema.foreignKeys.map((item) => item.sheetName),
       1
     );
 
@@ -258,16 +292,16 @@ class SchemaParser {
     const preparedMap = map;
 
     // Replace `postfix: 'auto'` with an incrementing number.
-    let autoIncrement = 0;
+    let postfixAutoIncrement = 0;
 
     const pathsToPatch = JSONPath<string[]>({
       json: map,
-      path: `$..[?(@.postfix === 'auto' )]`,
+      path: `$..postfix^[?(@.value === 'auto')]`,
       resultType: 'pointer'
     });
 
     const patchOperations: Operation[] = pathsToPatch.map((pathToPatch) => {
-      return { op: 'replace', path: `${pathToPatch}/postfix`, value: String(autoIncrement++) };
+      return { op: 'replace', path: `${pathToPatch}/value`, value: String(postfixAutoIncrement++) };
     });
 
     jsonpatch.applyPatch(preparedMap, patchOperations);
@@ -287,14 +321,14 @@ class SchemaParser {
   }
 
   /**
-   * Find and return the template element that has `name=<sheetName>`
+   * Find and return the template element that has `sheetName=<sheetName>`
    *
    * @param {string} sheetName
    * @return {*}  {(TemplateSchema | undefined)}
    * @memberof SchemaParser
    */
   getSheetConfigForSheetName(sheetName: string): TemplateSchema | undefined {
-    return Object.values(this.preparedTransformSchema.templateMeta).find((sheet) => sheet.name === sheetName);
+    return Object.values(this.preparedTransformSchema.templateMeta).find((sheet) => sheet.sheetName === sheetName);
   }
 
   /**
@@ -304,13 +338,13 @@ class SchemaParser {
    * @memberof SchemaParser
    */
   getDWCSheetNames(): string[] {
-    const names = JSONPath<string[]>({ path: '$.[name]', json: this.preparedTransformSchema.map });
+    const names = JSONPath<string[]>({ path: '$.[sheetName]', json: this.preparedTransformSchema.map });
 
     return Array.from(new Set(names));
   }
 
   /**
-   * Find and return a DWC sheet key where `name=<sheetName>`.
+   * Find and return a DWC sheet key where `sheetName=<sheetName>`.
    *
    * @param {string} sheetName
    * @return {*}  {string[]}
@@ -318,7 +352,7 @@ class SchemaParser {
    */
   getDWCSheetKeyBySheetName(sheetName: string): string[] {
     const result = JSONPath<string[][]>({
-      path: `$..[?(@.name === '${sheetName}' )][primaryKey]`,
+      path: `$..[?(@.sheetName === '${sheetName}' )][primaryKey]`,
       json: this.preparedTransformSchema.dwcMeta
     });
 

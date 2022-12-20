@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import { JSONPath, JSONPathOptions } from 'jsonpath-plus';
 import path from 'path';
 import xlsx from 'xlsx';
-import SchemaParser, { TemplateSchema, TransformSchema } from './schema-utils';
+import SchemaParser, { IfNotEmptyCheck, SchemaCondition, TemplateSchema, TransformSchema } from './schema-utils';
 import { filterDuplicateKeys, getCombinations } from './utils';
 import { getWorksheetByName, getWorksheetRange, trimWorksheetCells } from './xlsx-utils';
 
@@ -39,6 +39,7 @@ export type RowObject = {
   _key: string;
   _parentKey: string | '';
   _type: 'root' | 'leaf' | '';
+  _row: number;
   _childKeys: string[];
   _children: RowObject[];
 };
@@ -46,6 +47,8 @@ export type RowObject = {
 export class XLSXTransform {
   workbook: xlsx.WorkBook;
   schemaParser: SchemaParser;
+
+  _uniqueIncrement = 0;
 
   constructor(workbook: xlsx.WorkBook, schema: TransformSchema) {
     this.workbook = workbook;
@@ -81,17 +84,21 @@ export class XLSXTransform {
     );
 
     // Process the final objects into the format required to convert them into CSV format
+    const dwcWorkbook = xlsx.utils.book_new();
     Object.entries(preparedRowObjectsForJSONToSheet).map(([key, value]) => {
       const worksheet = xlsx.utils.json_to_sheet(value);
 
       const newWorkbook = xlsx.utils.book_new();
 
       xlsx.utils.book_append_sheet(newWorkbook, worksheet, 'Sheet1');
+      xlsx.utils.book_append_sheet(dwcWorkbook, worksheet, key);
 
       const buffer = xlsx.write(newWorkbook, { type: 'buffer', bookType: 'csv' });
 
       fs.writeFileSync(path.join(__dirname, 'output', `${key}.json`), buffer);
     });
+    const buffer = xlsx.write(dwcWorkbook, { type: 'buffer', bookType: 'xlsx' });
+    fs.writeFileSync(path.join(__dirname, 'output', 'dwcWorkbook_fixed_with_mark_2.xlsx'), buffer);
   }
 
   /**
@@ -141,11 +148,11 @@ export class XLSXTransform {
   _prepareRowObjects(
     worksheetJSON: Record<string, any>[],
     templateSchema: TemplateSchema,
-    length: number
+    numberOfRows: number
   ): RowObject[] {
     const worksheetJSONWithKey: RowObject[] = [];
 
-    for (let i = 0; i < length; i++) {
+    for (let i = 0; i < numberOfRows; i++) {
       const primaryKey = this._getKeyForRowObject(worksheetJSON[i], templateSchema.primaryKey);
 
       if (!primaryKey) {
@@ -155,17 +162,18 @@ export class XLSXTransform {
       const parentKey = this._getKeyForRowObject(worksheetJSON[i], templateSchema.parentKey);
 
       const childKeys = templateSchema.foreignKeys
-        .map((foreignKeys: { name: string; primaryKey: string[] }) => {
+        .map((foreignKeys: { sheetName: string; primaryKey: string[] }) => {
           return this._getKeyForRowObject(worksheetJSON[i], foreignKeys.primaryKey);
         })
         .filter((item): item is string => !!item);
 
       worksheetJSONWithKey.push({
         _data: { ...worksheetJSON[i] },
-        _name: templateSchema.name,
+        _name: templateSchema.sheetName,
         _key: primaryKey,
         _parentKey: parentKey,
         _type: templateSchema.type,
+        _row: i,
         _childKeys: childKeys || [],
         _children: []
       });
@@ -187,6 +195,7 @@ export class XLSXTransform {
       .map((columnName: string) => {
         return RowObject[columnName];
       })
+      .filter((value) => !isNaN || value)
       .join(':');
 
     return primaryKey;
@@ -198,12 +207,12 @@ export class XLSXTransform {
     for (let queueIndex = 0; queueIndex < this.schemaParser.preparedTransformSchema.templateMeta.length; queueIndex++) {
       const transformQueueItem = this.schemaParser.preparedTransformSchema.templateMeta[queueIndex];
 
-      const sheetName = transformQueueItem.name;
+      const sheetName = transformQueueItem.sheetName;
 
       const rowObjects = preparedRowObjects[sheetName];
 
       if (!rowObjects) {
-        console.log(`buildRowObjectsHierarchy - No rowObjects for sheet name: ${sheetName}.`);
+        // No row objects for sheet
         continue;
       }
 
@@ -366,30 +375,16 @@ export class XLSXTransform {
 
     // For each sheet
     for (let mapIndex = 0; mapIndex < mapSchema.length; mapIndex++) {
-      const sheetConditions = mapSchema[mapIndex].condition;
-
       // Check conditions, if any
-      if (sheetConditions && sheetConditions.length) {
-        let conditionsMet = true;
-
-        for (let conditionsIndex = 0; conditionsIndex < sheetConditions.length; conditionsIndex++) {
-          const condition = sheetConditions[conditionsIndex];
-
-          const ifPathValues = this._processPaths([condition.if], flattenedRow);
-
-          if (!ifPathValues || !ifPathValues.length) {
-            // condition check failed, skip
-            conditionsMet = false;
-            break;
-          }
-        }
-
-        if (!conditionsMet) {
+      const sheetCondition = mapSchema[mapIndex].condition;
+      if (sheetCondition) {
+        if (!this._processCondition(sheetCondition, flattenedRow)) {
+          // Conditions not met, skip processing this item
           continue;
         }
       }
 
-      const sheetName = mapSchema[mapIndex].name;
+      const sheetName = mapSchema[mapIndex].sheetName;
 
       if (!output[sheetName]) {
         output[sheetName] = [];
@@ -400,88 +395,101 @@ export class XLSXTransform {
 
       const fields = mapSchema[mapIndex].fields;
 
-      // For each item in the `fields` array
-      for (let fieldIndex = 0; fieldIndex < fields.length; fieldIndex++) {
-        let cellValue = '';
+      if (fields && fields.length) {
+        // For each item in the `fields` array
+        for (let fieldIndex = 0; fieldIndex < fields.length; fieldIndex++) {
+          // The final computed cell value for this particular schema field element
+          let cellValue = '';
 
-        const columnName = fields[fieldIndex].columnName;
-        const columnValue = fields[fieldIndex].columnValue;
+          const columnName = fields[fieldIndex].columnName;
+          const columnValue = fields[fieldIndex].columnValue;
 
-        // For each item in the `columnValue` array
-        for (let columnValueIndex = 0; columnValueIndex < columnValue.length; columnValueIndex++) {
-          const columnValueItem = columnValue[columnValueIndex];
+          // For each item in the `columnValue` array
+          for (let columnValueIndex = 0; columnValueIndex < columnValue.length; columnValueIndex++) {
+            const columnValueItem = columnValue[columnValueIndex];
 
-          // Check for conditions
-          const columnValueItemCondition = columnValueItem.condition;
-          if (columnValueItemCondition && columnValueItemCondition.length) {
-            let conditionsMet = true;
-
-            for (let conditionsIndex = 0; conditionsIndex < columnValueItemCondition.length; conditionsIndex++) {
-              const condition = columnValueItemCondition[conditionsIndex];
-
-              const ifPathValues = this._processPaths([condition.if], flattenedRow);
-
-              if (!ifPathValues || !ifPathValues.length) {
-                // condition check failed, skip
-                conditionsMet = false;
-                break;
+            // Check conditions, if any
+            const columnValueItemCondition = columnValueItem.condition;
+            if (columnValueItemCondition) {
+              if (!this._processCondition(columnValueItemCondition, flattenedRow)) {
+                // Conditions not met, skip processing this item
+                continue;
               }
             }
 
-            if (!conditionsMet) {
-              continue;
+            // Check for static value
+            const columnValueItemValue = columnValueItem.value;
+            if (columnValueItemValue) {
+              // cell value is a static value
+              cellValue = columnValueItemValue;
+            }
+
+            // Check for path value(s)
+            const columnValueItemPaths = columnValueItem.paths;
+            if (columnValueItemPaths) {
+              const pathValues = this._processPaths(columnValueItemPaths, flattenedRow);
+
+              let pathValue = '';
+              if (Array.isArray(pathValues)) {
+                // cell value is the concatenation of multiple values
+                pathValue = (pathValues.length && pathValues.flat(Infinity).join(columnValueItem.join || ':')) || '';
+              } else {
+                // cell value is a single value
+                pathValue = pathValues || '';
+              }
+
+              cellValue = pathValue;
+
+              // Add the optional postfix
+              const columnValueItemPostfix = columnValueItem.postfix;
+              if (cellValue && columnValueItemPostfix) {
+                let postfixValue = '';
+
+                if (columnValueItemPostfix.value) {
+                  postfixValue = columnValueItemPostfix.value;
+
+                  if (columnValueItemPostfix.value === 'unique') {
+                    postfixValue = String(this._getNextUniqueNumber());
+                  }
+                }
+
+                if (columnValueItemPostfix.paths) {
+                  const postfixPathValues = this._processPaths(columnValueItemPostfix.paths, flattenedRow);
+
+                  if (Array.isArray(postfixPathValues)) {
+                    // postfix value is the concatenation of multiple values
+                    postfixValue =
+                      (postfixPathValues.length && postfixPathValues.join(columnValueItem.join || ':')) || '';
+                  } else {
+                    // postfix value is a single value
+                    postfixValue = postfixPathValues || '';
+                  }
+                }
+
+                cellValue = `${cellValue}${columnValueItem.join || ':'}${postfixValue}`;
+              }
+            }
+
+            // Check for `add` additions at the field level
+            const columnValueItemAdd = columnValueItem.add;
+            if (columnValueItemAdd && columnValueItemAdd.length) {
+              for (let addIndex = 0; addIndex < columnValueItemAdd.length; addIndex++) {
+                mapSchema.push(columnValueItemAdd[addIndex]);
+              }
+            }
+
+            if (cellValue) {
+              // One of the columnValue array items yielded a non-empty cell value, skip any remaining columnValue items.
+              break;
             }
           }
 
-          // Check for static value
-          const columnValueItemValue = columnValueItem.value;
-          if (columnValueItemValue) {
-            // cell value is a static value
-            cellValue = columnValueItemValue;
-          }
-
-          // Check for path value(s)
-          const columnValueItemPaths = columnValueItem.paths;
-
-          if (columnValueItemPaths) {
-            const pathValues = this._processPaths(columnValueItemPaths, flattenedRow);
-
-            let pathValue = '';
-            if (Array.isArray(pathValues)) {
-              // cell value is the concatenation of multiple values
-              pathValue = (pathValues.length && pathValues.join(columnValueItem.join || ':')) || '';
-            } else {
-              // cell value is a single value
-              pathValue = pathValues || '';
-            }
-
-            // Add the postfix
-            if (pathValue && columnValueItem.postfix) {
-              pathValue = `${pathValue}${columnValueItem.join || ':'}${columnValueItem.postfix}`;
-            }
-
-            cellValue = pathValue;
-          }
-
-          // Check for `add` additions at the field level
-          const columnValueItemAdd = columnValueItem.add;
-          if (columnValueItemAdd && columnValueItemAdd.length) {
-            for (let addIndex = 0; addIndex < columnValueItemAdd.length; addIndex++) {
-              mapSchema.push(columnValueItemAdd[addIndex]);
-            }
-          }
-
-          if (cellValue) {
-            // One of the columnValue array items yielded a non-empty cell value, skip any remaining columnValue items.
-            break;
-          }
+          // add the cell key value
+          output[sheetName][indexBySheetName[sheetName]] = {
+            ...output[sheetName][indexBySheetName[sheetName]],
+            [columnName]: cellValue
+          };
         }
-
-        // add the cell key value
-        output[sheetName][indexBySheetName[sheetName]] = {
-          ...output[sheetName][indexBySheetName[sheetName]],
-          [columnName]: cellValue
-        };
       }
 
       // Check for additions at the sheet level
@@ -496,28 +504,63 @@ export class XLSXTransform {
     return output;
   }
 
-  _processPaths(paths: string[], json: JSONPathOptions['json']): string | string[] {
+  _processCondition(condition: SchemaCondition, rowObjects: RowObject[]): boolean {
+    if (!condition) {
+      // No conditions to process
+      return true;
+    }
+
+    const conditionsMet = new Set<boolean>();
+
+    for (let checksIndex = 0; checksIndex < condition.checks.length; checksIndex++) {
+      const check = condition.checks[checksIndex];
+
+      if (check.ifNotEmpty) {
+        conditionsMet.add(this._processIfNotEmptyCondition(check, rowObjects));
+      }
+    }
+
+    if (condition.type === 'or') {
+      return conditionsMet.has(true);
+    }
+
+    return !conditionsMet.has(false);
+  }
+
+  _processIfNotEmptyCondition(check: IfNotEmptyCheck, rowObjects: RowObject[]): boolean {
+    const pathValues = this._processPaths([check.ifNotEmpty], rowObjects);
+
+    if (!pathValues || !pathValues.length) {
+      // condition failed
+      return false;
+    }
+
+    return true;
+  }
+
+  _processPaths(paths: string[], json: JSONPathOptions['json']): string | string[] | string[][] {
     if (paths.length === 0) {
       return '';
     }
 
     if (paths.length === 1) {
-      return JSONPath({ path: paths[0], json: json });
+      return JSONPath({ path: paths[0], json: json }) || '';
     }
 
+    const values = [];
+
     for (let pathsIndex = 0; pathsIndex < paths.length; pathsIndex++) {
-      const value = JSONPath({ path: paths[pathsIndex], json: json });
+      const value = JSONPath({ path: paths[pathsIndex], json: json }) || '';
 
       if (value) {
-        // Return the first value that is not null or empty
-        return value;
+        values.push(value);
       }
     }
 
-    return '';
+    return values;
   }
 
-  prepareRowObjectsForJSONToSheet(mapRowObjects: Record<string, Record<string, string>[]>[]) {
+  prepareRowObjectsForJSONToSheet(processedHierarchicalRowObjects: Record<string, Record<string, string>[]>[]) {
     const groupedByDWCSheetName: Record<string, Record<string, string>[]> = {};
     const uniqueGroupedByDWCSheetName: Record<string, Record<string, string>[]> = {};
 
@@ -528,7 +571,7 @@ export class XLSXTransform {
       uniqueGroupedByDWCSheetName[sheetName] = [];
     });
 
-    mapRowObjects.map((item) => {
+    processedHierarchicalRowObjects.map((item) => {
       const entries = Object.entries(item);
 
       for (const [key, value] of entries) {
@@ -542,5 +585,9 @@ export class XLSXTransform {
     });
 
     return uniqueGroupedByDWCSheetName;
+  }
+
+  _getNextUniqueNumber(): number {
+    return this._uniqueIncrement++;
   }
 }

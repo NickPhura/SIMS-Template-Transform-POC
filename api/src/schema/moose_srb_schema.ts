@@ -1,46 +1,46 @@
-import { createPathField, createValueField, getMultipleValuesByName, getValueByName } from '../json-path-queries';
+import { createPathField, createValueField, getValuesByName } from '../json-path-queries';
 import { TransformSchema } from '../schema-utils';
 
 export const schema: TransformSchema = {
   templateMeta: [
     {
-      name: 'Block Summary',
+      sheetName: 'Block Summary',
       primaryKey: ['Study Area', 'Block ID/SU ID', 'Stratum'],
       parentKey: [],
       type: 'root',
       foreignKeys: [
         {
-          name: 'Observations',
+          sheetName: 'Observations',
           primaryKey: ['Study Area', 'Block ID/SU ID', 'Stratum']
         },
         {
-          name: 'Effort & Site Conditions',
+          sheetName: 'Effort & Site Conditions',
           primaryKey: ['Study Area', 'Block ID/SU ID']
         }
       ]
     },
     {
-      name: 'Effort & Site Conditions',
+      sheetName: 'Effort & Site Conditions',
       primaryKey: ['Study Area', 'Block ID/SU ID'],
       parentKey: ['Study Area', 'Block ID/SU ID'],
       type: '',
       foreignKeys: []
     },
     {
-      name: 'Observations',
+      sheetName: 'Observations',
       primaryKey: ['Study Area', 'Block ID/SU ID', 'Stratum'],
       parentKey: ['Study Area', 'Block ID/SU ID', 'Stratum'],
       type: '',
       foreignKeys: [
         {
-          name: 'Marked Animals',
+          sheetName: 'Marked Animals',
           primaryKey: ['Group Label']
         }
       ]
     },
     {
-      name: 'Marked Animals',
-      primaryKey: ['Wildlife Health ID'],
+      sheetName: 'Marked Animals',
+      primaryKey: ['Wildlife Health ID', 'Animal ID', 'Telemetry Device ID'],
       parentKey: ['Group Label'],
       type: '',
       foreignKeys: []
@@ -48,13 +48,34 @@ export const schema: TransformSchema = {
   ],
   map: [
     {
-      name: 'event',
+      sheetName: 'record',
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+            }
+          ]
+        },
+        {
+          columnName: 'basisOfRecord ',
+          columnValue: [
+            {
+              value: 'HumanObservation'
+            }
+          ]
+        }
+      ]
+    },
+    {
+      sheetName: 'event',
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -62,10 +83,7 @@ export const schema: TransformSchema = {
           columnName: 'eventDate',
           columnValue: [
             {
-              paths: [getValueByName('Observations', 'Date')]
-            },
-            {
-              paths: [getValueByName('Effort & Site Conditions', 'Date')]
+              paths: [getValuesByName('Observations', ['Date'])]
             }
           ]
         },
@@ -73,20 +91,21 @@ export const schema: TransformSchema = {
           columnName: 'eventRemarks',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', 'Block Summary Comments')]
+              paths: [getValuesByName('Block Summary', ['Block Summary Comments'])]
             }
           ]
         }
       ]
     },
     {
-      name: 'location',
+      sheetName: 'location',
+      condition: { type: 'and', checks: [{ ifNotEmpty: getValuesByName('Observations', ['_key']) }] },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -94,12 +113,28 @@ export const schema: TransformSchema = {
           columnName: 'verbatimCoordinates',
           columnValue: [
             {
-              paths: [getMultipleValuesByName('Observations', ['UTM Zone', 'Easting', 'Northing'])],
+              paths: [getValuesByName('Observations', ['UTM Zone', 'Easting', 'Northing'])],
               join: ' '
             },
             {
-              paths: [getMultipleValuesByName('Observations', ['Lat (DD)', 'Long (DD)'])],
+              paths: [getValuesByName('Observations', ['Lat (DD)', 'Long (DD)'])],
               join: ' '
+            }
+          ]
+        },
+        {
+          columnName: 'decimalLatitude',
+          columnValue: [
+            {
+              paths: [getValuesByName('Observations', ['Lat (DD)'])]
+            }
+          ]
+        },
+        {
+          columnName: 'decimalLongitude',
+          columnValue: [
+            {
+              paths: [getValuesByName('Observations', ['Long (DD)'])]
             }
           ]
         },
@@ -107,21 +142,21 @@ export const schema: TransformSchema = {
           columnName: 'verbatimSRS',
           columnValue: [
             {
-              paths: [getValueByName('Observations', 'Datum')]
+              paths: [getValuesByName('Observations', ['Datum'])]
             }
           ]
         }
       ]
     },
     {
-      name: 'occurrence',
-      condition: [{ if: getValueByName('Observations', 'Spike/Fork Bulls') }],
+      sheetName: 'occurrence',
+      condition: { type: 'and', checks: [{ ifNotEmpty: getValuesByName('Observations', ['Spike/Fork Bulls']) }] },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -129,8 +164,10 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
-              postfix: 'auto'
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: '0'
+              }
             }
           ]
         },
@@ -139,17 +176,58 @@ export const schema: TransformSchema = {
         createValueField('lifeStage', 'unknown'),
         createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ],
+      add: [
+        // TODO add these measurements for all remaining BULL occurrence types
+        {
+          sheetName: 'measurementOrFact',
+          fields: [
+            {
+              columnName: 'eventID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+                }
+              ]
+            },
+            {
+              columnName: 'measurementID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    value: 'antler-configuration'
+                  }
+                }
+              ]
+            },
+            {
+              columnName: 'occurrenceID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    value: '0'
+                  }
+                }
+              ]
+            },
+            createValueField('measurementType', 'Antler Configuration'),
+            createValueField('measurementUnit', ''),
+            createValueField('measurementValue', 'Spike/Fork Bulls')
+          ]
+        }
       ]
     },
     {
-      name: 'occurrence',
-      condition: [{ if: getValueByName('Observations', 'Sub-Prime Bulls') }],
+      sheetName: 'occurrence',
+      condition: { type: 'and', checks: [{ ifNotEmpty: getValuesByName('Observations', ['Sub-Prime Bulls']) }] },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -157,27 +235,29 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
-              postfix: 'auto'
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: '1'
+              }
             }
           ]
         },
         createPathField('individualCount', 'Observations', ['Sub-Prime Bulls']),
         createValueField('sex', 'male'),
-        createValueField('lifeStage', 'adult'),
+        createValueField('lifeStage', 'unknown'),
         createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
       ]
     },
     {
-      name: 'occurrence',
-      condition: [{ if: getValueByName('Observations', 'Prime Bulls') }],
+      sheetName: 'occurrence',
+      condition: { type: 'and', checks: [{ ifNotEmpty: getValuesByName('Observations', ['Prime Bulls']) }] },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -185,8 +265,10 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
-              postfix: 'auto'
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: '2'
+              }
             }
           ]
         },
@@ -198,14 +280,14 @@ export const schema: TransformSchema = {
       ]
     },
     {
-      name: 'occurrence',
-      condition: [{ if: getValueByName('Observations', 'Senior Bulls') }],
+      sheetName: 'occurrence',
+      condition: { type: 'and', checks: [{ ifNotEmpty: getValuesByName('Observations', ['Senior Bulls']) }] },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -213,8 +295,10 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
-              postfix: 'auto'
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: '3'
+              }
             }
           ]
         },
@@ -226,14 +310,14 @@ export const schema: TransformSchema = {
       ]
     },
     {
-      name: 'occurrence',
-      condition: [{ if: getValueByName('Observations', '3 Brow/10 Points Bulls') }],
+      sheetName: 'occurrence',
+      condition: { type: 'and', checks: [{ ifNotEmpty: getValuesByName('Observations', ['3 Brow/10 Points Bulls']) }] },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -241,8 +325,10 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
-              postfix: 'auto'
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: '4'
+              }
             }
           ]
         },
@@ -254,14 +340,14 @@ export const schema: TransformSchema = {
       ]
     },
     {
-      name: 'occurrence',
-      condition: [{ if: getValueByName('Observations', 'BC RISC Yearling Bulls') }],
+      sheetName: 'occurrence',
+      condition: { type: 'and', checks: [{ ifNotEmpty: getValuesByName('Observations', ['BC RISC Yearling Bulls']) }] },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -269,27 +355,29 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
-              postfix: 'auto'
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: '5'
+              }
             }
           ]
         },
         createPathField('individualCount', 'Observations', ['BC RISC Yearling Bulls']),
         createValueField('sex', 'male'),
-        createValueField('lifeStage', 'adult'),
+        createValueField('lifeStage', 'yearling'),
         createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
       ]
     },
     {
-      name: 'occurrence',
-      condition: [{ if: getValueByName('Observations', 'BC RISC Class I Bulls') }],
+      sheetName: 'occurrence',
+      condition: { type: 'and', checks: [{ ifNotEmpty: getValuesByName('Observations', ['BC RISC Class I Bulls']) }] },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -297,27 +385,29 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
-              postfix: 'auto'
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: '6'
+              }
             }
           ]
         },
         createPathField('individualCount', 'Observations', ['BC RISC Class I Bulls']),
         createValueField('sex', 'male'),
-        createValueField('lifeStage', 'adult'),
+        createValueField('lifeStage', 'unknown'),
         createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
       ]
     },
     {
-      name: 'occurrence',
-      condition: [{ if: getValueByName('Observations', 'BC RISC Class II Bulls') }],
+      sheetName: 'occurrence',
+      condition: { type: 'and', checks: [{ ifNotEmpty: getValuesByName('Observations', ['BC RISC Class II Bulls']) }] },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -325,8 +415,10 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
-              postfix: 'auto'
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: '7'
+              }
             }
           ]
         },
@@ -338,14 +430,17 @@ export const schema: TransformSchema = {
       ]
     },
     {
-      name: 'occurrence',
-      condition: [{ if: getValueByName('Observations', 'BC RISC Class III Bulls') }],
+      sheetName: 'occurrence',
+      condition: {
+        type: 'and',
+        checks: [{ ifNotEmpty: getValuesByName('Observations', ['BC RISC Class III Bulls']) }]
+      },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -353,8 +448,10 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
-              postfix: 'auto'
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: '8'
+              }
             }
           ]
         },
@@ -366,14 +463,17 @@ export const schema: TransformSchema = {
       ]
     },
     {
-      name: 'occurrence',
-      condition: [{ if: getValueByName('Observations', 'Oswald (1997) Class I Bulls') }],
+      sheetName: 'occurrence',
+      condition: {
+        type: 'and',
+        checks: [{ ifNotEmpty: getValuesByName('Observations', ['Oswald (1997) Class I Bulls']) }]
+      },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -381,27 +481,32 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
-              postfix: 'auto'
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: '9'
+              }
             }
           ]
         },
         createPathField('individualCount', 'Observations', ['Oswald (1997) Class I Bulls']),
         createValueField('sex', 'male'),
-        createValueField('lifeStage', 'adult'),
+        createValueField('lifeStage', 'unknown'),
         createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
       ]
     },
     {
-      name: 'occurrence',
-      condition: [{ if: getValueByName('Observations', 'Oswald (1997) Class II Bulls') }],
+      sheetName: 'occurrence',
+      condition: {
+        type: 'and',
+        checks: [{ ifNotEmpty: getValuesByName('Observations', ['Oswald (1997) Class II Bulls']) }]
+      },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -409,27 +514,32 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
-              postfix: 'auto'
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: '10'
+              }
             }
           ]
         },
         createPathField('individualCount', 'Observations', ['Oswald (1997) Class II Bulls']),
         createValueField('sex', 'male'),
-        createValueField('lifeStage', 'adult'),
+        createValueField('lifeStage', 'unknown'),
         createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
       ]
     },
     {
-      name: 'occurrence',
-      condition: [{ if: getValueByName('Observations', 'Oswald (1997) Class III Bulls') }],
+      sheetName: 'occurrence',
+      condition: {
+        type: 'and',
+        checks: [{ ifNotEmpty: getValuesByName('Observations', ['Oswald (1997) Class III Bulls']) }]
+      },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -437,8 +547,10 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
-              postfix: 'auto'
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: '11'
+              }
             }
           ]
         },
@@ -450,14 +562,17 @@ export const schema: TransformSchema = {
       ]
     },
     {
-      name: 'occurrence',
-      condition: [{ if: getValueByName('Observations', 'Adult Bulls - Unclassified') }],
+      sheetName: 'occurrence',
+      condition: {
+        type: 'and',
+        checks: [{ ifNotEmpty: getValuesByName('Observations', ['Adult Bulls - Unclassified']) }]
+      },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -465,8 +580,10 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
-              postfix: 'auto'
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: '12'
+              }
             }
           ]
         },
@@ -478,14 +595,14 @@ export const schema: TransformSchema = {
       ]
     },
     {
-      name: 'occurrence',
-      condition: [{ if: getValueByName('Observations', 'Bulls - Unclassified') }],
+      sheetName: 'occurrence',
+      condition: { type: 'and', checks: [{ ifNotEmpty: getValuesByName('Observations', ['Bulls - Unclassified']) }] },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -493,8 +610,10 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
-              postfix: 'auto'
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: '13'
+              }
             }
           ]
         },
@@ -506,14 +625,14 @@ export const schema: TransformSchema = {
       ]
     },
     {
-      name: 'occurrence',
-      condition: [{ if: getValueByName('Observations', 'Cow') }],
+      sheetName: 'occurrence',
+      condition: { type: 'and', checks: [{ ifNotEmpty: getValuesByName('Observations', ['Cow']) }] },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -521,8 +640,10 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
-              postfix: 'auto'
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: '14'
+              }
             }
           ]
         },
@@ -534,14 +655,14 @@ export const schema: TransformSchema = {
       ]
     },
     {
-      name: 'occurrence',
-      condition: [{ if: getValueByName('Observations', 'Calves') }],
+      sheetName: 'occurrence',
+      condition: { type: 'and', checks: [{ ifNotEmpty: getValuesByName('Observations', ['Calves']) }] },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -549,8 +670,10 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
-              postfix: 'auto'
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: '15'
+              }
             }
           ]
         },
@@ -562,14 +685,14 @@ export const schema: TransformSchema = {
       ]
     },
     {
-      name: 'occurrence',
-      condition: [{ if: getValueByName('Observations', 'Adult Unclassified Sex') }],
+      sheetName: 'occurrence',
+      condition: { type: 'and', checks: [{ ifNotEmpty: getValuesByName('Observations', ['Adult Unclassified Sex']) }] },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -577,8 +700,10 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
-              postfix: 'auto'
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: '16'
+              }
             }
           ]
         },
@@ -590,14 +715,14 @@ export const schema: TransformSchema = {
       ]
     },
     {
-      name: 'occurrence',
-      condition: [{ if: getValueByName('Observations', 'Unclassified Age/Sex') }],
+      sheetName: 'occurrence',
+      condition: { type: 'and', checks: [{ ifNotEmpty: getValuesByName('Observations', ['Unclassified Age/Sex']) }] },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -605,8 +730,10 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
-              postfix: 'auto'
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: '17'
+              }
             }
           ]
         },
@@ -618,13 +745,19 @@ export const schema: TransformSchema = {
       ]
     },
     {
-      name: 'organism',
+      sheetName: 'organism',
+      condition: {
+        type: 'and',
+        checks: [
+          { ifNotEmpty: getValuesByName('Marked Animals', ['Wildlife Health ID', 'Animal ID', 'Telemetry Device ID']) }
+        ]
+      },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -632,8 +765,7 @@ export const schema: TransformSchema = {
           columnName: 'organismID',
           columnValue: [
             {
-              paths: [getMultipleValuesByName('Marked Animals', ['Wildlife Health ID', 'Animal ID'])],
-              join: '|'
+              paths: [getValuesByName('Marked Animals', ['_key']), getValuesByName('Marked Animals', ['_row'])]
             }
           ]
         },
@@ -641,29 +773,51 @@ export const schema: TransformSchema = {
       ]
     },
     {
-      name: 'measurementOrFact',
+      sheetName: 'measurementOrFact',
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+            }
+          ]
+        },
+        {
+          columnName: 'measurementID',
+          columnValue: [
+            {
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: 'study-area'
+              }
             }
           ]
         },
         createValueField('measurementType', 'Study Area'),
-        createValueField('measurementUnit', 'Text'),
+        createValueField('measurementUnit', ''),
         createPathField('measurementValue', 'Block Summary', ['Study Area'])
       ]
     },
     {
-      name: 'measurementOrFact',
+      sheetName: 'measurementOrFact',
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+            }
+          ]
+        },
+        {
+          columnName: 'measurementID',
+          columnValue: [
+            {
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: 'block-id/su-id'
+              }
             }
           ]
         },
@@ -673,29 +827,51 @@ export const schema: TransformSchema = {
       ]
     },
     {
-      name: 'measurementOrFact',
+      sheetName: 'measurementOrFact',
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+            }
+          ]
+        },
+        {
+          columnName: 'measurementID',
+          columnValue: [
+            {
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: 'stratum'
+              }
             }
           ]
         },
         createValueField('measurementType', 'Stratum'),
-        createValueField('measurementUnit', 'Text'),
+        createValueField('measurementUnit', ''),
         createPathField('measurementValue', 'Block Summary', ['Stratum'])
       ]
     },
     {
-      name: 'measurementOrFact',
+      sheetName: 'measurementOrFact',
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+            }
+          ]
+        },
+        {
+          columnName: 'measurementID',
+          columnValue: [
+            {
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: 'stratum/block-area'
+              }
             }
           ]
         },
@@ -705,13 +881,24 @@ export const schema: TransformSchema = {
       ]
     },
     {
-      name: 'measurementOrFact',
+      sheetName: 'measurementOrFact',
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+            }
+          ]
+        },
+        {
+          columnName: 'measurementID',
+          columnValue: [
+            {
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: 'sampled'
+              }
             }
           ]
         },
@@ -721,29 +908,51 @@ export const schema: TransformSchema = {
       ]
     },
     {
-      name: 'measurementOrFact',
+      sheetName: 'measurementOrFact',
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+            }
+          ]
+        },
+        {
+          columnName: 'measurementID',
+          columnValue: [
+            {
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: 'group-label'
+              }
             }
           ]
         },
         createValueField('measurementType', 'Group Label'),
-        createValueField('measurementUnit', 'Text'),
+        createValueField('measurementUnit', ''),
         createPathField('measurementValue', 'Observations', ['Group Label'])
       ]
     },
     {
-      name: 'measurementOrFact',
+      sheetName: 'measurementOrFact',
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+            }
+          ]
+        },
+        {
+          columnName: 'measurementID',
+          columnValue: [
+            {
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: 'cow-w/1-calf'
+              }
             }
           ]
         },
@@ -753,13 +962,24 @@ export const schema: TransformSchema = {
       ]
     },
     {
-      name: 'measurementOrFact',
+      sheetName: 'measurementOrFact',
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+            }
+          ]
+        },
+        {
+          columnName: 'measurementID',
+          columnValue: [
+            {
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: 'cow-w/2-calves'
+              }
             }
           ]
         },
@@ -769,45 +989,127 @@ export const schema: TransformSchema = {
       ]
     },
     {
-      name: 'measurementOrFact',
+      sheetName: 'measurementOrFact',
+      condition: {
+        type: 'or',
+        checks: [
+          { ifNotEmpty: getValuesByName('Observations', ['Sign Type']) },
+          { ifNotEmpty: getValuesByName('Observations', ['Sign Count']) }
+        ]
+      },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+            }
+          ]
+        },
+        {
+          columnName: 'measurementID',
+          columnValue: [
+            {
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: 'sign-type'
+              }
             }
           ]
         },
         createValueField('measurementType', 'Sign Type'),
-        createValueField('measurementUnit', 'Text'),
+        createValueField('measurementUnit', ''),
         createPathField('measurementValue', 'Observations', ['Sign Type'])
       ]
     },
     {
-      name: 'measurementOrFact',
+      sheetName: 'measurementOrFact',
+      condition: {
+        type: 'or',
+        checks: [
+          { ifNotEmpty: getValuesByName('Observations', ['Sign Count']) },
+          { ifNotEmpty: getValuesByName('Observations', ['Sign Type']) }
+        ]
+      },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+            }
+          ]
+        },
+        {
+          columnName: 'measurementID',
+          columnValue: [
+            {
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: 'sign-count'
+              }
+            }
+          ]
+        },
+        createValueField('measurementType', 'Sign Count'),
+        createValueField('measurementUnit', ''),
+        createPathField('measurementValue', 'Observations', ['Sign Count'])
+      ]
+    },
+    {
+      sheetName: 'measurementOrFact',
+      condition: {
+        type: 'and',
+        checks: [{ ifNotEmpty: getValuesByName('Observations', ['Age of Sign']) }]
+      },
+      fields: [
+        {
+          columnName: 'eventID',
+          columnValue: [
+            {
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+            }
+          ]
+        },
+        {
+          columnName: 'measurementID',
+          columnValue: [
+            {
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: 'age-of-sign'
+              }
             }
           ]
         },
         createValueField('measurementType', 'Age of Sign'),
-        createValueField('measurementUnit', 'Text'),
+        createValueField('measurementUnit', ''),
         createPathField('measurementValue', 'Observations', ['Age of Sign'])
       ]
     },
     {
-      name: 'measurementOrFact',
+      sheetName: 'measurementOrFact',
+      condition: {
+        type: 'and',
+        checks: [{ ifNotEmpty: getValuesByName('Observations', ['Veg Cover (%)']) }]
+      },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+            }
+          ]
+        },
+        {
+          columnName: 'measurementID',
+          columnValue: [
+            {
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: 'veg-cover'
+              }
             }
           ]
         },
@@ -817,13 +1119,28 @@ export const schema: TransformSchema = {
       ]
     },
     {
-      name: 'measurementOrFact',
+      sheetName: 'measurementOrFact',
+      condition: {
+        type: 'and',
+        checks: [{ ifNotEmpty: getValuesByName('Observations', ['Snow Cover (%)']) }]
+      },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+            }
+          ]
+        },
+        {
+          columnName: 'measurementID',
+          columnValue: [
+            {
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: 'snow-cover'
+              }
             }
           ]
         },
@@ -833,29 +1150,59 @@ export const schema: TransformSchema = {
       ]
     },
     {
-      name: 'measurementOrFact',
+      sheetName: 'measurementOrFact',
+      condition: {
+        type: 'and',
+        checks: [{ ifNotEmpty: getValuesByName('Observations', ['Activity']) }]
+      },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+            }
+          ]
+        },
+        {
+          columnName: 'measurementID',
+          columnValue: [
+            {
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: 'activity'
+              }
             }
           ]
         },
         createValueField('measurementType', 'Activity'),
-        createValueField('measurementUnit', 'Text'),
+        createValueField('measurementUnit', ''),
         createPathField('measurementValue', 'Observations', ['Activity'])
       ]
     },
     {
-      name: 'measurementOrFact',
+      sheetName: 'measurementOrFact',
+      condition: {
+        type: 'and',
+        checks: [{ ifNotEmpty: getValuesByName('Observations', ['Number of Marked Animals Observed']) }]
+      },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+            }
+          ]
+        },
+        {
+          columnName: 'measurementID',
+          columnValue: [
+            {
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: 'number-of-marked-animals-observed'
+              }
             }
           ]
         },
@@ -865,45 +1212,79 @@ export const schema: TransformSchema = {
       ]
     },
     {
-      name: 'measurementOrFact',
+      sheetName: 'measurementOrFact',
+      condition: {
+        type: 'and',
+        checks: [{ ifNotEmpty: getValuesByName('Observations', ['Survey or Telemetry Search']) }]
+      },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+            }
+          ]
+        },
+        {
+          columnName: 'measurementID',
+          columnValue: [
+            {
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: 'survey-or-telemetry-search'
+              }
             }
           ]
         },
         createValueField('measurementType', 'Survey or Telemetry Search'),
-        createValueField('measurementUnit', 'Text'),
+        createValueField('measurementUnit', ''),
         createPathField('measurementValue', 'Observations', ['Survey or Telemetry Search'])
       ]
     },
     {
-      name: 'measurementOrFact',
+      sheetName: 'measurementOrFact',
+      condition: {
+        type: 'and',
+        checks: [{ ifNotEmpty: getValuesByName('Observations', ['Photos']) }]
+      },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+            }
+          ]
+        },
+        {
+          columnName: 'measurementID',
+          columnValue: [
+            {
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+              postfix: {
+                value: 'photos'
+              }
             }
           ]
         },
         createValueField('measurementType', 'Photos'),
-        createValueField('measurementUnit', 'Text'),
+        createValueField('measurementUnit', ''),
         createPathField('measurementValue', 'Observations', ['Photos'])
       ]
     },
     {
-      name: 'measurementOrFact',
+      sheetName: 'measurementOrFact',
+      condition: {
+        type: 'and',
+        checks: [{ ifNotEmpty: getValuesByName('Observations', ['Targeted or Non-Targeted']) }]
+      },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -911,24 +1292,38 @@ export const schema: TransformSchema = {
           columnName: 'organismID',
           columnValue: [
             {
-              paths: [getMultipleValuesByName('Marked Animals', ['Wildlife Health ID', 'Animal ID'])],
-              join: '|'
+              paths: [getValuesByName('Marked Animals', ['_key']), getValuesByName('Marked Animals', ['_row'])]
+            }
+          ]
+        },
+        {
+          columnName: 'measurementID',
+          columnValue: [
+            {
+              paths: [getValuesByName('Marked Animals', ['_key']), getValuesByName('Marked Animals', ['_row'])],
+              postfix: {
+                value: 'targeted-or-non-targeted'
+              }
             }
           ]
         },
         createValueField('measurementType', 'Targeted or Non-Targeted'),
-        createValueField('measurementUnit', 'Text'),
+        createValueField('measurementUnit', ''),
         createPathField('measurementValue', 'Marked Animals', ['Targeted or Non-Targeted'])
       ]
     },
     {
-      name: 'measurementOrFact',
+      sheetName: 'measurementOrFact',
+      condition: {
+        type: 'and',
+        checks: [{ ifNotEmpty: getValuesByName('Marked Animals', ['Wildlife Health ID']) }]
+      },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -936,24 +1331,38 @@ export const schema: TransformSchema = {
           columnName: 'organismID',
           columnValue: [
             {
-              paths: [getMultipleValuesByName('Marked Animals', ['Wildlife Health ID', 'Animal ID'])],
-              join: '|'
+              paths: [getValuesByName('Marked Animals', ['_key']), getValuesByName('Marked Animals', ['_row'])]
+            }
+          ]
+        },
+        {
+          columnName: 'measurementID',
+          columnValue: [
+            {
+              paths: [getValuesByName('Marked Animals', ['_key']), getValuesByName('Marked Animals', ['_row'])],
+              postfix: {
+                value: 'wildlife-health-id'
+              }
             }
           ]
         },
         createValueField('measurementType', 'Wildlife Health ID'),
-        createValueField('measurementUnit', 'Text'),
+        createValueField('measurementUnit', ''),
         createPathField('measurementValue', 'Marked Animals', ['Wildlife Health ID'])
       ]
     },
     {
-      name: 'measurementOrFact',
+      sheetName: 'measurementOrFact',
+      condition: {
+        type: 'and',
+        checks: [{ ifNotEmpty: getValuesByName('Marked Animals', ['Animal ID']) }]
+      },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -961,24 +1370,38 @@ export const schema: TransformSchema = {
           columnName: 'organismID',
           columnValue: [
             {
-              paths: [getMultipleValuesByName('Marked Animals', ['Wildlife Health ID', 'Animal ID'])],
-              join: '|'
+              paths: [getValuesByName('Marked Animals', ['_key']), getValuesByName('Marked Animals', ['_row'])]
+            }
+          ]
+        },
+        {
+          columnName: 'measurementID',
+          columnValue: [
+            {
+              paths: [getValuesByName('Marked Animals', ['_key']), getValuesByName('Marked Animals', ['_row'])],
+              postfix: {
+                value: 'animal-id'
+              }
             }
           ]
         },
         createValueField('measurementType', 'Animal ID'),
-        createValueField('measurementUnit', 'Text'),
+        createValueField('measurementUnit', ''),
         createPathField('measurementValue', 'Marked Animals', ['Animal ID'])
       ]
     },
     {
-      name: 'measurementOrFact',
+      sheetName: 'measurementOrFact',
+      condition: {
+        type: 'and',
+        checks: [{ ifNotEmpty: getValuesByName('Marked Animals', ['Telemetry Device ID']) }]
+      },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -986,24 +1409,38 @@ export const schema: TransformSchema = {
           columnName: 'organismID',
           columnValue: [
             {
-              paths: [getMultipleValuesByName('Marked Animals', ['Wildlife Health ID', 'Animal ID'])],
-              join: '|'
+              paths: [getValuesByName('Marked Animals', ['_key']), getValuesByName('Marked Animals', ['_row'])]
+            }
+          ]
+        },
+        {
+          columnName: 'measurementID',
+          columnValue: [
+            {
+              paths: [getValuesByName('Marked Animals', ['_key']), getValuesByName('Marked Animals', ['_row'])],
+              postfix: {
+                value: 'telemetry-device-id'
+              }
             }
           ]
         },
         createValueField('measurementType', 'Telemetry Device ID'),
-        createValueField('measurementUnit', 'Text'),
+        createValueField('measurementUnit', ''),
         createPathField('measurementValue', 'Marked Animals', ['Telemetry Device ID'])
       ]
     },
     {
-      name: 'measurementOrFact',
+      sheetName: 'measurementOrFact',
+      condition: {
+        type: 'and',
+        checks: [{ ifNotEmpty: getValuesByName('Marked Animals', ['Collar/Tag Frequency']) }]
+      },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -1011,24 +1448,38 @@ export const schema: TransformSchema = {
           columnName: 'organismID',
           columnValue: [
             {
-              paths: [getMultipleValuesByName('Marked Animals', ['Wildlife Health ID', 'Animal ID'])],
-              join: '|'
+              paths: [getValuesByName('Marked Animals', ['_key']), getValuesByName('Marked Animals', ['_row'])]
+            }
+          ]
+        },
+        {
+          columnName: 'measurementID',
+          columnValue: [
+            {
+              paths: [getValuesByName('Marked Animals', ['_key']), getValuesByName('Marked Animals', ['_row'])],
+              postfix: {
+                value: 'collar/tag-frequency'
+              }
             }
           ]
         },
         createValueField('measurementType', 'Collar/Tag Frequency'),
-        createValueField('measurementUnit', 'Text'),
+        createPathField('measurementUnit', 'Marked Animals', ['Frequency Unit']),
         createPathField('measurementValue', 'Marked Animals', ['Collar/Tag Frequency'])
       ]
     },
     {
-      name: 'measurementOrFact',
+      sheetName: 'measurementOrFact',
+      condition: {
+        type: 'and',
+        checks: [{ ifNotEmpty: getValuesByName('Marked Animals', ['Right Ear Tag ID']) }]
+      },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -1036,49 +1487,38 @@ export const schema: TransformSchema = {
           columnName: 'organismID',
           columnValue: [
             {
-              paths: [getMultipleValuesByName('Marked Animals', ['Wildlife Health ID', 'Animal ID'])],
-              join: '|'
-            }
-          ]
-        },
-        createValueField('measurementType', 'Frequency'),
-        createPathField('measurementUnit', 'Marked Animals', ['Frequency Unit']),
-        createPathField('measurementValue', 'Marked Animals', ['Frequency'])
-      ]
-    },
-    {
-      name: 'measurementOrFact',
-      fields: [
-        {
-          columnName: 'eventID',
-          columnValue: [
-            {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Marked Animals', ['_key']), getValuesByName('Marked Animals', ['_row'])]
             }
           ]
         },
         {
-          columnName: 'organismID',
+          columnName: 'measurementID',
           columnValue: [
             {
-              paths: [getMultipleValuesByName('Marked Animals', ['Wildlife Health ID', 'Animal ID'])],
-              join: '|'
+              paths: [getValuesByName('Marked Animals', ['_key']), getValuesByName('Marked Animals', ['_row'])],
+              postfix: {
+                value: 'right-ear-tag-id'
+              }
             }
           ]
         },
         createValueField('measurementType', 'Right Ear Tag ID'),
-        createValueField('measurementUnit', 'Text'),
+        createValueField('measurementUnit', ''),
         createPathField('measurementValue', 'Marked Animals', ['Right Ear Tag ID'])
       ]
     },
     {
-      name: 'measurementOrFact',
+      sheetName: 'measurementOrFact',
+      condition: {
+        type: 'and',
+        checks: [{ ifNotEmpty: getValuesByName('Marked Animals', ['Right Ear Tag Colour']) }]
+      },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -1086,24 +1526,38 @@ export const schema: TransformSchema = {
           columnName: 'organismID',
           columnValue: [
             {
-              paths: [getMultipleValuesByName('Marked Animals', ['Wildlife Health ID', 'Animal ID'])],
-              join: '|'
+              paths: [getValuesByName('Marked Animals', ['_key']), getValuesByName('Marked Animals', ['_row'])]
+            }
+          ]
+        },
+        {
+          columnName: 'measurementID',
+          columnValue: [
+            {
+              paths: [getValuesByName('Marked Animals', ['_key']), getValuesByName('Marked Animals', ['_row'])],
+              postfix: {
+                value: 'right-ear-tag-colour'
+              }
             }
           ]
         },
         createValueField('measurementType', 'Right Ear Tag Colour'),
-        createValueField('measurementUnit', 'Text'),
+        createValueField('measurementUnit', ''),
         createPathField('measurementValue', 'Marked Animals', ['Right Ear Tag Colour'])
       ]
     },
     {
-      name: 'measurementOrFact',
+      sheetName: 'measurementOrFact',
+      condition: {
+        type: 'and',
+        checks: [{ ifNotEmpty: getValuesByName('Marked Animals', ['Left Ear Tag ID']) }]
+      },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -1111,24 +1565,38 @@ export const schema: TransformSchema = {
           columnName: 'organismID',
           columnValue: [
             {
-              paths: [getMultipleValuesByName('Marked Animals', ['Wildlife Health ID', 'Animal ID'])],
-              join: '|'
+              paths: [getValuesByName('Marked Animals', ['_key']), getValuesByName('Marked Animals', ['_row'])]
+            }
+          ]
+        },
+        {
+          columnName: 'measurementID',
+          columnValue: [
+            {
+              paths: [getValuesByName('Marked Animals', ['_key']), getValuesByName('Marked Animals', ['_row'])],
+              postfix: {
+                value: 'left-ear-tag-id'
+              }
             }
           ]
         },
         createValueField('measurementType', 'Left Ear Tag ID'),
-        createValueField('measurementUnit', 'Text'),
+        createValueField('measurementUnit', ''),
         createPathField('measurementValue', 'Marked Animals', ['Left Ear Tag ID'])
       ]
     },
     {
-      name: 'measurementOrFact',
+      sheetName: 'measurementOrFact',
+      condition: {
+        type: 'and',
+        checks: [{ ifNotEmpty: getValuesByName('Marked Animals', ['Left Ear Tag Colour']) }]
+      },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Block Summary', '_key')]
+              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -1136,37 +1604,51 @@ export const schema: TransformSchema = {
           columnName: 'organismID',
           columnValue: [
             {
-              paths: [getMultipleValuesByName('Marked Animals', ['Wildlife Health ID', 'Animal ID'])],
-              join: '|'
+              paths: [getValuesByName('Marked Animals', ['_key']), getValuesByName('Marked Animals', ['_row'])]
+            }
+          ]
+        },
+        {
+          columnName: 'measurementID',
+          columnValue: [
+            {
+              paths: [getValuesByName('Marked Animals', ['_key']), getValuesByName('Marked Animals', ['_row'])],
+              postfix: {
+                value: 'left-ear-tag-colour'
+              }
             }
           ]
         },
         createValueField('measurementType', 'Left Ear Tag Colour'),
-        createValueField('measurementUnit', 'Text'),
+        createValueField('measurementUnit', ''),
         createPathField('measurementValue', 'Marked Animals', ['Left Ear Tag Colour'])
       ]
     }
   ],
   dwcMeta: [
     {
-      name: 'event',
+      sheetName: 'record',
       primaryKey: ['eventID']
     },
     {
-      name: 'location',
+      sheetName: 'event',
       primaryKey: ['eventID']
     },
     {
-      name: 'occurrence',
+      sheetName: 'location',
+      primaryKey: ['eventID']
+    },
+    {
+      sheetName: 'occurrence',
       primaryKey: ['occurrenceID']
     },
     {
-      name: 'organism',
-      primaryKey: ['organismID ']
+      sheetName: 'organism',
+      primaryKey: ['organismID']
     },
     {
-      name: 'measurementOrFact',
-      primaryKey: ['eventID', 'occurrenceID']
+      sheetName: 'measurementOrFact',
+      primaryKey: ['eventID', 'measurementID', 'occurrenceID', 'organismID']
     }
   ]
 };

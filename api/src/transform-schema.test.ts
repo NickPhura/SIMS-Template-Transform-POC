@@ -1,7 +1,7 @@
 import Ajv from 'ajv';
 import { expect } from 'chai';
 import { describe } from 'mocha';
-import { transformationJSONSchema } from './transform-schema';
+import { transformationJSONSchema } from './transform-json-schema';
 
 describe('transformationJSONSchema', () => {
   const ajv = new Ajv();

@@ -1,6 +1,5 @@
-import { createPathField, createValueField, getMultipleValuesByName, getValueByName } from '../json-path-queries';
+import { createPathField, createValueField, getValuesByName } from '../json-path-queries';
 import { TransformSchema } from '../schema-utils';
-
 
 // is the non srb missing something? how are we supposed to uniquely identify events/ occurrences
 // what are the differences between unclassified and unclassified age/sex?
@@ -28,14 +27,14 @@ export const schema: TransformSchema = {
         }
       ]
     },
-    { 
+    {
       name: 'Observations',
       primaryKey: ['Lat', 'Long'],
       parentKey: ['Study Area', 'Date'],
       type: '',
       foreignKeys: []
     },
-    { 
+    {
       name: 'Incidental Observations',
       primaryKey: ['Lat', 'Long'],
       parentKey: ['Study Area', 'Date'],
@@ -51,7 +50,7 @@ export const schema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions', '_key')]
+              paths: [getValuesByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -59,7 +58,7 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')]
+              paths: [getValuesByName('Observations', ['_key'])]
             }
           ]
         },
@@ -74,7 +73,7 @@ export const schema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions', '_key')]
+              paths: [getValuesByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -82,7 +81,7 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
+              paths: [getValuesByName('Observations', ['_key'])]
             }
           ]
         },
@@ -90,11 +89,11 @@ export const schema: TransformSchema = {
           columnName: 'verbatimCoordinates',
           columnValue: [
             {
-              paths: [getMultipleValuesByName('Observations', ['UTM Zone ', 'Easting', 'Northing'])],
+              paths: [getValuesByName('Observations', ['UTM Zone ', 'Easting', 'Northing'])],
               join: ' '
             },
             {
-              paths: [getMultipleValuesByName('Observations', ['Lat', 'Long '])],
+              paths: [getValuesByName('Observations', ['Lat', 'Long '])],
               join: ' '
             }
           ]
@@ -105,13 +104,13 @@ export const schema: TransformSchema = {
     },
     {
       name: 'occurrence',
-      condition:[{ if: getValueByName('Observations', 'Yearling Bulls')}],
+      condition: [{ if: getValuesByName('Observations', ['Yearling Bulls']) }],
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions', '_key')]
+              paths: [getValuesByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -119,7 +118,7 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
+              paths: [getValuesByName('Observations', ['_key'])],
               postfix: '1'
             }
           ]
@@ -133,13 +132,13 @@ export const schema: TransformSchema = {
     },
     {
       name: 'occurrence',
-      condition:[{ if: getValueByName('Observations', 'Adult Bulls - Unclassified')}],
+      condition: [{ if: getValuesByName('Observations', ['Adult Bulls - Unclassified']) }],
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions', '_key')]
+              paths: [getValuesByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -147,7 +146,7 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
+              paths: [getValuesByName('Observations', ['_key'])],
               postfix: '2'
             }
           ]
@@ -161,13 +160,13 @@ export const schema: TransformSchema = {
     },
     {
       name: 'occurrence',
-      condition:[{ if: getValueByName('Observations', 'Sub-Prime Bulls')}],
+      condition: [{ if: getValuesByName('Observations', ['Sub-Prime Bulls']) }],
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions', '_key')]
+              paths: [getValuesByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -175,7 +174,7 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
+              paths: [getValuesByName('Observations', ['_key'])],
               postfix: '3'
             }
           ]
@@ -189,13 +188,13 @@ export const schema: TransformSchema = {
     },
     {
       name: 'occurrence',
-      condition:[{ if: getValueByName('Observations', 'Prime Bulls')}],
+      condition: [{ if: getValuesByName('Observations', ['Prime Bulls']) }],
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions', '_key')]
+              paths: [getValuesByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -203,7 +202,7 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
+              paths: [getValuesByName('Observations', ['_key'])],
               postfix: '4'
             }
           ]
@@ -217,13 +216,13 @@ export const schema: TransformSchema = {
     },
     {
       name: 'occurrence',
-      condition:[{ if: getValueByName('Observations', 'Senior Bulls')}],
+      condition: [{ if: getValuesByName('Observations', ['Senior Bulls']) }],
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions', '_key')]
+              paths: [getValuesByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -231,7 +230,7 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
+              paths: [getValuesByName('Observations', ['_key'])],
               postfix: '5'
             }
           ]
@@ -245,13 +244,13 @@ export const schema: TransformSchema = {
     },
     {
       name: 'occurrence',
-      condition:[{ if: getValueByName('Observations', 'RISC Class I Bulls')}],
+      condition: [{ if: getValuesByName('Observations', ['RISC Class I Bulls']) }],
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions', '_key')]
+              paths: [getValuesByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -259,7 +258,7 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
+              paths: [getValuesByName('Observations', ['_key'])],
               postfix: '6'
             }
           ]
@@ -273,13 +272,13 @@ export const schema: TransformSchema = {
     },
     {
       name: 'occurrence',
-      condition:[{ if: getValueByName('Observations', 'RISC Class II Bulls')}],
+      condition: [{ if: getValuesByName('Observations', ['RISC Class II Bulls']) }],
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions', '_key')]
+              paths: [getValuesByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -287,7 +286,7 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
+              paths: [getValuesByName('Observations', ['_key'])],
               postfix: '7'
             }
           ]
@@ -301,13 +300,13 @@ export const schema: TransformSchema = {
     },
     {
       name: 'occurrence',
-      condition:[{ if: getValueByName('Observations', 'RISC Class III Bulls')}],
+      condition: [{ if: getValuesByName('Observations', ['RISC Class III Bulls']) }],
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions', '_key')]
+              paths: [getValuesByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -315,7 +314,7 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
+              paths: [getValuesByName('Observations', ['_key'])],
               postfix: '8'
             }
           ]
@@ -329,13 +328,13 @@ export const schema: TransformSchema = {
     },
     {
       name: 'occurrence',
-      condition:[{ if: getValueByName('Observations', 'Oswald (1997) Class I Bulls')}],
+      condition: [{ if: getValuesByName('Observations', 'Oswald (1997) Class I Bulls') }],
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions', '_key')]
+              paths: [getValuesByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -343,7 +342,7 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
+              paths: [getValuesByName('Observations', ['_key'])],
               postfix: '9'
             }
           ]
@@ -357,13 +356,13 @@ export const schema: TransformSchema = {
     },
     {
       name: 'occurrence',
-      condition:[{ if: getValueByName('Observations', 'Oswald (1997) Class II Bulls')}],
+      condition: [{ if: getValuesByName('Observations', 'Oswald (1997) Class II Bulls') }],
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions', '_key')]
+              paths: [getValuesByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -371,7 +370,7 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
+              paths: [getValuesByName('Observations', ['_key'])],
               postfix: '10'
             }
           ]
@@ -385,13 +384,13 @@ export const schema: TransformSchema = {
     },
     {
       name: 'occurrence',
-      condition:[{ if: getValueByName('Observations', 'Oswald (1997) Class III Bulls')}],
+      condition: [{ if: getValuesByName('Observations', 'Oswald (1997) Class III Bulls') }],
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions', '_key')]
+              paths: [getValuesByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -399,7 +398,7 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
+              paths: [getValuesByName('Observations', ['_key'])],
               postfix: '11'
             }
           ]
@@ -413,13 +412,13 @@ export const schema: TransformSchema = {
     },
     {
       name: 'occurrence',
-      condition:[{ if: getValueByName('Observations', 'Bulls - Unclassified')}],
+      condition: [{ if: getValuesByName('Observations', ['Bulls - Unclassified']) }],
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions', '_key')]
+              paths: [getValuesByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -427,7 +426,7 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
+              paths: [getValuesByName('Observations', ['_key'])],
               postfix: '12'
             }
           ]
@@ -441,13 +440,13 @@ export const schema: TransformSchema = {
     },
     {
       name: 'occurrence',
-      condition:[{ if: getValueByName('Observations', 'Lone Cows')}],
+      condition: [{ if: getValuesByName('Observations', ['Lone Cows']) }],
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions', '_key')]
+              paths: [getValuesByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -455,7 +454,7 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
+              paths: [getValuesByName('Observations', ['_key'])],
               postfix: '13'
             }
           ]
@@ -469,13 +468,13 @@ export const schema: TransformSchema = {
     },
     {
       name: 'occurrence',
-      condition:[{ if: getValueByName('Observations', 'Lone Calf')}],
+      condition: [{ if: getValuesByName('Observations', ['Lone Calf']) }],
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions', '_key')]
+              paths: [getValuesByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -483,7 +482,7 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
+              paths: [getValuesByName('Observations', ['_key'])],
               postfix: '14'
             }
           ]
@@ -497,7 +496,7 @@ export const schema: TransformSchema = {
     },
     {
       name: 'occurrence',
-      condition:[{ if: getValueByName('Observations', 'Cow W/1 calf')}],
+      condition: [{ if: getValuesByName('Observations', 'Cow W/1 calf') }],
       add: [
         {
           name: 'occurrence',
@@ -506,7 +505,7 @@ export const schema: TransformSchema = {
               columnName: 'eventID',
               columnValue: [
                 {
-                  paths: [getValueByName('Effort & Site Conditions', '_key')]
+                  paths: [getValuesByName('Effort & Site Conditions', '_key')]
                 }
               ]
             },
@@ -514,7 +513,7 @@ export const schema: TransformSchema = {
               columnName: 'occurrenceID',
               columnValue: [
                 {
-                  paths: [getValueByName('Observations', '_key')],
+                  paths: [getValuesByName('Observations', ['_key'])],
                   postfix: '15:1'
                 }
               ]
@@ -523,16 +522,16 @@ export const schema: TransformSchema = {
             createValueField('sex', 'unknown'),
             createValueField('lifeStage', 'juvenile'),
             createPathField('occurrenceRemarks', 'Observations', ['Observation Comments']),
-        createPathField('behavior', 'Observations', ['Activity'])
+            createPathField('behavior', 'Observations', ['Activity'])
           ]
-        },
+        }
       ],
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions', '_key')]
+              paths: [getValuesByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -540,7 +539,7 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
+              paths: [getValuesByName('Observations', ['_key'])],
               postfix: '15'
             }
           ]
@@ -554,7 +553,7 @@ export const schema: TransformSchema = {
     },
     {
       name: 'occurrence',
-      condition:[{ if: getValueByName('Observations', 'Cow W/2 calves')}],
+      condition: [{ if: getValuesByName('Observations', 'Cow W/2 calves') }],
       add: [
         {
           name: 'occurrence',
@@ -563,7 +562,7 @@ export const schema: TransformSchema = {
               columnName: 'eventID',
               columnValue: [
                 {
-                  paths: [getValueByName('Effort & Site Conditions', '_key')]
+                  paths: [getValuesByName('Effort & Site Conditions', '_key')]
                 }
               ]
             },
@@ -571,35 +570,8 @@ export const schema: TransformSchema = {
               columnName: 'occurrenceID',
               columnValue: [
                 {
-                  paths: [getValueByName('Observations', '_key')],
+                  paths: [getValuesByName('Observations', ['_key'])],
                   postfix: '16:1'
-                }
-              ]
-            },
-            createValueField('individualCount', '1'),
-            createValueField('sex', 'unknown'),
-            createValueField('lifeStage', 'juvenile'),
-            createPathField('occurrenceRemarks', 'Observations', ['Observation Comments']),
-        createPathField('behavior', 'Observations', ['Activity'])
-          ]
-        },
-        {
-          name: 'occurrence',
-          fields: [
-            {
-              columnName: 'eventID',
-              columnValue: [
-                {
-                  paths: [getValueByName('Effort & Site Conditions', '_key')]
-                }
-              ]
-            },
-            {
-              columnName: 'occurrenceID',
-              columnValue: [
-                {
-                  paths: [getValueByName('Observations', '_key')],
-                  postfix: '16:2'
                 }
               ]
             },
@@ -610,13 +582,40 @@ export const schema: TransformSchema = {
             createPathField('behavior', 'Observations', ['Activity'])
           ]
         },
+        {
+          name: 'occurrence',
+          fields: [
+            {
+              columnName: 'eventID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Effort & Site Conditions', '_key')]
+                }
+              ]
+            },
+            {
+              columnName: 'occurrenceID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key'])],
+                  postfix: '16:2'
+                }
+              ]
+            },
+            createValueField('individualCount', '1'),
+            createValueField('sex', 'unknown'),
+            createValueField('lifeStage', 'juvenile'),
+            createPathField('occurrenceRemarks', 'Observations', ['Observation Comments']),
+            createPathField('behavior', 'Observations', ['Activity'])
+          ]
+        }
       ],
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions', '_key')]
+              paths: [getValuesByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -624,7 +623,7 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
+              paths: [getValuesByName('Observations', ['_key'])],
               postfix: '16'
             }
           ]
@@ -638,13 +637,13 @@ export const schema: TransformSchema = {
     },
     {
       name: 'occurrence',
-      condition:[{ if: getValueByName('Observations', 'Unclassified')}],
+      condition: [{ if: getValuesByName('Observations', ['Unclassified']) }],
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions', '_key')]
+              paths: [getValuesByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -652,7 +651,7 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
+              paths: [getValuesByName('Observations', ['_key'])],
               postfix: '17'
             }
           ]
@@ -666,13 +665,13 @@ export const schema: TransformSchema = {
     },
     {
       name: 'occurrence',
-      condition:[{ if: getValueByName('Observations', 'Adult Unclassified Sex')}],
+      condition: [{ if: getValuesByName('Observations', ['Adult Unclassified Sex']) }],
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions', '_key')]
+              paths: [getValuesByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -680,7 +679,7 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
+              paths: [getValuesByName('Observations', ['_key'])],
               postfix: '17'
             }
           ]
@@ -694,13 +693,13 @@ export const schema: TransformSchema = {
     },
     {
       name: 'occurrence',
-      condition:[{ if: getValueByName('Observations', 'Unclassified Age/Sex')}],
+      condition: [{ if: getValuesByName('Observations', 'Unclassified Age/Sex') }],
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions', '_key')]
+              paths: [getValuesByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -708,7 +707,7 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
+              paths: [getValuesByName('Observations', ['_key'])],
               postfix: '18'
             }
           ]
@@ -722,13 +721,13 @@ export const schema: TransformSchema = {
     },
     {
       name: 'occurrence',
-      condition:[{ if: getValueByName('Observations', '3 Brow/10 Points Bulls')}],
+      condition: [{ if: getValuesByName('Observations', '3 Brow/10 Points Bulls') }],
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions', '_key')]
+              paths: [getValuesByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -736,7 +735,7 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
+              paths: [getValuesByName('Observations', ['_key'])],
               postfix: '19'
             }
           ]
@@ -750,13 +749,13 @@ export const schema: TransformSchema = {
     },
     {
       name: 'occurrence',
-      condition:[{ if: getValueByName('Incidental Observations', 'Adult Males')}],
+      condition: [{ if: getValuesByName('Incidental Observations', 'Adult Males') }],
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions', '_key')]
+              paths: [getValuesByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -764,7 +763,7 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Incidental Observations', '_key')],
+              paths: [getValuesByName('Incidental Observations', '_key')],
               postfix: 'INC:1'
             }
           ]
@@ -779,13 +778,13 @@ export const schema: TransformSchema = {
     },
     {
       name: 'occurrence',
-      condition:[{ if: getValueByName('Incidental Observations', 'Adult Females')}],
+      condition: [{ if: getValuesByName('Incidental Observations', 'Adult Females') }],
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions', '_key')]
+              paths: [getValuesByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -793,7 +792,7 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Incidental Observations', '_key')],
+              paths: [getValuesByName('Incidental Observations', '_key')],
               postfix: 'INC:2'
             }
           ]
@@ -808,13 +807,13 @@ export const schema: TransformSchema = {
     },
     {
       name: 'occurrence',
-      condition:[{ if: getValueByName('Incidental Observations', 'Adults - Unclassified Sex')}],
+      condition: [{ if: getValuesByName('Incidental Observations', 'Adults - Unclassified Sex') }],
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions', '_key')]
+              paths: [getValuesByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -822,7 +821,7 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Incidental Observations', '_key')],
+              paths: [getValuesByName('Incidental Observations', '_key')],
               postfix: 'INC:3'
             }
           ]
@@ -837,13 +836,13 @@ export const schema: TransformSchema = {
     },
     {
       name: 'occurrence',
-      condition:[{ if: getValueByName('Incidental Observations', 'Juvenile Males')}],
+      condition: [{ if: getValuesByName('Incidental Observations', 'Juvenile Males') }],
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions', '_key')]
+              paths: [getValuesByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -851,7 +850,7 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Incidental Observations', '_key')],
+              paths: [getValuesByName('Incidental Observations', '_key')],
               postfix: 'INC:4'
             }
           ]
@@ -866,13 +865,13 @@ export const schema: TransformSchema = {
     },
     {
       name: 'occurrence',
-      condition:[{ if: getValueByName('Incidental Observations', 'Juvenile Females')}],
+      condition: [{ if: getValuesByName('Incidental Observations', 'Juvenile Females') }],
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions', '_key')]
+              paths: [getValuesByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -880,7 +879,7 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Incidental Observations', '_key')],
+              paths: [getValuesByName('Incidental Observations', '_key')],
               postfix: 'INC:5'
             }
           ]
@@ -895,13 +894,13 @@ export const schema: TransformSchema = {
     },
     {
       name: 'occurrence',
-      condition:[{ if: getValueByName('Incidental Observations', 'Juveniles - Unclassified Sex')}],
+      condition: [{ if: getValuesByName('Incidental Observations', 'Juveniles - Unclassified Sex') }],
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions', '_key')]
+              paths: [getValuesByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -909,7 +908,7 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Incidental Observations', '_key')],
+              paths: [getValuesByName('Incidental Observations', '_key')],
               postfix: 'INC:6'
             }
           ]
@@ -924,13 +923,13 @@ export const schema: TransformSchema = {
     },
     {
       name: 'occurrence',
-      condition:[{ if: getValueByName('Incidental Observations', 'Unknown Age/Sex')}],
+      condition: [{ if: getValuesByName('Incidental Observations', 'Unknown Age/Sex') }],
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions', '_key')]
+              paths: [getValuesByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -938,7 +937,7 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Incidental Observations', '_key')],
+              paths: [getValuesByName('Incidental Observations', '_key')],
               postfix: 'INC:7'
             }
           ]
@@ -958,7 +957,7 @@ export const schema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions', '_key')]
+              paths: [getValuesByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -966,7 +965,7 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
+              paths: [getValuesByName('Observations', ['_key'])],
               postfix: 'MF:1'
             }
           ]
@@ -983,7 +982,7 @@ export const schema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValueByName('Effort & Site Conditions', '_key')]
+              paths: [getValuesByName('Effort & Site Conditions', '_key')]
             }
           ]
         },
@@ -991,7 +990,7 @@ export const schema: TransformSchema = {
           columnName: 'occurrenceID',
           columnValue: [
             {
-              paths: [getValueByName('Observations', '_key')],
+              paths: [getValuesByName('Observations', ['_key'])],
               postfix: 'MF:1'
             }
           ]
@@ -1000,7 +999,7 @@ export const schema: TransformSchema = {
         createPathField('measurementValue', 'Observations', ['Snow Cover (%)']),
         createValueField('measurementUnit', '%')
       ]
-    },
+    }
   ],
   dwcMeta: [
     {
@@ -1024,4 +1023,4 @@ export const schema: TransformSchema = {
       primaryKey: ['eventID', 'occurrenceID']
     }
   ]
-}
+};
