@@ -1,9 +1,22 @@
-import jsonpatch, { Operation } from 'fast-json-patch';
 import { JSONPath } from 'jsonpath-plus';
 
 export type JSONPath = string;
 
-export type TemplateSchema = {
+export type ConditionSchema = {
+  type: 'and' | 'or';
+  checks: IfNotEmptyCheck[];
+};
+
+export type IfNotEmptyCheck = {
+  ifNotEmpty: JSONPath;
+};
+
+export type TemplateMetaForeignKeySchema = {
+  sheetName: string;
+  primaryKey: string[];
+};
+
+export type TemplateMetaSchema = {
   /**
    * The name of the sheet.
    *
@@ -18,21 +31,34 @@ export type TemplateSchema = {
   primaryKey: string[];
   parentKey: string[];
   type: 'root' | 'leaf' | '';
-  foreignKeys: ForeignKeySchema[];
+  foreignKeys: TemplateMetaForeignKeySchema[];
 };
 
-export type SchemaCondition = {
-  type: 'and' | 'or';
-  checks: IfNotEmptyCheck[];
-};
-
-export type IfNotEmptyCheck = {
-  ifNotEmpty: JSONPath;
-};
-
-export type ForeignKeySchema = {
-  sheetName: string;
-  primaryKey: string[];
+export type MapColumnValuePostfixSchema = {
+  /**
+   * An array of json path query strings.
+   *
+   * If multiple query strings are provided, they will be fetched in order, and the first one that returns a non-empty
+   * value will be used.
+   *
+   * A single query string may return one value, or an array of values.
+   *
+   * @type {JSONPath[]}
+   */
+  paths?: JSONPath[];
+  /**
+   * A static value to append to the end of the final `paths` value.
+   *
+   * Note:
+   * - `unique` - If `static` is set to the string `unique`, at transformation time this will be replaced with a unique
+   * number. This number will be distinct from all other `unique` values, but not necessarily unique from other values
+   * in the transformed data (it is not a guid).
+   *
+   * If `static` is set in addition to `paths`, the `paths` will be ignored.
+   *
+   * @type {(string | 'unique')}
+   */
+  static?: string | 'unique';
 };
 
 export type MapColumnValueSchema = {
@@ -53,13 +79,13 @@ export type MapColumnValueSchema = {
   /**
    * A static value to be used, in place of any `paths`.
    *
-   * If `value` is set in addition to `paths`, the `paths` will be ignored.
+   * If `static` is set in addition to `paths`, the `paths` will be ignored.
    *
    * @type {string}
    */
-  value?: string;
+  static?: string;
   /**
-   * A string used to join multiple path values (if the `paths` query string returns multiple values that need joining).\
+   * A string used to join multiple path values (if the `paths` query string returns multiple values that need joining).
    *
    * Defaults to a colon `:` if not provided.
    *
@@ -77,43 +103,15 @@ export type MapColumnValueSchema = {
   /**
    * A condition, which contains one or more checks that must be met in order to proceed processing the schema element.
    *
-   * @type {SchemaCondition}
+   * @type {ConditionSchema}
    */
-  condition?: SchemaCondition;
+  condition?: ConditionSchema;
   /**
    * An array of additional Schemas to add to process. Used to create additional records.
    *
    * @type {MapSchema[]}
    */
   add?: MapSchema[];
-};
-
-export type MapColumnValuePostfixSchema = {
-  /**
-   * An array of json path query strings.
-   *
-   * If multiple query strings are provided, they will be fetched in order, and the first one that returns a non-empty
-   * value will be used.
-   *
-   * A single query string may return one value, or an array of values.
-   *
-   * @type {JSONPath[]}
-   */
-  paths?: JSONPath[];
-  /**
-   * A static value to append to the end of the final `paths` value.
-   *
-   * Note:
-   * - `auto` - Will be replaced with a generated number at template preparation time. This number will be unique within
-   *   the transformation schema, but not unique within the transformed data.
-   * - `unique` - Will be replaced with a unique number at transformation time. This number will be unique within the
-   *   transformed data.
-   *
-   * If `value` is set in addition to `paths`, the `paths` will be ignored.
-   *
-   * @type {(string | 'auto' | 'unique')}
-   */
-  value?: string | 'auto' | 'unique';
 };
 
 export type MapFieldSchema = {
@@ -144,9 +142,9 @@ export type MapSchema = {
   /**
    * A condition, which contains one or more checks that must be met in order to proceed processing the schema element.
    *
-   * @type {SchemaCondition}
+   * @type {ConditionSchema}
    */
-  condition?: SchemaCondition;
+  condition?: ConditionSchema;
   /**
    * An array of additional Schemas to add to process. Used to create additional records.
    *
@@ -172,9 +170,9 @@ export type TransformSchema = {
    *
    * The template, and the corresponding templateMeta definition, must correspond to a valid tree structure, with no loops.
    *
-   * @type {TemplateSchema[]}
+   * @type {TemplateMetaSchema[]}
    */
-  templateMeta: TemplateSchema[];
+  templateMeta: TemplateMetaSchema[];
   /**
    * Defines the mapping from parsed raw template data to DarwinCore (DWC) templateMeta.
    *
@@ -182,29 +180,36 @@ export type TransformSchema = {
    */
   map: MapSchema[];
   /**
-   * Defines dwc specific meta needed by various steps of the transformation.
+   * Defines DWC specific meta needed by various steps of the transformation.
    *
    * @type {DwcSchema[]}
-   */
+   */   
   dwcMeta: DwcSchema[];
 };
 
 export type PreparedTransformSchema = TransformSchema & {
-  templateMeta: (TemplateSchema & { distanceToRoot: number })[];
+  templateMeta: (TemplateMetaSchema & { distanceToRoot: number })[];
 };
 
 /**
- * Provides helper functions for fetching data from a raw transform schema
+ * Wraps a raw template transform config, modifying the config in preparation for use by the transformation engine, and
+ * providing additional helper functions for retrieving information from the config.
  *
- * @class SchemaParser
+ * @class XLSXTransformSchemaParser
  */
-class SchemaParser {
+class XLSXTransformSchemaParser {
   preparedTransformSchema: PreparedTransformSchema = {
     templateMeta: [],
     map: [],
     dwcMeta: []
   };
 
+  /**
+   * Creates an instance of XLSXTransformSchemaParser.
+   *
+   * @param {TransformSchema} transformSchema
+   * @memberof XLSXTransformSchemaParser
+   */
   constructor(transformSchema: TransformSchema) {
     this._processRawTransformSchema(transformSchema);
   }
@@ -214,15 +219,13 @@ class SchemaParser {
    * the transform process.
    *
    * @param {TransformSchema} transformSchema
-   * @memberof SchemaParser
+   * @memberof XLSXTransformSchemaParser
    */
   _processRawTransformSchema(transformSchema: TransformSchema) {
     // prepare the `templateMeta` portion of the original transform schema
     this.preparedTransformSchema.templateMeta = this._processTemplateMeta(transformSchema.templateMeta);
-    // prepare the `map` portion of the original transform schema
-    this.preparedTransformSchema.map = this._processMap(transformSchema.map);
-    // // prepare the `dwcMeta` portion of the original transform schema
-    this.preparedTransformSchema.dwcMeta = this._processDWCMeta(transformSchema.dwcMeta);
+    this.preparedTransformSchema.map = transformSchema.map;
+    this.preparedTransformSchema.dwcMeta = transformSchema.dwcMeta;
   }
 
   /**
@@ -238,7 +241,7 @@ class SchemaParser {
    *
    * @param {TransformSchema['templateMeta']} templateMeta
    * @return {*}  {PreparedTransformSchema['templateMeta']}
-   * @memberof SchemaParser
+   * @memberof XLSXTransformSchemaParser
    */
   _processTemplateMeta(templateMeta: TransformSchema['templateMeta']): PreparedTransformSchema['templateMeta'] {
     const preparedTemplateMeta = [];
@@ -282,60 +285,25 @@ class SchemaParser {
   }
 
   /**
-   * Prepare the `map` portion of the transform schema.
+   * Find and return the template meta config for a template sheet.
    *
-   * @param {TransformSchema['map']} map
-   * @return {*}  {PreparedTransformSchema['map']}
-   * @memberof SchemaParser
-   */
-  _processMap(map: TransformSchema['map']): PreparedTransformSchema['map'] {
-    const preparedMap = map;
-
-    // Replace `postfix: 'auto'` with an incrementing number.
-    let postfixAutoIncrement = 0;
-
-    const pathsToPatch = JSONPath<string[]>({
-      json: map,
-      path: `$..postfix^[?(@.value === 'auto')]`,
-      resultType: 'pointer'
-    });
-
-    const patchOperations: Operation[] = pathsToPatch.map((pathToPatch) => {
-      return { op: 'replace', path: `${pathToPatch}/value`, value: String(postfixAutoIncrement++) };
-    });
-
-    jsonpatch.applyPatch(preparedMap, patchOperations);
-
-    return preparedMap;
-  }
-
-  /**
-   * Prepare the `dwcMeta` portion of the transform schema.
-   *
-   * @param {TransformSchema['dwcMeta']} dwcMeta
-   * @return {*}  {PreparedTransformSchema['dwcMeta']}
-   * @memberof SchemaParser
-   */
-  _processDWCMeta(dwcMeta: TransformSchema['dwcMeta']): PreparedTransformSchema['dwcMeta'] {
-    return dwcMeta;
-  }
-
-  /**
-   * Find and return the template element that has `sheetName=<sheetName>`
+   * Note: parses the `templateMeta` portion of the transform config.
    *
    * @param {string} sheetName
-   * @return {*}  {(TemplateSchema | undefined)}
-   * @memberof SchemaParser
+   * @return {*}  {(TemplateMetaSchema | undefined)}
+   * @memberof XLSXTransformSchemaParser
    */
-  getSheetConfigForSheetName(sheetName: string): TemplateSchema | undefined {
+  getTemplateMetaConfigBySheetName(sheetName: string): TemplateMetaSchema | undefined {
     return Object.values(this.preparedTransformSchema.templateMeta).find((sheet) => sheet.sheetName === sheetName);
   }
 
   /**
    * Get a list of all unique DWC sheet names.
    *
+   * Note: parses the `map` portion of the transform config.
+   *
    * @return {*}  {string[]}
-   * @memberof SchemaParser
+   * @memberof XLSXTransformSchemaParser
    */
   getDWCSheetNames(): string[] {
     const names = JSONPath<string[]>({ path: '$.[sheetName]', json: this.preparedTransformSchema.map });
@@ -344,11 +312,13 @@ class SchemaParser {
   }
 
   /**
-   * Find and return a DWC sheet key where `sheetName=<sheetName>`.
+   * Find and return the dwc sheet keys for a DWC sheet.
+   *
+   * Note: parses the `dwcMeta` portion of the transform config.
    *
    * @param {string} sheetName
    * @return {*}  {string[]}
-   * @memberof SchemaParser
+   * @memberof XLSXTransformSchemaParser
    */
   getDWCSheetKeyBySheetName(sheetName: string): string[] {
     const result = JSONPath<string[][]>({
@@ -360,4 +330,4 @@ class SchemaParser {
   }
 }
 
-export default SchemaParser;
+export default XLSXTransformSchemaParser;

@@ -1,7 +1,7 @@
-import { createPathField, createValueField, getValuesByName } from '../json-path-queries';
-import { TransformSchema } from '../schema-utils';
+import { createPathField, createValueField, getValuesByName } from '../xlsx-transform-json-path-queries';
+import { TransformSchema } from '../xlsx-transform-schema-parser';
 
-export const schema: TransformSchema = {
+export const mooseSRBSchema: TransformSchema = {
   templateMeta: [
     {
       sheetName: 'Block Summary',
@@ -62,7 +62,7 @@ export const schema: TransformSchema = {
           columnName: 'basisOfRecord ',
           columnValue: [
             {
-              value: 'HumanObservation'
+              static: 'HumanObservation'
             }
           ]
         }
@@ -166,7 +166,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: '0'
+                static: '0'
               }
             }
           ]
@@ -178,7 +178,6 @@ export const schema: TransformSchema = {
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
       ],
       add: [
-        // TODO add these measurements for all remaining BULL occurrence types
         {
           sheetName: 'measurementOrFact',
           fields: [
@@ -196,7 +195,7 @@ export const schema: TransformSchema = {
                 {
                   paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
                   postfix: {
-                    value: 'antler-configuration'
+                    static: 'antler-configuration'
                   }
                 }
               ]
@@ -207,14 +206,14 @@ export const schema: TransformSchema = {
                 {
                   paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
                   postfix: {
-                    value: '0'
+                    static: '0'
                   }
                 }
               ]
             },
             createValueField('measurementType', 'Antler Configuration'),
             createValueField('measurementUnit', ''),
-            createValueField('measurementValue', 'Spike/Fork Bulls')
+            createValueField('measurementValue', 'Spike/Fork')
           ]
         }
       ]
@@ -237,7 +236,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: '1'
+                static: '1'
               }
             }
           ]
@@ -247,6 +246,46 @@ export const schema: TransformSchema = {
         createValueField('lifeStage', 'unknown'),
         createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ],
+      add: [
+        {
+          sheetName: 'measurementOrFact',
+          fields: [
+            {
+              columnName: 'eventID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+                }
+              ]
+            },
+            {
+              columnName: 'measurementID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: 'antler-configuration'
+                  }
+                }
+              ]
+            },
+            {
+              columnName: 'occurrenceID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: '1'
+                  }
+                }
+              ]
+            },
+            createValueField('measurementType', 'Antler Configuration'),
+            createValueField('measurementUnit', ''),
+            createValueField('measurementValue', 'Sub-Prime')
+          ]
+        }
       ]
     },
     {
@@ -267,7 +306,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: '2'
+                static: '2'
               }
             }
           ]
@@ -277,6 +316,46 @@ export const schema: TransformSchema = {
         createValueField('lifeStage', 'adult'),
         createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ],
+      add: [
+        {
+          sheetName: 'measurementOrFact',
+          fields: [
+            {
+              columnName: 'eventID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+                }
+              ]
+            },
+            {
+              columnName: 'measurementID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: 'antler-configuration'
+                  }
+                }
+              ]
+            },
+            {
+              columnName: 'occurrenceID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: '2'
+                  }
+                }
+              ]
+            },
+            createValueField('measurementType', 'Antler Configuration'),
+            createValueField('measurementUnit', ''),
+            createValueField('measurementValue', 'Prime')
+          ]
+        }
       ]
     },
     {
@@ -297,7 +376,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: '3'
+                static: '3'
               }
             }
           ]
@@ -307,6 +386,46 @@ export const schema: TransformSchema = {
         createValueField('lifeStage', 'adult'),
         createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ],
+      add: [
+        {
+          sheetName: 'measurementOrFact',
+          fields: [
+            {
+              columnName: 'eventID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+                }
+              ]
+            },
+            {
+              columnName: 'measurementID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: 'antler-configuration'
+                  }
+                }
+              ]
+            },
+            {
+              columnName: 'occurrenceID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: '3'
+                  }
+                }
+              ]
+            },
+            createValueField('measurementType', 'Antler Configuration'),
+            createValueField('measurementUnit', ''),
+            createValueField('measurementValue', 'Senior')
+          ]
+        }
       ]
     },
     {
@@ -327,7 +446,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: '4'
+                static: '4'
               }
             }
           ]
@@ -337,6 +456,46 @@ export const schema: TransformSchema = {
         createValueField('lifeStage', 'adult'),
         createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ],
+      add: [
+        {
+          sheetName: 'measurementOrFact',
+          fields: [
+            {
+              columnName: 'eventID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+                }
+              ]
+            },
+            {
+              columnName: 'measurementID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: 'antler-configuration'
+                  }
+                }
+              ]
+            },
+            {
+              columnName: 'occurrenceID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: '4'
+                  }
+                }
+              ]
+            },
+            createValueField('measurementType', 'Antler Configuration'),
+            createValueField('measurementUnit', ''),
+            createValueField('measurementValue', '3 Brow/10 Points')
+          ]
+        }
       ]
     },
     {
@@ -357,7 +516,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: '5'
+                static: '5'
               }
             }
           ]
@@ -367,6 +526,46 @@ export const schema: TransformSchema = {
         createValueField('lifeStage', 'yearling'),
         createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ],
+      add: [
+        {
+          sheetName: 'measurementOrFact',
+          fields: [
+            {
+              columnName: 'eventID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+                }
+              ]
+            },
+            {
+              columnName: 'measurementID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: 'antler-configuration'
+                  }
+                }
+              ]
+            },
+            {
+              columnName: 'occurrenceID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: '5'
+                  }
+                }
+              ]
+            },
+            createValueField('measurementType', 'Antler Configuration'),
+            createValueField('measurementUnit', ''),
+            createValueField('measurementValue', 'BC RISC Yearling')
+          ]
+        }
       ]
     },
     {
@@ -387,7 +586,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: '6'
+                static: '6'
               }
             }
           ]
@@ -397,6 +596,46 @@ export const schema: TransformSchema = {
         createValueField('lifeStage', 'unknown'),
         createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ],
+      add: [
+        {
+          sheetName: 'measurementOrFact',
+          fields: [
+            {
+              columnName: 'eventID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+                }
+              ]
+            },
+            {
+              columnName: 'measurementID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: 'antler-configuration'
+                  }
+                }
+              ]
+            },
+            {
+              columnName: 'occurrenceID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: '6'
+                  }
+                }
+              ]
+            },
+            createValueField('measurementType', 'Antler Configuration'),
+            createValueField('measurementUnit', ''),
+            createValueField('measurementValue', 'BC RISC Class I')
+          ]
+        }
       ]
     },
     {
@@ -417,7 +656,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: '7'
+                static: '7'
               }
             }
           ]
@@ -427,6 +666,46 @@ export const schema: TransformSchema = {
         createValueField('lifeStage', 'adult'),
         createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ],
+      add: [
+        {
+          sheetName: 'measurementOrFact',
+          fields: [
+            {
+              columnName: 'eventID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+                }
+              ]
+            },
+            {
+              columnName: 'measurementID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: 'antler-configuration'
+                  }
+                }
+              ]
+            },
+            {
+              columnName: 'occurrenceID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: '7'
+                  }
+                }
+              ]
+            },
+            createValueField('measurementType', 'Antler Configuration'),
+            createValueField('measurementUnit', ''),
+            createValueField('measurementValue', 'BC RISC Class II')
+          ]
+        }
       ]
     },
     {
@@ -450,7 +729,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: '8'
+                static: '8'
               }
             }
           ]
@@ -460,6 +739,46 @@ export const schema: TransformSchema = {
         createValueField('lifeStage', 'adult'),
         createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ],
+      add: [
+        {
+          sheetName: 'measurementOrFact',
+          fields: [
+            {
+              columnName: 'eventID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+                }
+              ]
+            },
+            {
+              columnName: 'measurementID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: 'antler-configuration'
+                  }
+                }
+              ]
+            },
+            {
+              columnName: 'occurrenceID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: '8'
+                  }
+                }
+              ]
+            },
+            createValueField('measurementType', 'Antler Configuration'),
+            createValueField('measurementUnit', ''),
+            createValueField('measurementValue', 'BC RISC Class III')
+          ]
+        }
       ]
     },
     {
@@ -483,7 +802,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: '9'
+                static: '9'
               }
             }
           ]
@@ -493,6 +812,46 @@ export const schema: TransformSchema = {
         createValueField('lifeStage', 'unknown'),
         createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ],
+      add: [
+        {
+          sheetName: 'measurementOrFact',
+          fields: [
+            {
+              columnName: 'eventID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+                }
+              ]
+            },
+            {
+              columnName: 'measurementID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: 'antler-configuration'
+                  }
+                }
+              ]
+            },
+            {
+              columnName: 'occurrenceID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: '9'
+                  }
+                }
+              ]
+            },
+            createValueField('measurementType', 'Antler Configuration'),
+            createValueField('measurementUnit', ''),
+            createValueField('measurementValue', 'Oswald (1997) Class I')
+          ]
+        }
       ]
     },
     {
@@ -516,7 +875,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: '10'
+                static: '10'
               }
             }
           ]
@@ -526,6 +885,46 @@ export const schema: TransformSchema = {
         createValueField('lifeStage', 'unknown'),
         createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ],
+      add: [
+        {
+          sheetName: 'measurementOrFact',
+          fields: [
+            {
+              columnName: 'eventID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+                }
+              ]
+            },
+            {
+              columnName: 'measurementID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: 'antler-configuration'
+                  }
+                }
+              ]
+            },
+            {
+              columnName: 'occurrenceID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: '10'
+                  }
+                }
+              ]
+            },
+            createValueField('measurementType', 'Antler Configuration'),
+            createValueField('measurementUnit', ''),
+            createValueField('measurementValue', 'Oswald (1997) Class II')
+          ]
+        }
       ]
     },
     {
@@ -549,7 +948,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: '11'
+                static: '11'
               }
             }
           ]
@@ -559,6 +958,46 @@ export const schema: TransformSchema = {
         createValueField('lifeStage', 'adult'),
         createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ],
+      add: [
+        {
+          sheetName: 'measurementOrFact',
+          fields: [
+            {
+              columnName: 'eventID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+                }
+              ]
+            },
+            {
+              columnName: 'measurementID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: 'antler-configuration'
+                  }
+                }
+              ]
+            },
+            {
+              columnName: 'occurrenceID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: '11'
+                  }
+                }
+              ]
+            },
+            createValueField('measurementType', 'Antler Configuration'),
+            createValueField('measurementUnit', ''),
+            createValueField('measurementValue', 'Oswald (1997) Class III')
+          ]
+        }
       ]
     },
     {
@@ -582,7 +1021,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: '12'
+                static: '12'
               }
             }
           ]
@@ -612,7 +1051,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: '13'
+                static: '13'
               }
             }
           ]
@@ -642,7 +1081,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: '14'
+                static: '14'
               }
             }
           ]
@@ -672,7 +1111,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: '15'
+                static: '15'
               }
             }
           ]
@@ -702,7 +1141,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: '16'
+                static: '16'
               }
             }
           ]
@@ -732,7 +1171,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: '17'
+                static: '17'
               }
             }
           ]
@@ -789,7 +1228,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: 'study-area'
+                static: 'study-area'
               }
             }
           ]
@@ -816,7 +1255,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: 'block-id/su-id'
+                static: 'block-id/su-id'
               }
             }
           ]
@@ -843,7 +1282,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: 'stratum'
+                static: 'stratum'
               }
             }
           ]
@@ -870,7 +1309,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: 'stratum/block-area'
+                static: 'stratum/block-area'
               }
             }
           ]
@@ -897,7 +1336,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: 'sampled'
+                static: 'sampled'
               }
             }
           ]
@@ -924,7 +1363,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: 'group-label'
+                static: 'group-label'
               }
             }
           ]
@@ -951,7 +1390,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: 'cow-w/1-calf'
+                static: 'cow-w/1-calf'
               }
             }
           ]
@@ -978,7 +1417,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: 'cow-w/2-calves'
+                static: 'cow-w/2-calves'
               }
             }
           ]
@@ -1012,7 +1451,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: 'sign-type'
+                static: 'sign-type'
               }
             }
           ]
@@ -1046,7 +1485,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: 'sign-count'
+                static: 'sign-count'
               }
             }
           ]
@@ -1077,7 +1516,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: 'age-of-sign'
+                static: 'age-of-sign'
               }
             }
           ]
@@ -1108,7 +1547,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: 'veg-cover'
+                static: 'veg-cover'
               }
             }
           ]
@@ -1139,7 +1578,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: 'snow-cover'
+                static: 'snow-cover'
               }
             }
           ]
@@ -1170,7 +1609,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: 'activity'
+                static: 'activity'
               }
             }
           ]
@@ -1201,7 +1640,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: 'number-of-marked-animals-observed'
+                static: 'number-of-marked-animals-observed'
               }
             }
           ]
@@ -1232,7 +1671,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: 'survey-or-telemetry-search'
+                static: 'survey-or-telemetry-search'
               }
             }
           ]
@@ -1263,7 +1702,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
-                value: 'photos'
+                static: 'photos'
               }
             }
           ]
@@ -1302,7 +1741,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Marked Animals', ['_key']), getValuesByName('Marked Animals', ['_row'])],
               postfix: {
-                value: 'targeted-or-non-targeted'
+                static: 'targeted-or-non-targeted'
               }
             }
           ]
@@ -1341,7 +1780,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Marked Animals', ['_key']), getValuesByName('Marked Animals', ['_row'])],
               postfix: {
-                value: 'wildlife-health-id'
+                static: 'wildlife-health-id'
               }
             }
           ]
@@ -1380,7 +1819,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Marked Animals', ['_key']), getValuesByName('Marked Animals', ['_row'])],
               postfix: {
-                value: 'animal-id'
+                static: 'animal-id'
               }
             }
           ]
@@ -1419,7 +1858,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Marked Animals', ['_key']), getValuesByName('Marked Animals', ['_row'])],
               postfix: {
-                value: 'telemetry-device-id'
+                static: 'telemetry-device-id'
               }
             }
           ]
@@ -1458,7 +1897,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Marked Animals', ['_key']), getValuesByName('Marked Animals', ['_row'])],
               postfix: {
-                value: 'collar/tag-frequency'
+                static: 'collar/tag-frequency'
               }
             }
           ]
@@ -1497,7 +1936,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Marked Animals', ['_key']), getValuesByName('Marked Animals', ['_row'])],
               postfix: {
-                value: 'right-ear-tag-id'
+                static: 'right-ear-tag-id'
               }
             }
           ]
@@ -1536,7 +1975,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Marked Animals', ['_key']), getValuesByName('Marked Animals', ['_row'])],
               postfix: {
-                value: 'right-ear-tag-colour'
+                static: 'right-ear-tag-colour'
               }
             }
           ]
@@ -1575,7 +2014,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Marked Animals', ['_key']), getValuesByName('Marked Animals', ['_row'])],
               postfix: {
-                value: 'left-ear-tag-id'
+                static: 'left-ear-tag-id'
               }
             }
           ]
@@ -1614,7 +2053,7 @@ export const schema: TransformSchema = {
             {
               paths: [getValuesByName('Marked Animals', ['_key']), getValuesByName('Marked Animals', ['_row'])],
               postfix: {
-                value: 'left-ear-tag-colour'
+                static: 'left-ear-tag-colour'
               }
             }
           ]

@@ -8,30 +8,30 @@ export const transformationConfigJSONSchema = {
   properties: {
     templateMeta: {
       type: 'array',
-      items: {
-        $ref: '#/$defs/TemplateSchema'
-      },
       description:
-        'Defines the hierarchical structure of the template, which columns represent keys, and the parent-child relationship of the sheets. Used to de-normalize the template data.'
+        'Defines the hierarchical structure of the template, which columns represent keys, and the parent-child relationship of the sheets. Used to de-normalize the template data.',
+      items: {
+        $ref: '#/$defs/TemplateMetaSchema'
+      }
     },
     map: {
       type: 'array',
+      description:
+        'Defines the mapping operations that are executed against each flattened row of the template. Used to transform the template data into its corresponding DWC representation.',
       items: {
         $ref: '#/$defs/MapSchema'
-      },
-      description:
-        'Defines the mapping operations that are executed against each flattened row of the template. Used to transform the template data into its corresponding dwc representation.'
+      }
     },
     dwcMeta: {
       type: 'array',
+      description: 'Defines the unique keys for each DWC sheet. Used to normalize the DWC data.',
       items: {
         $ref: '#/$defs/DwcMeta'
-      },
-      description: 'Defines the unique keys for each dwc sheet. Used to normalize the dwc data.'
+      }
     }
   },
   $defs: {
-    TemplateSchema: {
+    TemplateMetaSchema: {
       title: 'Sheet Schema',
       type: 'object',
       required: ['sheetName', 'primaryKey', 'parentKey', 'type', 'foreignKeys'],
@@ -42,18 +42,19 @@ export const transformationConfigJSONSchema = {
         },
         primaryKey: {
           type: 'array',
+          description:
+            'An array of template column names which combined represent a unique key for rows in this sheet.',
           items: {
             type: 'string'
-          },
-          description: 'An array of template column names which combined represent a unique key for rows in this sheet.'
+          }
         },
         parentKey: {
           type: 'array',
+          description:
+            'An array of template column names which combined represent a unique key for the parent row of rows in this sheet.',
           items: {
             type: 'string'
-          },
-          description:
-            'An array of template column names which combined represent a unique key for the parent row of rows in this sheet.'
+          }
         },
         type: {
           type: 'string',
@@ -63,6 +64,7 @@ export const transformationConfigJSONSchema = {
           type: 'array',
           items: {
             type: 'object',
+            description: 'An array of child template sheet objects.',
             properties: {
               sheetName: {
                 type: 'string',
@@ -70,15 +72,14 @@ export const transformationConfigJSONSchema = {
               },
               primaryKey: {
                 type: 'array',
+                description:
+                  'An array of template column names which combined represent a unique key for child rows of this sheet.',
                 items: {
                   type: 'string',
                   description: 'A template column name.'
-                },
-                description:
-                  'An array of template column names which combined represent a unique key for child rows of this sheet.'
+                }
               }
             },
-            description: 'An array of child template sheets.',
             additionalProperties: false
           }
         }
@@ -92,10 +93,12 @@ export const transformationConfigJSONSchema = {
       properties: {
         sheetName: {
           type: 'string',
-          description: 'The name of the dwc sheet'
+          description: 'The name of the DWC sheet'
         },
         condition: {
           type: 'object',
+          description:
+            'Defines a condition, which contains one or more checks that must be met in order to proceed processing this `MapSchema` item.',
           properties: {
             type: {
               type: 'string',
@@ -109,12 +112,11 @@ export const transformationConfigJSONSchema = {
                   ifNotEmpty: {
                     type: 'string'
                   }
-                }
+                },
+                additionalProperties: false
               }
             }
           },
-          description:
-            'Defines a condition, which contains one or more checks that must be met in order to proceed processing this `MapSchema` item.',
           additionalProperties: false
         },
         fields: {
@@ -147,7 +149,7 @@ export const transformationConfigJSONSchema = {
     MapColumnValueSchema: {
       title: 'MapColumnValueSchema',
       type: 'object',
-      oneOf: [{ required: ['paths'] }, { required: ['value'] }],
+      oneOf: [{ required: ['paths'] }, { required: ['static'] }],
       properties: {
         paths: {
           type: 'array',
@@ -155,13 +157,13 @@ export const transformationConfigJSONSchema = {
             type: 'string'
           }
         },
-        value: {
+        static: {
           type: 'string'
         },
         join: {
           type: 'string',
-          default: ':',
-          description: 'A string used when concatenating columns to create keys.'
+          description: 'A string used when concatenating columns to create keys.',
+          default: ':'
         },
         postfix: {
           type: 'object',
@@ -172,13 +174,16 @@ export const transformationConfigJSONSchema = {
                 type: 'string'
               }
             },
-            value: {
+            static: {
               type: 'string'
             }
-          }
+          },
+          additionalProperties: false
         },
         condition: {
           type: 'object',
+          description:
+            'Defines a condition, which contains one or more checks that must be met in order to proceed processing this `MapColumnValueSchema` item.',
           properties: {
             type: {
               type: 'string',
@@ -196,12 +201,12 @@ export const transformationConfigJSONSchema = {
               }
             }
           },
-          description:
-            'Defines a condition, which contains one or more checks that must be met in order to proceed processing this `MapColumnValueSchema` item.',
           additionalProperties: false
         },
         add: {
           type: 'array',
+          description:
+            'An array of additional schemas to add to the process queue. Used to create additional records from within the context of the current schema being processed.',
           items: {
             $ref: '#/$defs/MapSchema'
           }
@@ -215,15 +220,15 @@ export const transformationConfigJSONSchema = {
       properties: {
         sheetName: {
           type: 'string',
-          description: 'The name of the dwc sheet'
+          description: 'The name of the DWC sheet'
         },
         primaryKey: {
           type: 'array',
+          description: 'An array of DWC column names which combined represent a unique key for rows in this sheet.',
           items: {
             type: 'string',
-            description: 'A dwc column name.'
-          },
-          description: 'An array of dwc column names which combined represent a unique key for rows in this sheet.'
+            description: 'A DWC column name.'
+          }
         }
       },
       additionalProperties: false

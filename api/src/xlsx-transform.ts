@@ -3,8 +3,13 @@ import * as fs from 'fs';
 import { JSONPath, JSONPathOptions } from 'jsonpath-plus';
 import path from 'path';
 import xlsx from 'xlsx';
-import SchemaParser, { IfNotEmptyCheck, SchemaCondition, TemplateSchema, TransformSchema } from './schema-utils';
-import { filterDuplicateKeys, getCombinations } from './utils';
+import XLSXTransformSchemaParser, {
+  ConditionSchema,
+  IfNotEmptyCheck,
+  TemplateMetaSchema,
+  TransformSchema
+} from './xlsx-transform-schema-parser';
+import { filterDuplicateKeys, getCombinations } from './xlsx-transform-utils';
 import { getWorksheetByName, getWorksheetRange, trimWorksheetCells } from './xlsx-utils';
 
 /**
@@ -46,13 +51,13 @@ export type RowObject = {
 
 export class XLSXTransform {
   workbook: xlsx.WorkBook;
-  schemaParser: SchemaParser;
+  schemaParser: XLSXTransformSchemaParser;
 
   _uniqueIncrement = 0;
 
   constructor(workbook: xlsx.WorkBook, schema: TransformSchema) {
     this.workbook = workbook;
-    this.schemaParser = new SchemaParser(schema);
+    this.schemaParser = new XLSXTransformSchemaParser(schema);
   }
 
   /**
@@ -83,22 +88,7 @@ export class XLSXTransform {
       JSON.stringify(preparedRowObjectsForJSONToSheet, null, 2)
     );
 
-    // Process the final objects into the format required to convert them into CSV format
-    const dwcWorkbook = xlsx.utils.book_new();
-    Object.entries(preparedRowObjectsForJSONToSheet).map(([key, value]) => {
-      const worksheet = xlsx.utils.json_to_sheet(value);
-
-      const newWorkbook = xlsx.utils.book_new();
-
-      xlsx.utils.book_append_sheet(newWorkbook, worksheet, 'Sheet1');
-      xlsx.utils.book_append_sheet(dwcWorkbook, worksheet, key);
-
-      const buffer = xlsx.write(newWorkbook, { type: 'buffer', bookType: 'csv' });
-
-      fs.writeFileSync(path.join(__dirname, 'output', `${key}.json`), buffer);
-    });
-    const buffer = xlsx.write(dwcWorkbook, { type: 'buffer', bookType: 'xlsx' });
-    fs.writeFileSync(path.join(__dirname, 'output', 'dwcWorkbook_fixed_with_mark_2.xlsx'), buffer);
+    return preparedRowObjectsForJSONToSheet;
   }
 
   /**
@@ -111,16 +101,16 @@ export class XLSXTransform {
     const output: Record<string, RowObject[]> = {};
 
     this.workbook.SheetNames.forEach((sheetName) => {
-      const templateSchema = this.schemaParser.getSheetConfigForSheetName(sheetName);
+      const templateMetaSchema = this.schemaParser.getTemplateMetaConfigBySheetName(sheetName);
 
-      if (!templateSchema) {
+      if (!templateMetaSchema) {
         // Skip worksheet as no transform schema was provided
         return;
       }
 
       const worksheet = getWorksheetByName(this.workbook, sheetName);
 
-      // trim all whitespace on string values
+      // Trim all whitespace on string values
       trimWorksheetCells(worksheet);
 
       const range = getWorksheetRange(worksheet);
@@ -137,7 +127,7 @@ export class XLSXTransform {
 
       const numberOfRows = range['e']['r'];
 
-      const preparedRowObjects = this._prepareRowObjects(worksheetJSON, templateSchema, numberOfRows);
+      const preparedRowObjects = this._prepareRowObjects(worksheetJSON, templateMetaSchema, numberOfRows);
 
       output[sheetName] = preparedRowObjects;
     });
@@ -147,21 +137,21 @@ export class XLSXTransform {
 
   _prepareRowObjects(
     worksheetJSON: Record<string, any>[],
-    templateSchema: TemplateSchema,
+    templateMetaSchema: TemplateMetaSchema,
     numberOfRows: number
   ): RowObject[] {
     const worksheetJSONWithKey: RowObject[] = [];
 
     for (let i = 0; i < numberOfRows; i++) {
-      const primaryKey = this._getKeyForRowObject(worksheetJSON[i], templateSchema.primaryKey);
+      const primaryKey = this._getKeyForRowObject(worksheetJSON[i], templateMetaSchema.primaryKey);
 
       if (!primaryKey) {
         continue;
       }
 
-      const parentKey = this._getKeyForRowObject(worksheetJSON[i], templateSchema.parentKey);
+      const parentKey = this._getKeyForRowObject(worksheetJSON[i], templateMetaSchema.parentKey);
 
-      const childKeys = templateSchema.foreignKeys
+      const childKeys = templateMetaSchema.foreignKeys
         .map((foreignKeys: { sheetName: string; primaryKey: string[] }) => {
           return this._getKeyForRowObject(worksheetJSON[i], foreignKeys.primaryKey);
         })
@@ -169,10 +159,10 @@ export class XLSXTransform {
 
       worksheetJSONWithKey.push({
         _data: { ...worksheetJSON[i] },
-        _name: templateSchema.sheetName,
+        _name: templateMetaSchema.sheetName,
         _key: primaryKey,
         _parentKey: parentKey,
-        _type: templateSchema.type,
+        _type: templateMetaSchema.type,
         _row: i,
         _childKeys: childKeys || [],
         _children: []
@@ -418,7 +408,7 @@ export class XLSXTransform {
             }
 
             // Check for static value
-            const columnValueItemValue = columnValueItem.value;
+            const columnValueItemValue = columnValueItem.static;
             if (columnValueItemValue) {
               // cell value is a static value
               cellValue = columnValueItemValue;
@@ -445,10 +435,10 @@ export class XLSXTransform {
               if (cellValue && columnValueItemPostfix) {
                 let postfixValue = '';
 
-                if (columnValueItemPostfix.value) {
-                  postfixValue = columnValueItemPostfix.value;
+                if (columnValueItemPostfix.static) {
+                  postfixValue = columnValueItemPostfix.static;
 
-                  if (columnValueItemPostfix.value === 'unique') {
+                  if (columnValueItemPostfix.static === 'unique') {
                     postfixValue = String(this._getNextUniqueNumber());
                   }
                 }
@@ -504,7 +494,7 @@ export class XLSXTransform {
     return output;
   }
 
-  _processCondition(condition: SchemaCondition, rowObjects: RowObject[]): boolean {
+  _processCondition(condition: ConditionSchema, rowObjects: RowObject[]): boolean {
     if (!condition) {
       // No conditions to process
       return true;
@@ -560,7 +550,87 @@ export class XLSXTransform {
     return values;
   }
 
-  prepareRowObjectsForJSONToSheet(processedHierarchicalRowObjects: Record<string, Record<string, string>[]>[]) {
+  /**
+   * Groups all of the dwc records based on sheet name.
+   *
+   * @example
+   * // Incoming records
+   * [
+   *   {
+   *     "event": [
+   *       {
+   *         "eventID": "111",
+   *         "eventDate": "2022-01-01",
+   *       }
+   *     ],
+   *     "occurrence": [
+   *       {
+   *         "eventID": "111",
+   *         "occurrenceID": "A1"
+   *         "individualCount": "1"
+   *       },
+   *       {
+   *         "eventID": "111",
+   *         "occurrenceID": "B1"
+   *         "individualCount": "4"
+   *       }
+   *     ]
+   *   },
+   *   {
+   *     "event": [
+   *       {
+   *         "eventID": "222",
+   *         "eventDate": "2022-02-02",
+   *       }
+   *     ],
+   *     "occurrence": [
+   *       {
+   *         "eventID": "222",
+   *         "occurrenceID": "C1"
+   *         "individualCount": "6"
+   *       }
+   *     ]
+   *   }
+   * ]
+   *
+   * // Resulting records grouped by sheet name
+   * {
+   *   "event": [
+   *     {
+   *       "eventID": "111",
+   *       "eventDate": "2022-01-01",
+   *     },
+   *     {
+   *       "eventID": "222",
+   *       "eventDate": "2022-02-02",
+   *     }
+   *   ],
+   *   "occurrence": [
+   *     {
+   *       "eventID": "111",
+   *       "occurrenceID": "A1"
+   *       "individualCount": "1"
+   *     },
+   *     {
+   *       "eventID": "111",
+   *       "occurrenceID": "B1"
+   *       "individualCount": "4"
+   *     },
+   *     {
+   *       "eventID": "222",
+   *       "occurrenceID": "C1"
+   *       "individualCount": "6"
+   *     }
+   *   ]
+   * }
+   *
+   * @param {Record<string, Record<string, string>[]>[]} processedHierarchicalRowObjects
+   * @return {*}  {Record<string, Record<string, string>[]>}
+   * @memberof XLSXTransform
+   */
+  prepareRowObjectsForJSONToSheet(
+    processedHierarchicalRowObjects: Record<string, Record<string, string>[]>[]
+  ): Record<string, Record<string, string>[]> {
     const groupedByDWCSheetName: Record<string, Record<string, string>[]> = {};
     const uniqueGroupedByDWCSheetName: Record<string, Record<string, string>[]> = {};
 
