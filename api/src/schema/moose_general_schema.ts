@@ -4,33 +4,10 @@ import { TransformSchema } from '../xlsx-transform-schema-parser';
 export const mooseGeneralSchema: TransformSchema = {
   templateMeta: [
     {
-      sheetName: 'Block Summary',
-      primaryKey: ['Study Area', 'Block ID/SU ID', 'Stratum'],
+      sheetName: 'Observations',
+      primaryKey: ['Study Area', 'Block ID/SU ID'],
       parentKey: [],
       type: 'root',
-      foreignKeys: [
-        {
-          sheetName: 'Observations',
-          primaryKey: ['Study Area', 'Block ID/SU ID', 'Stratum']
-        },
-        {
-          sheetName: 'Effort & Site Conditions',
-          primaryKey: ['Study Area', 'Block ID/SU ID']
-        }
-      ]
-    },
-    {
-      sheetName: 'Effort & Site Conditions',
-      primaryKey: ['Study Area', 'Block ID/SU ID'],
-      parentKey: ['Study Area', 'Block ID/SU ID'],
-      type: '',
-      foreignKeys: []
-    },
-    {
-      sheetName: 'Observations',
-      primaryKey: ['Study Area', 'Block ID/SU ID', 'Stratum'],
-      parentKey: ['Study Area', 'Block ID/SU ID', 'Stratum'],
-      type: '',
       foreignKeys: [
         {
           sheetName: 'Marked Animals',
@@ -54,7 +31,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -75,7 +52,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -84,14 +61,6 @@ export const mooseGeneralSchema: TransformSchema = {
           columnValue: [
             {
               paths: [getValuesByName('Observations', ['Date'])]
-            }
-          ]
-        },
-        {
-          columnName: 'eventRemarks',
-          columnValue: [
-            {
-              paths: [getValuesByName('Block Summary', ['Block Summary Comments'])]
             }
           ]
         }
@@ -105,7 +74,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -156,7 +125,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -178,7 +147,6 @@ export const mooseGeneralSchema: TransformSchema = {
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
       ],
       add: [
-        // TODO add these measurements for all remaining BULL occurrence types
         {
           sheetName: 'measurementOrFact',
           fields: [
@@ -186,7 +154,7 @@ export const mooseGeneralSchema: TransformSchema = {
               columnName: 'eventID',
               columnValue: [
                 {
-                  paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
                 }
               ]
             },
@@ -194,7 +162,7 @@ export const mooseGeneralSchema: TransformSchema = {
               columnName: 'measurementID',
               columnValue: [
                 {
-                  paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
                   postfix: {
                     static: 'antler-configuration'
                   }
@@ -214,7 +182,7 @@ export const mooseGeneralSchema: TransformSchema = {
             },
             createValueField('measurementType', 'Antler Configuration'),
             createValueField('measurementUnit', ''),
-            createValueField('measurementValue', 'Spike/Fork Bulls')
+            createValueField('measurementValue', 'Spike/Fork')
           ]
         }
       ]
@@ -227,7 +195,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -247,6 +215,46 @@ export const mooseGeneralSchema: TransformSchema = {
         createValueField('lifeStage', 'unknown'),
         createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ],
+      add: [
+        {
+          sheetName: 'measurementOrFact',
+          fields: [
+            {
+              columnName: 'eventID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
+                }
+              ]
+            },
+            {
+              columnName: 'measurementID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: 'antler-configuration'
+                  }
+                }
+              ]
+            },
+            {
+              columnName: 'occurrenceID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: '1'
+                  }
+                }
+              ]
+            },
+            createValueField('measurementType', 'Antler Configuration'),
+            createValueField('measurementUnit', ''),
+            createValueField('measurementValue', 'Sub-Prime')
+          ]
+        }
       ]
     },
     {
@@ -257,7 +265,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -277,6 +285,46 @@ export const mooseGeneralSchema: TransformSchema = {
         createValueField('lifeStage', 'adult'),
         createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ],
+      add: [
+        {
+          sheetName: 'measurementOrFact',
+          fields: [
+            {
+              columnName: 'eventID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
+                }
+              ]
+            },
+            {
+              columnName: 'measurementID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: 'antler-configuration'
+                  }
+                }
+              ]
+            },
+            {
+              columnName: 'occurrenceID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: '2'
+                  }
+                }
+              ]
+            },
+            createValueField('measurementType', 'Antler Configuration'),
+            createValueField('measurementUnit', ''),
+            createValueField('measurementValue', 'Prime')
+          ]
+        }
       ]
     },
     {
@@ -287,7 +335,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -307,6 +355,46 @@ export const mooseGeneralSchema: TransformSchema = {
         createValueField('lifeStage', 'adult'),
         createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ],
+      add: [
+        {
+          sheetName: 'measurementOrFact',
+          fields: [
+            {
+              columnName: 'eventID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
+                }
+              ]
+            },
+            {
+              columnName: 'measurementID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: 'antler-configuration'
+                  }
+                }
+              ]
+            },
+            {
+              columnName: 'occurrenceID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: '3'
+                  }
+                }
+              ]
+            },
+            createValueField('measurementType', 'Antler Configuration'),
+            createValueField('measurementUnit', ''),
+            createValueField('measurementValue', 'Senior')
+          ]
+        }
       ]
     },
     {
@@ -317,7 +405,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -337,6 +425,46 @@ export const mooseGeneralSchema: TransformSchema = {
         createValueField('lifeStage', 'adult'),
         createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ],
+      add: [
+        {
+          sheetName: 'measurementOrFact',
+          fields: [
+            {
+              columnName: 'eventID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
+                }
+              ]
+            },
+            {
+              columnName: 'measurementID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: 'antler-configuration'
+                  }
+                }
+              ]
+            },
+            {
+              columnName: 'occurrenceID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: '4'
+                  }
+                }
+              ]
+            },
+            createValueField('measurementType', 'Antler Configuration'),
+            createValueField('measurementUnit', ''),
+            createValueField('measurementValue', '3 Brow/10 Points')
+          ]
+        }
       ]
     },
     {
@@ -347,7 +475,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -367,6 +495,46 @@ export const mooseGeneralSchema: TransformSchema = {
         createValueField('lifeStage', 'yearling'),
         createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ],
+      add: [
+        {
+          sheetName: 'measurementOrFact',
+          fields: [
+            {
+              columnName: 'eventID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
+                }
+              ]
+            },
+            {
+              columnName: 'measurementID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: 'antler-configuration'
+                  }
+                }
+              ]
+            },
+            {
+              columnName: 'occurrenceID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: '5'
+                  }
+                }
+              ]
+            },
+            createValueField('measurementType', 'Antler Configuration'),
+            createValueField('measurementUnit', ''),
+            createValueField('measurementValue', 'BC RISC Yearling')
+          ]
+        }
       ]
     },
     {
@@ -377,7 +545,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -397,6 +565,46 @@ export const mooseGeneralSchema: TransformSchema = {
         createValueField('lifeStage', 'unknown'),
         createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ],
+      add: [
+        {
+          sheetName: 'measurementOrFact',
+          fields: [
+            {
+              columnName: 'eventID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
+                }
+              ]
+            },
+            {
+              columnName: 'measurementID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: 'antler-configuration'
+                  }
+                }
+              ]
+            },
+            {
+              columnName: 'occurrenceID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: '6'
+                  }
+                }
+              ]
+            },
+            createValueField('measurementType', 'Antler Configuration'),
+            createValueField('measurementUnit', ''),
+            createValueField('measurementValue', 'BC RISC Class I')
+          ]
+        }
       ]
     },
     {
@@ -407,7 +615,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -427,6 +635,46 @@ export const mooseGeneralSchema: TransformSchema = {
         createValueField('lifeStage', 'adult'),
         createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ],
+      add: [
+        {
+          sheetName: 'measurementOrFact',
+          fields: [
+            {
+              columnName: 'eventID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
+                }
+              ]
+            },
+            {
+              columnName: 'measurementID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: 'antler-configuration'
+                  }
+                }
+              ]
+            },
+            {
+              columnName: 'occurrenceID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: '7'
+                  }
+                }
+              ]
+            },
+            createValueField('measurementType', 'Antler Configuration'),
+            createValueField('measurementUnit', ''),
+            createValueField('measurementValue', 'BC RISC Class II')
+          ]
+        }
       ]
     },
     {
@@ -440,7 +688,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -460,6 +708,46 @@ export const mooseGeneralSchema: TransformSchema = {
         createValueField('lifeStage', 'adult'),
         createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ],
+      add: [
+        {
+          sheetName: 'measurementOrFact',
+          fields: [
+            {
+              columnName: 'eventID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
+                }
+              ]
+            },
+            {
+              columnName: 'measurementID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: 'antler-configuration'
+                  }
+                }
+              ]
+            },
+            {
+              columnName: 'occurrenceID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: '8'
+                  }
+                }
+              ]
+            },
+            createValueField('measurementType', 'Antler Configuration'),
+            createValueField('measurementUnit', ''),
+            createValueField('measurementValue', 'BC RISC Class III')
+          ]
+        }
       ]
     },
     {
@@ -473,7 +761,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -493,6 +781,46 @@ export const mooseGeneralSchema: TransformSchema = {
         createValueField('lifeStage', 'unknown'),
         createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ],
+      add: [
+        {
+          sheetName: 'measurementOrFact',
+          fields: [
+            {
+              columnName: 'eventID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
+                }
+              ]
+            },
+            {
+              columnName: 'measurementID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: 'antler-configuration'
+                  }
+                }
+              ]
+            },
+            {
+              columnName: 'occurrenceID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: '9'
+                  }
+                }
+              ]
+            },
+            createValueField('measurementType', 'Antler Configuration'),
+            createValueField('measurementUnit', ''),
+            createValueField('measurementValue', 'Oswald (1997) Class I')
+          ]
+        }
       ]
     },
     {
@@ -506,7 +834,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -526,6 +854,46 @@ export const mooseGeneralSchema: TransformSchema = {
         createValueField('lifeStage', 'unknown'),
         createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ],
+      add: [
+        {
+          sheetName: 'measurementOrFact',
+          fields: [
+            {
+              columnName: 'eventID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
+                }
+              ]
+            },
+            {
+              columnName: 'measurementID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: 'antler-configuration'
+                  }
+                }
+              ]
+            },
+            {
+              columnName: 'occurrenceID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: '10'
+                  }
+                }
+              ]
+            },
+            createValueField('measurementType', 'Antler Configuration'),
+            createValueField('measurementUnit', ''),
+            createValueField('measurementValue', 'Oswald (1997) Class II')
+          ]
+        }
       ]
     },
     {
@@ -539,7 +907,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -559,6 +927,46 @@ export const mooseGeneralSchema: TransformSchema = {
         createValueField('lifeStage', 'adult'),
         createPathField('taxonID', 'Observations', ['Species']),
         createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+      ],
+      add: [
+        {
+          sheetName: 'measurementOrFact',
+          fields: [
+            {
+              columnName: 'eventID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
+                }
+              ]
+            },
+            {
+              columnName: 'measurementID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: 'antler-configuration'
+                  }
+                }
+              ]
+            },
+            {
+              columnName: 'occurrenceID',
+              columnValue: [
+                {
+                  paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                  postfix: {
+                    static: '11'
+                  }
+                }
+              ]
+            },
+            createValueField('measurementType', 'Antler Configuration'),
+            createValueField('measurementUnit', ''),
+            createValueField('measurementValue', 'Oswald (1997) Class III')
+          ]
+        }
       ]
     },
     {
@@ -572,7 +980,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -602,7 +1010,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -632,7 +1040,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -662,7 +1070,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -692,7 +1100,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -722,7 +1130,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -757,7 +1165,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -779,7 +1187,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -787,7 +1195,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'measurementID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
                 static: 'study-area'
               }
@@ -796,7 +1204,7 @@ export const mooseGeneralSchema: TransformSchema = {
         },
         createValueField('measurementType', 'Study Area'),
         createValueField('measurementUnit', ''),
-        createPathField('measurementValue', 'Block Summary', ['Study Area'])
+        createPathField('measurementValue', 'Observations', ['Study Area'])
       ]
     },
     {
@@ -806,7 +1214,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -814,7 +1222,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'measurementID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
                 static: 'block-id/su-id'
               }
@@ -822,45 +1230,22 @@ export const mooseGeneralSchema: TransformSchema = {
           ]
         },
         createValueField('measurementType', 'Block ID/SU ID'),
-        createValueField('measurementUnit', 'ID'),
-        createPathField('measurementValue', 'Block Summary', ['Block ID/SU ID'])
-      ]
-    },
-    {
-      sheetName: 'measurementOrFact',
-      fields: [
-        {
-          columnName: 'eventID',
-          columnValue: [
-            {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
-            }
-          ]
-        },
-        {
-          columnName: 'measurementID',
-          columnValue: [
-            {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
-              postfix: {
-                static: 'stratum'
-              }
-            }
-          ]
-        },
-        createValueField('measurementType', 'Stratum'),
         createValueField('measurementUnit', ''),
-        createPathField('measurementValue', 'Block Summary', ['Stratum'])
+        createPathField('measurementValue', 'Observations', ['Block ID/SU ID'])
       ]
     },
     {
       sheetName: 'measurementOrFact',
+      condition: {
+        type: 'and',
+        checks: [{ ifNotEmpty: getValuesByName('Observations', ['Group Label']) }]
+      },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -868,61 +1253,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'measurementID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
-              postfix: {
-                static: 'stratum/block-area'
-              }
-            }
-          ]
-        },
-        createValueField('measurementType', 'Stratum/Block Area'),
-        createValueField('measurementUnit', 'km2'),
-        createPathField('measurementValue', 'Block Summary', ['Stratum/Block Area (km2)'])
-      ]
-    },
-    {
-      sheetName: 'measurementOrFact',
-      fields: [
-        {
-          columnName: 'eventID',
-          columnValue: [
-            {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
-            }
-          ]
-        },
-        {
-          columnName: 'measurementID',
-          columnValue: [
-            {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
-              postfix: {
-                static: 'sampled'
-              }
-            }
-          ]
-        },
-        createValueField('measurementType', 'Sampled'),
-        createValueField('measurementUnit', 'Y/N'),
-        createPathField('measurementValue', 'Block Summary', ['Sampled (Y/N)'])
-      ]
-    },
-    {
-      sheetName: 'measurementOrFact',
-      fields: [
-        {
-          columnName: 'eventID',
-          columnValue: [
-            {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
-            }
-          ]
-        },
-        {
-          columnName: 'measurementID',
-          columnValue: [
-            {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
                 static: 'group-label'
               }
@@ -936,12 +1267,16 @@ export const mooseGeneralSchema: TransformSchema = {
     },
     {
       sheetName: 'measurementOrFact',
+      condition: {
+        type: 'and',
+        checks: [{ ifNotEmpty: getValuesByName('Observations', ['Cow W/1 calves']) }]
+      },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -949,7 +1284,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'measurementID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
                 static: 'cow-w/1-calf'
               }
@@ -957,18 +1292,22 @@ export const mooseGeneralSchema: TransformSchema = {
           ]
         },
         createValueField('measurementType', 'Cow W/1 calf'),
-        createValueField('measurementUnit', 'Number'),
+        createValueField('measurementUnit', ''),
         createPathField('measurementValue', 'Observations', ['Cow W/1 calf'])
       ]
     },
     {
       sheetName: 'measurementOrFact',
+      condition: {
+        type: 'and',
+        checks: [{ ifNotEmpty: getValuesByName('Observations', ['Cow W/2 calves']) }]
+      },
       fields: [
         {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -976,7 +1315,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'measurementID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
                 static: 'cow-w/2-calves'
               }
@@ -984,7 +1323,7 @@ export const mooseGeneralSchema: TransformSchema = {
           ]
         },
         createValueField('measurementType', 'Cow W/2 calves'),
-        createValueField('measurementUnit', 'Number'),
+        createValueField('measurementUnit', ''),
         createPathField('measurementValue', 'Observations', ['Cow W/2 calves'])
       ]
     },
@@ -1002,7 +1341,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -1010,7 +1349,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'measurementID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
                 static: 'sign-type'
               }
@@ -1036,7 +1375,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -1044,7 +1383,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'measurementID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
                 static: 'sign-count'
               }
@@ -1067,7 +1406,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -1075,7 +1414,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'measurementID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
                 static: 'age-of-sign'
               }
@@ -1098,7 +1437,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -1106,7 +1445,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'measurementID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
                 static: 'veg-cover'
               }
@@ -1129,7 +1468,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -1137,7 +1476,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'measurementID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
                 static: 'snow-cover'
               }
@@ -1160,7 +1499,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -1168,7 +1507,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'measurementID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
                 static: 'activity'
               }
@@ -1191,7 +1530,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -1199,7 +1538,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'measurementID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
                 static: 'number-of-marked-animals-observed'
               }
@@ -1207,7 +1546,7 @@ export const mooseGeneralSchema: TransformSchema = {
           ]
         },
         createValueField('measurementType', 'Number of Marked Animals Observed'),
-        createValueField('measurementUnit', 'Number'),
+        createValueField('measurementUnit', ''),
         createPathField('measurementValue', 'Observations', ['Number of Marked Animals Observed'])
       ]
     },
@@ -1222,7 +1561,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -1230,7 +1569,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'measurementID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
                 static: 'survey-or-telemetry-search'
               }
@@ -1253,7 +1592,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -1261,7 +1600,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'measurementID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])],
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
               postfix: {
                 static: 'photos'
               }
@@ -1284,7 +1623,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -1323,7 +1662,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -1362,7 +1701,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -1401,7 +1740,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -1440,7 +1779,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -1479,7 +1818,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -1518,7 +1857,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -1557,7 +1896,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },
@@ -1596,7 +1935,7 @@ export const mooseGeneralSchema: TransformSchema = {
           columnName: 'eventID',
           columnValue: [
             {
-              paths: [getValuesByName('Block Summary', ['_key']), getValuesByName('Observations', ['_row'])]
+              paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
             }
           ]
         },

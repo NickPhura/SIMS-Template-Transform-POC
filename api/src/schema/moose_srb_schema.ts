@@ -12,19 +12,8 @@ export const mooseSRBSchema: TransformSchema = {
         {
           sheetName: 'Observations',
           primaryKey: ['Study Area', 'Block ID/SU ID', 'Stratum']
-        },
-        {
-          sheetName: 'Effort & Site Conditions',
-          primaryKey: ['Study Area', 'Block ID/SU ID']
         }
       ]
-    },
-    {
-      sheetName: 'Effort & Site Conditions',
-      primaryKey: ['Study Area', 'Block ID/SU ID'],
-      parentKey: ['Study Area', 'Block ID/SU ID'],
-      type: '',
-      foreignKeys: []
     },
     {
       sheetName: 'Observations',
@@ -1261,7 +1250,7 @@ export const mooseSRBSchema: TransformSchema = {
           ]
         },
         createValueField('measurementType', 'Block ID/SU ID'),
-        createValueField('measurementUnit', 'ID'),
+        createValueField('measurementUnit', ''),
         createPathField('measurementValue', 'Block Summary', ['Block ID/SU ID'])
       ]
     },
@@ -1348,6 +1337,10 @@ export const mooseSRBSchema: TransformSchema = {
     },
     {
       sheetName: 'measurementOrFact',
+      condition: {
+        type: 'and',
+        checks: [{ ifNotEmpty: getValuesByName('Observations', ['Group Label']) }]
+      },
       fields: [
         {
           columnName: 'eventID',
@@ -1375,6 +1368,10 @@ export const mooseSRBSchema: TransformSchema = {
     },
     {
       sheetName: 'measurementOrFact',
+      condition: {
+        type: 'and',
+        checks: [{ ifNotEmpty: getValuesByName('Observations', ['Cow W/1 calves']) }]
+      },
       fields: [
         {
           columnName: 'eventID',
@@ -1396,12 +1393,16 @@ export const mooseSRBSchema: TransformSchema = {
           ]
         },
         createValueField('measurementType', 'Cow W/1 calf'),
-        createValueField('measurementUnit', 'Number'),
+        createValueField('measurementUnit', ''),
         createPathField('measurementValue', 'Observations', ['Cow W/1 calf'])
       ]
     },
     {
       sheetName: 'measurementOrFact',
+      condition: {
+        type: 'and',
+        checks: [{ ifNotEmpty: getValuesByName('Observations', ['Cow W/2 calves']) }]
+      },
       fields: [
         {
           columnName: 'eventID',
@@ -1423,7 +1424,7 @@ export const mooseSRBSchema: TransformSchema = {
           ]
         },
         createValueField('measurementType', 'Cow W/2 calves'),
-        createValueField('measurementUnit', 'Number'),
+        createValueField('measurementUnit', ''),
         createPathField('measurementValue', 'Observations', ['Cow W/2 calves'])
       ]
     },
@@ -1646,7 +1647,7 @@ export const mooseSRBSchema: TransformSchema = {
           ]
         },
         createValueField('measurementType', 'Number of Marked Animals Observed'),
-        createValueField('measurementUnit', 'Number'),
+        createValueField('measurementUnit', ''),
         createPathField('measurementValue', 'Observations', ['Number of Marked Animals Observed'])
       ]
     },
