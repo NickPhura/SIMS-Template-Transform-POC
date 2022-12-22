@@ -1,22 +1,31 @@
-import { JSONPath, MapFieldSchema } from './xlsx-transform-schema-parser';
+import {
+  DWCColumnName,
+  JSONPathString,
+  MapFieldSchema,
+  TemplateColumnName,
+  TemplateSheetName
+} from './xlsx-transform-schema-parser';
 
 /**
  * Get a json path query string that fetches one or more values within an element where `_name=<sheetName>`.
  *
- * @param {string} templateSheetName
- * @param {string[]} templateColumnNames
+ * @param {TemplateSheetName} templateSheetName
+ * @param {TemplateColumnName[]} templateColumnNames
+ * @return {*}  {JSONPathString}
  */
-export const getValuesByName = (templateSheetName: string, templateColumnNames: string[]): JSONPath =>
-  `$..[?(@._name === '${templateSheetName}')]..['${templateColumnNames.join(',')}']`;
+export const getValuesByName = (
+  templateSheetName: TemplateSheetName,
+  templateColumnNames: TemplateColumnName[]
+): JSONPathString => `$..[?(@._name === '${templateSheetName}')]..['${templateColumnNames.join(',')}']`;
 
 /**
  * Create a DWC map `MapFieldSchema` object from a static value.
  *
- * @param {string} dwcColumnName
- * @param {string} defaultValue
+ * @param {DWCColumnName} dwcColumnName
+ * @param {string} staticValue
  * @return {*}  {MapFieldSchema}
  */
-export const createValueField = (dwcColumnName: string, staticValue: string): MapFieldSchema => {
+export const createValueField = (dwcColumnName: DWCColumnName, staticValue: string): MapFieldSchema => {
   return {
     columnName: dwcColumnName,
     columnValue: [
@@ -28,17 +37,17 @@ export const createValueField = (dwcColumnName: string, staticValue: string): Ma
 };
 
 /**
- * Create a DWC map `MapFieldSchema` object from a single JSONPath.
+ * Create a DWC map `MapFieldSchema` object from a single JSONPathString.
  *
- * @param {string} dwcColumnName
- * @param {string} templateSheetName
- * @param {string[]} templateSheetColumns
+ * @param {DWCColumnName} dwcColumnName
+ * @param {TemplateSheetName} templateSheetName
+ * @param {TemplateColumnName[]} templateSheetColumns
  * @return {*}  {MapFieldSchema}
  */
 export const createPathField = (
-  dwcColumnName: string,
-  templateSheetName: string,
-  templateSheetColumns: string[]
+  dwcColumnName: DWCColumnName,
+  templateSheetName: TemplateSheetName,
+  templateSheetColumns: TemplateColumnName[]
 ): MapFieldSchema => {
   return {
     columnName: dwcColumnName,

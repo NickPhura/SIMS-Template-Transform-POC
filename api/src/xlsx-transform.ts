@@ -5,8 +5,13 @@ import path from 'path';
 import xlsx from 'xlsx';
 import XLSXTransformSchemaParser, {
   ConditionSchema,
+  DWCColumnName,
+  DWCSheetName,
   IfNotEmptyCheck,
+  JSONPathString,
+  TemplateColumnName,
   TemplateMetaSchema,
+  TemplateSheetName,
   TransformSchema
 } from './xlsx-transform-schema-parser';
 import { filterDuplicateKeys, getCombinations } from './xlsx-transform-utils';
@@ -74,7 +79,7 @@ export class XLSXTransform {
     const hierarchicalRowObjects = this.buildRowObjectsHierarchy(preparedRowObjects);
     fs.writeFileSync(path.join(__dirname, 'output', '2.json'), JSON.stringify(hierarchicalRowObjects, null, 2));
 
-    // Iterate over the hierarchical row objects, mapping original values to their Darwin Core equivalents
+    // Iterate over the hierarchical row objects, mapping original values to their DWC equivalents
     const processedHierarchicalRowObjects = this.processHierarchicalRowObjects(hierarchicalRowObjects);
     fs.writeFileSync(
       path.join(__dirname, 'output', '3.json'),
@@ -92,13 +97,14 @@ export class XLSXTransform {
   }
 
   /**
-   * Modifies the raw row objects returned by xlsx, and adds identifiers used in later steps (keys, etc)
+   * Modifies the raw row objects returned by xlsx, and adds additional data (row numbers, keys, etc) that will be used
+   * in later steps of the transformation process.
    *
-   * @return {*}
+   * @return {*}  {Record<TemplateSheetName, RowObject[]>}
    * @memberof XLSXTransform
    */
-  prepareRowObjects() {
-    const output: Record<string, RowObject[]> = {};
+  prepareRowObjects(): Record<TemplateSheetName, RowObject[]> {
+    const output: Record<TemplateSheetName, RowObject[]> = {};
 
     this.workbook.SheetNames.forEach((sheetName) => {
       const templateMetaSchema = this.schemaParser.getTemplateMetaConfigBySheetName(sheetName);
@@ -119,7 +125,7 @@ export class XLSXTransform {
         throw Error('Worksheet range is undefined');
       }
 
-      const worksheetJSON = xlsx.utils.sheet_to_json<Record<string, any>>(worksheet, {
+      const worksheetJSON = xlsx.utils.sheet_to_json<Record<TemplateColumnName, any>>(worksheet, {
         blankrows: false,
         raw: true,
         rawNumbers: false
@@ -136,7 +142,7 @@ export class XLSXTransform {
   }
 
   _prepareRowObjects(
-    worksheetJSON: Record<string, any>[],
+    worksheetJSON: Record<TemplateColumnName, any>[],
     templateMetaSchema: TemplateMetaSchema,
     numberOfRows: number
   ): RowObject[] {
@@ -152,7 +158,7 @@ export class XLSXTransform {
       const parentKey = this._getKeyForRowObject(worksheetJSON[i], templateMetaSchema.parentKey);
 
       const childKeys = templateMetaSchema.foreignKeys
-        .map((foreignKeys: { sheetName: string; primaryKey: string[] }) => {
+        .map((foreignKeys: { sheetName: TemplateColumnName; primaryKey: string[] }) => {
           return this._getKeyForRowObject(worksheetJSON[i], foreignKeys.primaryKey);
         })
         .filter((item): item is string => !!item);
@@ -172,7 +178,7 @@ export class XLSXTransform {
     return worksheetJSONWithKey;
   }
 
-  _getKeyForRowObject(RowObject: Record<string, any>, keyColumnNames: string[]): string {
+  _getKeyForRowObject(RowObject: Record<TemplateColumnName, any>, keyColumnNames: string[]): string {
     if (!keyColumnNames.length) {
       return '';
     }
@@ -191,7 +197,15 @@ export class XLSXTransform {
     return primaryKey;
   }
 
-  buildRowObjectsHierarchy(preparedRowObjects: Record<string, RowObject[]>) {
+  /**
+   * De-normalize the original template data into a nested hierarchical object structure, based on the `templateMeta`
+   * portion of the transform config.
+   *
+   * @param {Record<TemplateSheetName, RowObject[]>} preparedRowObjects
+   * @return {*}  {{ _children: RowObject[] }}
+   * @memberof XLSXTransform
+   */
+  buildRowObjectsHierarchy(preparedRowObjects: Record<TemplateSheetName, RowObject[]>): { _children: RowObject[] } {
     const hierarchicalRowObjects: { _children: RowObject[] } = { _children: [] };
 
     for (let queueIndex = 0; queueIndex < this.schemaParser.preparedTransformSchema.templateMeta.length; queueIndex++) {
@@ -245,10 +259,22 @@ export class XLSXTransform {
     return hierarchicalRowObjects;
   }
 
-  processHierarchicalRowObjects(hierarchicalRowObjects: { _children: RowObject[] }) {
-    const mapRowObjects: Record<string, Record<string, string>[]>[] = [];
+  /**
+   * Map the original template data to their corresponding DWC terms, based on the operations in the `map` portion
+   * of the transform config.
+   *
+   * @param {{
+   *     _children: RowObject[];
+   *   }} hierarchicalRowObjects
+   * @return {*}  {Record<DWCSheetName, Record<DWCColumnName, string>[]>[]}
+   * @memberof XLSXTransform
+   */
+  processHierarchicalRowObjects(hierarchicalRowObjects: {
+    _children: RowObject[];
+  }): Record<DWCSheetName, Record<DWCColumnName, string>[]>[] {
+    const mapRowObjects: Record<DWCSheetName, Record<DWCColumnName, string>[]>[] = [];
 
-    // for each hierarchicalRowObjects
+    // For each hierarchicalRowObjects
     for (let rowIndex = 0; rowIndex < hierarchicalRowObjects._children.length; rowIndex++) {
       const hierarchicalRowObject = hierarchicalRowObjects._children[rowIndex];
 
@@ -274,8 +300,8 @@ export class XLSXTransform {
       [{ _children: [{ ...hierarchicalRowObject }] }]
     ];
 
-    const prepGetCombinations = (source: AtLeast<RowObject, '_children'>[]): Record<string, RowObject[]> => {
-      const prepGetCombinations: Record<string, RowObject[]> = {};
+    const prepGetCombinations = (source: AtLeast<RowObject, '_children'>[]): Record<TemplateSheetName, RowObject[]> => {
+      const prepGetCombinations: Record<TemplateSheetName, RowObject[]> = {};
 
       for (let sourceIndex = 0; sourceIndex < source.length; sourceIndex++) {
         if (source[sourceIndex]._type === 'leaf') {
@@ -357,9 +383,9 @@ export class XLSXTransform {
   }
 
   _mapFlattenedRowObject(flattenedRow: RowObject[]) {
-    const output: Record<string, Record<string, string>[]> = {};
+    const output: Record<DWCSheetName, Record<DWCColumnName, string>[]> = {};
 
-    const indexBySheetName: Record<string, number> = {};
+    const indexBySheetName: Record<TemplateSheetName, number> = {};
 
     const mapSchema = [...this.schemaParser.preparedTransformSchema.map];
 
@@ -494,6 +520,14 @@ export class XLSXTransform {
     return output;
   }
 
+  /**
+   * Process a transform config `condition`, returning `true` if the condition passed and `false` otherwise.
+   *
+   * @param {ConditionSchema} condition
+   * @param {RowObject[]} rowObjects
+   * @return {*}  {boolean} `true` if the condition passed, `false` otherwise
+   * @memberof XLSXTransform
+   */
   _processCondition(condition: ConditionSchema, rowObjects: RowObject[]): boolean {
     if (!condition) {
       // No conditions to process
@@ -528,7 +562,7 @@ export class XLSXTransform {
     return true;
   }
 
-  _processPaths(paths: string[], json: JSONPathOptions['json']): string | string[] | string[][] {
+  _processPaths(paths: JSONPathString[], json: JSONPathOptions['json']): string | string[] | string[][] {
     if (paths.length === 0) {
       return '';
     }
@@ -551,88 +585,17 @@ export class XLSXTransform {
   }
 
   /**
-   * Groups all of the dwc records based on sheet name.
+   * Groups all of the DWC records based on DWC sheet name.
    *
-   * @example
-   * // Incoming records
-   * [
-   *   {
-   *     "event": [
-   *       {
-   *         "eventID": "111",
-   *         "eventDate": "2022-01-01",
-   *       }
-   *     ],
-   *     "occurrence": [
-   *       {
-   *         "eventID": "111",
-   *         "occurrenceID": "A1"
-   *         "individualCount": "1"
-   *       },
-   *       {
-   *         "eventID": "111",
-   *         "occurrenceID": "B1"
-   *         "individualCount": "4"
-   *       }
-   *     ]
-   *   },
-   *   {
-   *     "event": [
-   *       {
-   *         "eventID": "222",
-   *         "eventDate": "2022-02-02",
-   *       }
-   *     ],
-   *     "occurrence": [
-   *       {
-   *         "eventID": "222",
-   *         "occurrenceID": "C1"
-   *         "individualCount": "6"
-   *       }
-   *     ]
-   *   }
-   * ]
-   *
-   * // Resulting records grouped by sheet name
-   * {
-   *   "event": [
-   *     {
-   *       "eventID": "111",
-   *       "eventDate": "2022-01-01",
-   *     },
-   *     {
-   *       "eventID": "222",
-   *       "eventDate": "2022-02-02",
-   *     }
-   *   ],
-   *   "occurrence": [
-   *     {
-   *       "eventID": "111",
-   *       "occurrenceID": "A1"
-   *       "individualCount": "1"
-   *     },
-   *     {
-   *       "eventID": "111",
-   *       "occurrenceID": "B1"
-   *       "individualCount": "4"
-   *     },
-   *     {
-   *       "eventID": "222",
-   *       "occurrenceID": "C1"
-   *       "individualCount": "6"
-   *     }
-   *   ]
-   * }
-   *
-   * @param {Record<string, Record<string, string>[]>[]} processedHierarchicalRowObjects
-   * @return {*}  {Record<string, Record<string, string>[]>}
+   * @param {Record<DWCSheetName, Record<DWCColumnName, string>[]>[]} processedHierarchicalRowObjects
+   * @return {*}  {Record<DWCSheetName, Record<DWCColumnName, string>[]>}
    * @memberof XLSXTransform
    */
   prepareRowObjectsForJSONToSheet(
-    processedHierarchicalRowObjects: Record<string, Record<string, string>[]>[]
-  ): Record<string, Record<string, string>[]> {
-    const groupedByDWCSheetName: Record<string, Record<string, string>[]> = {};
-    const uniqueGroupedByDWCSheetName: Record<string, Record<string, string>[]> = {};
+    processedHierarchicalRowObjects: Record<DWCSheetName, Record<DWCColumnName, string>[]>[]
+  ): Record<DWCSheetName, Record<DWCColumnName, string>[]> {
+    const groupedByDWCSheetName: Record<DWCSheetName, Record<DWCColumnName, string>[]> = {};
+    const uniqueGroupedByDWCSheetName: Record<DWCSheetName, Record<DWCColumnName, string>[]> = {};
 
     const dwcSheetNames = this.schemaParser.getDWCSheetNames();
 

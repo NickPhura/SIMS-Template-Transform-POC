@@ -1,6 +1,12 @@
 import { JSONPath } from 'jsonpath-plus';
 
-export type JSONPath = string;
+export type TemplateSheetName = string;
+export type TemplateColumnName = string;
+
+export type DWCSheetName = string;
+export type DWCColumnName = string;
+
+export type JSONPathString = string;
 
 export type ConditionSchema = {
   type: 'and' | 'or';
@@ -8,7 +14,7 @@ export type ConditionSchema = {
 };
 
 export type IfNotEmptyCheck = {
-  ifNotEmpty: JSONPath;
+  ifNotEmpty: JSONPathString;
 };
 
 export type TemplateMetaForeignKeySchema = {
@@ -18,11 +24,11 @@ export type TemplateMetaForeignKeySchema = {
 
 export type TemplateMetaSchema = {
   /**
-   * The name of the sheet.
+   * The name of the template sheet.
    *
    * @type {string}
    */
-  sheetName: string;
+  sheetName: TemplateSheetName;
   /**
    * An array of json path query strings.
    *
@@ -43,9 +49,9 @@ export type MapColumnValuePostfixSchema = {
    *
    * A single query string may return one value, or an array of values.
    *
-   * @type {JSONPath[]}
+   * @type {JSONPathString[]}
    */
-  paths?: JSONPath[];
+  paths?: JSONPathString[];
   /**
    * A static value to append to the end of the final `paths` value.
    *
@@ -73,9 +79,9 @@ export type MapColumnValueSchema = {
    * If an array of values is returned, they will be joined using the specified `join` string.
    * If `join` string is not specified, a colon `:` will be used as the default `join` string.
    *
-   * @type {JSONPath[]}
+   * @type {JSONPathString[]}
    */
-  paths?: JSONPath[];
+  paths?: JSONPathString[];
   /**
    * A static value to be used, in place of any `paths`.
    *
@@ -116,11 +122,11 @@ export type MapColumnValueSchema = {
 
 export type MapFieldSchema = {
   /**
-   * The name of the column.
+   * The name of the DWC column (term).
    *
-   * @type {string}
+   * @type {DWCColumnName}
    */
-  columnName: string;
+  columnName: DWCColumnName;
   /**
    * The schema that defines how the value of the column is produced.
    *
@@ -134,11 +140,11 @@ export type MapFieldSchema = {
 
 export type MapSchema = {
   /**
-   * The name of the sheet.
+   * The name of the DWC sheet.
    *
-   * @type {string}
+   * @type {DWCSheetName}
    */
-  sheetName: string;
+  sheetName: DWCSheetName;
   /**
    * A condition, which contains one or more checks that must be met in order to proceed processing the schema element.
    *
@@ -183,7 +189,7 @@ export type TransformSchema = {
    * Defines DWC specific meta needed by various steps of the transformation.
    *
    * @type {DwcSchema[]}
-   */   
+   */
   dwcMeta: DwcSchema[];
 };
 
