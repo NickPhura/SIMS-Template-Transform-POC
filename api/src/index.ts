@@ -2,12 +2,22 @@ import Ajv from 'ajv';
 import * as fs from 'fs';
 import path from 'path';
 import xlsx from 'xlsx';
-import { mooseSRBSchema } from './schema/moose_srb_schema';
+import { caribouTotalCountchema } from './schema/caribou_total_count_schema';
+//import { goatTotalCountchema } from './schema/goat_total_count_schema';
+//import { sheepTotalCountchema } from './schema/sheep_total_count_schema';
 import { XLSXTransform } from './xlsx-transform';
 import { transformationConfigJSONSchema } from './xlsx-transform-schema';
 
-const TEMPLATE_NAME = 'MU_432_ZoneA_SRB_v2.0_Fixed.xlsx';
-const TEMPLATE_SCHEMA = mooseSRBSchema;
+//const TEMPLATE_NAME = 'EastKootenay_Sheep_Aerial_Total_Count_2.0.xlsx';
+//const TEMPLATE_NAME = 'Sheep_test.xlsx';
+
+//const TEMPLATE_NAME = 'Monashee_Mt_Goat_Total_Count_Recuit_Comp_Survey_2.0.xlsx';
+// const TEMPLATE_NAME = 'Goat_test.xlsx';
+// const TEMPLATE_SCHEMA = goatTotalCountchema;
+
+//const TEMPLATE_NAME = 'Central Selkirks Caribou_Aerial_Population_Total_Count_Recuit_Comp_Survey_1.0.xlsx';
+const TEMPLATE_NAME = 'cariboo_sample_test.xlsx';
+const TEMPLATE_SCHEMA = caribouTotalCountchema;
 
 fs.writeFileSync(path.join(__dirname, 'output', 'schema.json'), JSON.stringify(TEMPLATE_SCHEMA, null, 2));
 
