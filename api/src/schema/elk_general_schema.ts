@@ -155,6 +155,7 @@ export const elkGeneralSchema: TransformSchema = {
   // BC RISC Yearling Bulls (static: 0)
   // life stage:Yearling
   // sex: Male
+  // configuration: BC RISC Yearling
   {
     sheetName: 'occurrence',
     condition: { type: 'and', checks: [{ ifNotEmpty: getValuesByName('Observations', ['BC RISC Yearling Bulls']) }] },
@@ -183,11 +184,52 @@ export const elkGeneralSchema: TransformSchema = {
       createValueField('lifeStage', 'yearling'),
       createPathField('taxonID', 'Observations', ['Species']),
       createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+    ],
+    add: [
+      {
+        sheetName: 'measurementOrFact',
+        fields: [
+          {
+            columnName: 'eventID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
+              }
+            ]
+          },
+          {
+            columnName: 'measurementID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: 'antler-configuration'
+                }
+              }
+            ]
+          },
+          {
+            columnName: 'occurrenceID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: '0'
+                }
+              }
+            ]
+          },
+          createValueField('measurementType', 'Antler Configuration'),
+          createValueField('measurementUnit', ''),
+          createValueField('measurementValue', 'BC RISC Yearling Bulls')
+        ]
+      }
     ]
   },
   // BC RISC Class I Bulls (static: 1)
   // life stage: Unknown
   // sex: Male
+  // configuration: BC RISC Class I
   {
     sheetName: 'occurrence',
     condition: { type: 'and', checks: [{ ifNotEmpty: getValuesByName('Observations', ['BC RISC Class I Bulls']) }] },
@@ -216,11 +258,52 @@ export const elkGeneralSchema: TransformSchema = {
       createValueField('lifeStage', 'unknown'),
       createPathField('taxonID', 'Observations', ['Species']),
       createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+    ],
+    add: [
+      {
+        sheetName: 'measurementOrFact',
+        fields: [
+          {
+            columnName: 'eventID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
+              }
+            ]
+          },
+          {
+            columnName: 'measurementID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: 'antler-configuration'
+                }
+              }
+            ]
+          },
+          {
+            columnName: 'occurrenceID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: '1'
+                }
+              }
+            ]
+          },
+          createValueField('measurementType', 'Antler Configuration'),
+          createValueField('measurementUnit', ''),
+          createValueField('measurementValue', 'BC RISC Class I')
+        ]
+      }
     ]
   },
   // BC RISC Class II Bulls (static: 2)
   // life stage: Unknown
   // sex: Male
+  // configuration: BC RISC Class II
   {
     sheetName: 'occurrence',
     condition: { type: 'and', checks: [{ ifNotEmpty: getValuesByName('Observations', ['BC RISC Class I Bulls']) }] },
@@ -249,11 +332,52 @@ export const elkGeneralSchema: TransformSchema = {
       createValueField('lifeStage', 'unknown'),
       createPathField('taxonID', 'Observations', ['Species']),
       createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+    ],
+    add: [
+      {
+        sheetName: 'measurementOrFact',
+        fields: [
+          {
+            columnName: 'eventID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
+              }
+            ]
+          },
+          {
+            columnName: 'measurementID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: 'antler-configuration'
+                }
+              }
+            ]
+          },
+          {
+            columnName: 'occurrenceID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: '2'
+                }
+              }
+            ]
+          },
+          createValueField('measurementType', 'Antler Configuration'),
+          createValueField('measurementUnit', ''),
+          createValueField('measurementValue', 'BC RISC Class II')
+        ]
+      }
     ]
   },
   // BC RISC Class III Bulls (static: 3)
   // life stage: Adult
   // sex: Male
+  // configuration: BC RISC Class III
   {
     sheetName: 'occurrence',
     condition: { type: 'and', checks: [{ ifNotEmpty: getValuesByName('Observations', ['BC RISC Class III Bulls']) }] },
@@ -282,11 +406,52 @@ export const elkGeneralSchema: TransformSchema = {
       createValueField('lifeStage', 'adult'),
       createPathField('taxonID', 'Observations', ['Species']),
       createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+    ],
+    add: [
+      {
+        sheetName: 'measurementOrFact',
+        fields: [
+          {
+            columnName: 'eventID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
+              }
+            ]
+          },
+          {
+            columnName: 'measurementID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: 'antler-configuration'
+                }
+              }
+            ]
+          },
+          {
+            columnName: 'occurrenceID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: '3'
+                }
+              }
+            ]
+          },
+          createValueField('measurementType', 'Antler Configuration'),
+          createValueField('measurementUnit', ''),
+          createValueField('measurementValue', 'BC RISC Class III')
+        ]
+      }
     ]
   },
   // BC RISC Class IV Bulls (static: 4)
   // life stage: Adult
   // sex: Male
+  // configuration: BC RISC Class IV
   {
     sheetName: 'occurrence',
     condition: { type: 'and', checks: [{ ifNotEmpty: getValuesByName('Observations', ['BC RISC Class IV Bulls']) }] },
@@ -315,11 +480,52 @@ export const elkGeneralSchema: TransformSchema = {
       createValueField('lifeStage', 'adult'),
       createPathField('taxonID', 'Observations', ['Species']),
       createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+    ],
+    add: [
+      {
+        sheetName: 'measurementOrFact',
+        fields: [
+          {
+            columnName: 'eventID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
+              }
+            ]
+          },
+          {
+            columnName: 'measurementID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: 'antler-configuration'
+                }
+              }
+            ]
+          },
+          {
+            columnName: 'occurrenceID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: '4'
+                }
+              }
+            ]
+          },
+          createValueField('measurementType', 'Antler Configuration'),
+          createValueField('measurementUnit', ''),
+          createValueField('measurementValue', 'BC RISC Class IV')
+        ]
+      }
     ]
   },
   // Spike Bulls (static: 5)
   // life stage: Unknown
   // sex: Male
+  // configuration: Spike antlers
   {
     sheetName: 'occurrence',
     condition: { type: 'and', checks: [{ ifNotEmpty: getValuesByName('Observations', ['Spike Bulls']) }] },
@@ -348,11 +554,52 @@ export const elkGeneralSchema: TransformSchema = {
       createValueField('lifeStage', 'unknown'),
       createPathField('taxonID', 'Observations', ['Species']),
       createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+    ],
+    add: [
+      {
+        sheetName: 'measurementOrFact',
+        fields: [
+          {
+            columnName: 'eventID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
+              }
+            ]
+          },
+          {
+            columnName: 'measurementID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: 'antler-configuration'
+                }
+              }
+            ]
+          },
+          {
+            columnName: 'occurrenceID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: '5'
+                }
+              }
+            ]
+          },
+          createValueField('measurementType', 'Antler Configuration'),
+          createValueField('measurementUnit', ''),
+          createValueField('measurementValue', 'Spike antlers')
+        ]
+      }
     ]
   },
   // Raghorn Bulls (static: 6)
   // life stage: Unknown
   // sex: Male
+  // configuration: Raghorn antlers
   {
     sheetName: 'occurrence',
     condition: { type: 'and', checks: [{ ifNotEmpty: getValuesByName('Observations', ['Raghorn Bulls']) }] },
@@ -381,11 +628,52 @@ export const elkGeneralSchema: TransformSchema = {
       createValueField('lifeStage', 'unknown'),
       createPathField('taxonID', 'Observations', ['Species']),
       createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+    ],
+    add: [
+      {
+        sheetName: 'measurementOrFact',
+        fields: [
+          {
+            columnName: 'eventID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
+              }
+            ]
+          },
+          {
+            columnName: 'measurementID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: 'antler-configuration'
+                }
+              }
+            ]
+          },
+          {
+            columnName: 'occurrenceID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: '6'
+                }
+              }
+            ]
+          },
+          createValueField('measurementType', 'Antler Configuration'),
+          createValueField('measurementUnit', ''),
+          createValueField('measurementValue', 'Raghorn antlers')
+        ]
+      }
     ]
   },
   // <=3 Point Bulls (static: 7)
   // life stage: Unknown
   // sex: Male
+  // configuration: 3 points or fewer
   {
     sheetName: 'occurrence',
     condition: { type: 'and', checks: [{ ifNotEmpty: getValuesByName('Observations', ['<=3 Point Bulls']) }] },
@@ -414,11 +702,52 @@ export const elkGeneralSchema: TransformSchema = {
       createValueField('lifeStage', 'unknown'),
       createPathField('taxonID', 'Observations', ['Species']),
       createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+    ],
+    add: [
+      {
+        sheetName: 'measurementOrFact',
+        fields: [
+          {
+            columnName: 'eventID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
+              }
+            ]
+          },
+          {
+            columnName: 'measurementID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: 'antler-configuration'
+                }
+              }
+            ]
+          },
+          {
+            columnName: 'occurrenceID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: '7'
+                }
+              }
+            ]
+          },
+          createValueField('measurementType', 'Antler Configuration'),
+          createValueField('measurementUnit', ''),
+          createValueField('measurementValue', '3 points or fewer')
+        ]
+      }
     ]
   },
   // 3 - 4 Point Bulls (static: 8)
   // life stage: Unknown
   // sex: Male
+  // configuration: 3 or 4 points
   {
     sheetName: 'occurrence',
     condition: { type: 'and', checks: [{ ifNotEmpty: getValuesByName('Observations', ['3 - 4 Point Bulls']) }] },
@@ -447,11 +776,52 @@ export const elkGeneralSchema: TransformSchema = {
       createValueField('lifeStage', 'unknown'),
       createPathField('taxonID', 'Observations', ['Species']),
       createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+    ],
+    add: [
+      {
+        sheetName: 'measurementOrFact',
+        fields: [
+          {
+            columnName: 'eventID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
+              }
+            ]
+          },
+          {
+            columnName: 'measurementID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: 'antler-configuration'
+                }
+              }
+            ]
+          },
+          {
+            columnName: 'occurrenceID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: '8'
+                }
+              }
+            ]
+          },
+          createValueField('measurementType', 'Antler Configuration'),
+          createValueField('measurementUnit', ''),
+          createValueField('measurementValue', '3 or 4 points')
+        ]
+      }
     ]
   },
   // 3 - 5 Point Bulls (static: 9)
   // life stage: Unknown
   // sex: Male
+  // configuration: 3 or 4 or 5 points
   {
     sheetName: 'occurrence',
     condition: { type: 'and', checks: [{ ifNotEmpty: getValuesByName('Observations', ['3 - 5 Point Bulls']) }] },
@@ -480,11 +850,52 @@ export const elkGeneralSchema: TransformSchema = {
       createValueField('lifeStage', 'unknown'),
       createPathField('taxonID', 'Observations', ['Species']),
       createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+    ],
+    add: [
+      {
+        sheetName: 'measurementOrFact',
+        fields: [
+          {
+            columnName: 'eventID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
+              }
+            ]
+          },
+          {
+            columnName: 'measurementID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: 'antler-configuration'
+                }
+              }
+            ]
+          },
+          {
+            columnName: 'occurrenceID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: '9'
+                }
+              }
+            ]
+          },
+          createValueField('measurementType', 'Antler Configuration'),
+          createValueField('measurementUnit', ''),
+          createValueField('measurementValue', '3 or 4 or 5 points')
+        ]
+      }
     ]
   },
   // <4 Point Bulls (static: 10)
   // life stage: Unknown
   // sex: Male
+  // configuration: fewer than 4 points
   {
     sheetName: 'occurrence',
     condition: { type: 'and', checks: [{ ifNotEmpty: getValuesByName('Observations', ['<4 Point Bulls']) }] },
@@ -513,11 +924,52 @@ export const elkGeneralSchema: TransformSchema = {
       createValueField('lifeStage', 'unknown'),
       createPathField('taxonID', 'Observations', ['Species']),
       createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+    ],
+    add: [
+      {
+        sheetName: 'measurementOrFact',
+        fields: [
+          {
+            columnName: 'eventID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
+              }
+            ]
+          },
+          {
+            columnName: 'measurementID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: 'antler-configuration'
+                }
+              }
+            ]
+          },
+          {
+            columnName: 'occurrenceID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: '10'
+                }
+              }
+            ]
+          },
+          createValueField('measurementType', 'Antler Configuration'),
+          createValueField('measurementUnit', ''),
+          createValueField('measurementValue', 'fewer than 4 points')
+        ]
+      }
     ]
   },
   // >=4 Point Bulls (static: 11)
   // life stage: Unknown
   // sex: Male
+  // 4 points or more
   {
     sheetName: 'occurrence',
     condition: { type: 'and', checks: [{ ifNotEmpty: getValuesByName('Observations', ['>=4 Point Bulls']) }] },
@@ -546,11 +998,52 @@ export const elkGeneralSchema: TransformSchema = {
       createValueField('lifeStage', 'unknown'),
       createPathField('taxonID', 'Observations', ['Species']),
       createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+    ],
+    add: [
+      {
+        sheetName: 'measurementOrFact',
+        fields: [
+          {
+            columnName: 'eventID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
+              }
+            ]
+          },
+          {
+            columnName: 'measurementID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: 'antler-configuration'
+                }
+              }
+            ]
+          },
+          {
+            columnName: 'occurrenceID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: '11'
+                }
+              }
+            ]
+          },
+          createValueField('measurementType', 'Antler Configuration'),
+          createValueField('measurementUnit', ''),
+          createValueField('measurementValue', '4 points or more')
+        ]
+      }
     ]
   },
   // 5 Point Bulls (static: 12)
   // life stage: Adult
   // sex: Male
+  // configuration: 5 points
   {
     sheetName: 'occurrence',
     condition: { type: 'and', checks: [{ ifNotEmpty: getValuesByName('Observations', ['5 Point Bulls']) }] },
@@ -579,11 +1072,52 @@ export const elkGeneralSchema: TransformSchema = {
       createValueField('lifeStage', 'adult'),
       createPathField('taxonID', 'Observations', ['Species']),
       createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+    ],
+    add: [
+      {
+        sheetName: 'measurementOrFact',
+        fields: [
+          {
+            columnName: 'eventID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
+              }
+            ]
+          },
+          {
+            columnName: 'measurementID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: 'antler-configuration'
+                }
+              }
+            ]
+          },
+          {
+            columnName: 'occurrenceID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: '12'
+                }
+              }
+            ]
+          },
+          createValueField('measurementType', 'Antler Configuration'),
+          createValueField('measurementUnit', ''),
+          createValueField('measurementValue', '5 points')
+        ]
+      }
     ]
   },
   // >=5 Point Bulls (static: 13)
   // life stage: Adult
   // sex: Male
+  // configuration: 5 points or more
   {
     sheetName: 'occurrence',
     condition: { type: 'and', checks: [{ ifNotEmpty: getValuesByName('Observations', ['>=5 Point Bulls']) }] },
@@ -612,11 +1146,52 @@ export const elkGeneralSchema: TransformSchema = {
       createValueField('lifeStage', 'adult'),
       createPathField('taxonID', 'Observations', ['Species']),
       createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+    ],
+    add: [
+      {
+        sheetName: 'measurementOrFact',
+        fields: [
+          {
+            columnName: 'eventID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
+              }
+            ]
+          },
+          {
+            columnName: 'measurementID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: 'antler-configuration'
+                }
+              }
+            ]
+          },
+          {
+            columnName: 'occurrenceID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: '13'
+                }
+              }
+            ]
+          },
+          createValueField('measurementType', 'Antler Configuration'),
+          createValueField('measurementUnit', ''),
+          createValueField('measurementValue', '5 points or more')
+        ]
+      }
     ]
   },
   // >= 6 Point Bulls (static: 14)
   // life stage: Adult
   // sex: Male
+  // configuration: 6 points or more
   {
     sheetName: 'occurrence',
     condition: { type: 'and', checks: [{ ifNotEmpty: getValuesByName('Observations', ['>= 6 Point Bulls']) }] },
@@ -645,11 +1220,52 @@ export const elkGeneralSchema: TransformSchema = {
       createValueField('lifeStage', 'adult'),
       createPathField('taxonID', 'Observations', ['Species']),
       createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+    ],
+    add: [
+      {
+        sheetName: 'measurementOrFact',
+        fields: [
+          {
+            columnName: 'eventID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
+              }
+            ]
+          },
+          {
+            columnName: 'measurementID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: 'antler-configuration'
+                }
+              }
+            ]
+          },
+          {
+            columnName: 'occurrenceID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: '14'
+                }
+              }
+            ]
+          },
+          createValueField('measurementType', 'Antler Configuration'),
+          createValueField('measurementUnit', ''),
+          createValueField('measurementValue', '6 points or more')
+        ]
+      }
     ]
   },
   // Adult Bulls - Unclassified (static: 15)
   // life stage: Adult
   // sex: Male
+  // configuration: unknown
   {
     sheetName: 'occurrence',
     condition: { type: 'and', checks: [{ ifNotEmpty: getValuesByName('Observations', ['Adult Bulls - Unclassified']) }] },
@@ -678,11 +1294,52 @@ export const elkGeneralSchema: TransformSchema = {
       createValueField('lifeStage', 'adult'),
       createPathField('taxonID', 'Observations', ['Species']),
       createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+    ],
+    add: [
+      {
+        sheetName: 'measurementOrFact',
+        fields: [
+          {
+            columnName: 'eventID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
+              }
+            ]
+          },
+          {
+            columnName: 'measurementID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: 'antler-configuration'
+                }
+              }
+            ]
+          },
+          {
+            columnName: 'occurrenceID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: '15'
+                }
+              }
+            ]
+          },
+          createValueField('measurementType', 'Antler Configuration'),
+          createValueField('measurementUnit', ''),
+          createValueField('measurementValue', 'unknown')
+        ]
+      }
     ]
   },
   // Unclassified Bulls (static: 16)
   // life stage: Unknown
   // sex: Male
+  // configuration: unknown
   {
     sheetName: 'occurrence',
     condition: { type: 'and', checks: [{ ifNotEmpty: getValuesByName('Observations', ['Unclassified Bulls']) }] },
@@ -711,6 +1368,46 @@ export const elkGeneralSchema: TransformSchema = {
       createValueField('lifeStage', 'adult'),
       createPathField('taxonID', 'Observations', ['Species']),
       createPathField('occurrenceRemarks', 'Observations', ['Observation Comments'])
+    ],
+    add: [
+      {
+        sheetName: 'measurementOrFact',
+        fields: [
+          {
+            columnName: 'eventID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])]
+              }
+            ]
+          },
+          {
+            columnName: 'measurementID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: 'antler-configuration'
+                }
+              }
+            ]
+          },
+          {
+            columnName: 'occurrenceID',
+            columnValue: [
+              {
+                paths: [getValuesByName('Observations', ['_key']), getValuesByName('Observations', ['_row'])],
+                postfix: {
+                  static: '16'
+                }
+              }
+            ]
+          },
+          createValueField('measurementType', 'Antler Configuration'),
+          createValueField('measurementUnit', ''),
+          createValueField('measurementValue', 'unknown')
+        ]
+      }
     ]
   },
   // Cows (static: 17)
