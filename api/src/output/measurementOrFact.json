@@ -1,0 +1,18 @@
+﻿eventID,measurementID,occurrenceID,measurementType,measurementUnit,measurementValue
+SA-1:BISID-1:0,SA-1:BISID-1:0:antler-configuration,SA-1:BISID-1:0:0,Antler Configuration,,BC RISC Yearling Bulls
+SA-1:BISID-1:0,SA-1:BISID-1:0:antler-configuration,SA-1:BISID-1:0:1,Antler Configuration,,BC RISC Class I
+SA-1:BISID-1:0,SA-1:BISID-1:0:antler-configuration,SA-1:BISID-1:0:2,Antler Configuration,,BC RISC Class II
+SA-1:BISID-1:0,SA-1:BISID-1:0:antler-configuration,SA-1:BISID-1:0:3,Antler Configuration,,BC RISC Class III
+SA-1:BISID-1:0,SA-1:BISID-1:0:antler-configuration,SA-1:BISID-1:0:4,Antler Configuration,,BC RISC Class IV
+SA-1:BISID-1:0,SA-1:BISID-1:0:antler-configuration,SA-1:BISID-1:0:5,Antler Configuration,,Spike antlers
+SA-1:BISID-1:0,SA-1:BISID-1:0:antler-configuration,SA-1:BISID-1:0:6,Antler Configuration,,Raghorn antlers
+SA-1:BISID-1:0,SA-1:BISID-1:0:antler-configuration,SA-1:BISID-1:0:7,Antler Configuration,,3 points or fewer
+SA-1:BISID-1:0,SA-1:BISID-1:0:antler-configuration,SA-1:BISID-1:0:8,Antler Configuration,,3 or 4 points
+SA-1:BISID-1:0,SA-1:BISID-1:0:antler-configuration,SA-1:BISID-1:0:9,Antler Configuration,,3 or 4 or 5 points
+SA-1:BISID-1:0,SA-1:BISID-1:0:antler-configuration,SA-1:BISID-1:0:10,Antler Configuration,,fewer than 4 points
+SA-1:BISID-1:0,SA-1:BISID-1:0:antler-configuration,SA-1:BISID-1:0:11,Antler Configuration,,4 points or more
+SA-1:BISID-1:0,SA-1:BISID-1:0:antler-configuration,SA-1:BISID-1:0:12,Antler Configuration,,5 points
+SA-1:BISID-1:0,SA-1:BISID-1:0:antler-configuration,SA-1:BISID-1:0:13,Antler Configuration,,5 points or more
+SA-1:BISID-1:0,SA-1:BISID-1:0:antler-configuration,SA-1:BISID-1:0:14,Antler Configuration,,6 points or more
+SA-1:BISID-1:0,SA-1:BISID-1:0:antler-configuration,SA-1:BISID-1:0:15,Antler Configuration,,unknown
+SA-1:BISID-1:0,SA-1:BISID-1:0:antler-configuration,SA-1:BISID-1:0:16,Antler Configuration,,unknown

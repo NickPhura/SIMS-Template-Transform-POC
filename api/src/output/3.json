@@ -1,0 +1,364 @@
+[
+  {
+    "record": [
+      {
+        "eventId": "SA-1:BISID-1:0",
+        "basisOfRecord ": "HumanObservation"
+      }
+    ],
+    "event": [
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "eventDate": "27/Feb/23",
+        "eventRemarks": "coments son"
+      }
+    ],
+    "location": [
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "verbatimCoordinates": "8 1 1",
+        "decimalLatitude": "",
+        "decimalLongitude": "",
+        "verbatimSRS": "NAD27"
+      }
+    ],
+    "occurrence": [
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "occurrenceID": "SA-1:BISID-1:0:0",
+        "individualCount": "0",
+        "sex": "male",
+        "lifeStage": "yearling",
+        "taxonID": "S-ELK",
+        "occurrenceRemarks": "coments son"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "occurrenceID": "SA-1:BISID-1:0:1",
+        "individualCount": "1",
+        "sex": "male",
+        "lifeStage": "unknown",
+        "taxonID": "S-ELK",
+        "occurrenceRemarks": "coments son"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "occurrenceID": "SA-1:BISID-1:0:2",
+        "individualCount": "2",
+        "sex": "male",
+        "lifeStage": "unknown",
+        "taxonID": "S-ELK",
+        "occurrenceRemarks": "coments son"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "occurrenceID": "SA-1:BISID-1:0:3",
+        "individualCount": "3",
+        "sex": "male",
+        "lifeStage": "adult",
+        "taxonID": "S-ELK",
+        "occurrenceRemarks": "coments son"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "occurrenceID": "SA-1:BISID-1:0:4",
+        "individualCount": "4",
+        "sex": "male",
+        "lifeStage": "adult",
+        "taxonID": "S-ELK",
+        "occurrenceRemarks": "coments son"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "occurrenceID": "SA-1:BISID-1:0:5",
+        "individualCount": "5",
+        "sex": "male",
+        "lifeStage": "unknown",
+        "taxonID": "S-ELK",
+        "occurrenceRemarks": "coments son"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "occurrenceID": "SA-1:BISID-1:0:6",
+        "individualCount": "6",
+        "sex": "male",
+        "lifeStage": "unknown",
+        "taxonID": "S-ELK",
+        "occurrenceRemarks": "coments son"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "occurrenceID": "SA-1:BISID-1:0:7",
+        "individualCount": "7",
+        "sex": "male",
+        "lifeStage": "unknown",
+        "taxonID": "S-ELK",
+        "occurrenceRemarks": "coments son"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "occurrenceID": "SA-1:BISID-1:0:8",
+        "individualCount": "8",
+        "sex": "male",
+        "lifeStage": "unknown",
+        "taxonID": "S-ELK",
+        "occurrenceRemarks": "coments son"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "occurrenceID": "SA-1:BISID-1:0:9",
+        "individualCount": "9",
+        "sex": "male",
+        "lifeStage": "unknown",
+        "taxonID": "S-ELK",
+        "occurrenceRemarks": "coments son"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "occurrenceID": "SA-1:BISID-1:0:10",
+        "individualCount": "10",
+        "sex": "male",
+        "lifeStage": "unknown",
+        "taxonID": "S-ELK",
+        "occurrenceRemarks": "coments son"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "occurrenceID": "SA-1:BISID-1:0:11",
+        "individualCount": "11",
+        "sex": "male",
+        "lifeStage": "unknown",
+        "taxonID": "S-ELK",
+        "occurrenceRemarks": "coments son"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "occurrenceID": "SA-1:BISID-1:0:12",
+        "individualCount": "12",
+        "sex": "male",
+        "lifeStage": "adult",
+        "taxonID": "S-ELK",
+        "occurrenceRemarks": "coments son"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "occurrenceID": "SA-1:BISID-1:0:13",
+        "individualCount": "13",
+        "sex": "male",
+        "lifeStage": "adult",
+        "taxonID": "S-ELK",
+        "occurrenceRemarks": "coments son"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "occurrenceID": "SA-1:BISID-1:0:14",
+        "individualCount": "",
+        "sex": "male",
+        "lifeStage": "adult",
+        "taxonID": "S-ELK",
+        "occurrenceRemarks": "coments son"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "occurrenceID": "SA-1:BISID-1:0:15",
+        "individualCount": "15",
+        "sex": "male",
+        "lifeStage": "adult",
+        "taxonID": "S-ELK",
+        "occurrenceRemarks": "coments son"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "occurrenceID": "SA-1:BISID-1:0:16",
+        "individualCount": "16",
+        "sex": "male",
+        "lifeStage": "adult",
+        "taxonID": "S-ELK",
+        "occurrenceRemarks": "coments son"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "occurrenceID": "SA-1:BISID-1:0:17",
+        "individualCount": "17",
+        "sex": "female",
+        "lifeStage": "adult",
+        "taxonID": "S-ELK",
+        "occurrenceRemarks": "coments son"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "occurrenceID": "SA-1:BISID-1:0:18",
+        "individualCount": "18",
+        "sex": "unknown",
+        "lifeStage": "juvenile",
+        "taxonID": "S-ELK",
+        "occurrenceRemarks": "coments son"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "occurrenceID": "SA-1:BISID-1:0:19",
+        "individualCount": "19",
+        "sex": "unknown",
+        "lifeStage": "adult",
+        "taxonID": "S-ELK",
+        "occurrenceRemarks": "coments son"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "occurrenceID": "SA-1:BISID-1:0:20",
+        "individualCount": "20",
+        "sex": "unknown",
+        "lifeStage": "yearling",
+        "taxonID": "S-ELK",
+        "occurrenceRemarks": "coments son"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "occurrenceID": "SA-1:BISID-1:0:21",
+        "individualCount": "21",
+        "sex": "unknown",
+        "lifeStage": "unknown",
+        "taxonID": "S-ELK",
+        "occurrenceRemarks": "coments son"
+      }
+    ],
+    "measurementOrFact": [
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "measurementID": "SA-1:BISID-1:0:antler-configuration",
+        "occurrenceID": "SA-1:BISID-1:0:0",
+        "measurementType": "Antler Configuration",
+        "measurementUnit": "",
+        "measurementValue": "BC RISC Yearling Bulls"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "measurementID": "SA-1:BISID-1:0:antler-configuration",
+        "occurrenceID": "SA-1:BISID-1:0:1",
+        "measurementType": "Antler Configuration",
+        "measurementUnit": "",
+        "measurementValue": "BC RISC Class I"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "measurementID": "SA-1:BISID-1:0:antler-configuration",
+        "occurrenceID": "SA-1:BISID-1:0:2",
+        "measurementType": "Antler Configuration",
+        "measurementUnit": "",
+        "measurementValue": "BC RISC Class II"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "measurementID": "SA-1:BISID-1:0:antler-configuration",
+        "occurrenceID": "SA-1:BISID-1:0:3",
+        "measurementType": "Antler Configuration",
+        "measurementUnit": "",
+        "measurementValue": "BC RISC Class III"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "measurementID": "SA-1:BISID-1:0:antler-configuration",
+        "occurrenceID": "SA-1:BISID-1:0:4",
+        "measurementType": "Antler Configuration",
+        "measurementUnit": "",
+        "measurementValue": "BC RISC Class IV"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "measurementID": "SA-1:BISID-1:0:antler-configuration",
+        "occurrenceID": "SA-1:BISID-1:0:5",
+        "measurementType": "Antler Configuration",
+        "measurementUnit": "",
+        "measurementValue": "Spike antlers"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "measurementID": "SA-1:BISID-1:0:antler-configuration",
+        "occurrenceID": "SA-1:BISID-1:0:6",
+        "measurementType": "Antler Configuration",
+        "measurementUnit": "",
+        "measurementValue": "Raghorn antlers"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "measurementID": "SA-1:BISID-1:0:antler-configuration",
+        "occurrenceID": "SA-1:BISID-1:0:7",
+        "measurementType": "Antler Configuration",
+        "measurementUnit": "",
+        "measurementValue": "3 points or fewer"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "measurementID": "SA-1:BISID-1:0:antler-configuration",
+        "occurrenceID": "SA-1:BISID-1:0:8",
+        "measurementType": "Antler Configuration",
+        "measurementUnit": "",
+        "measurementValue": "3 or 4 points"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "measurementID": "SA-1:BISID-1:0:antler-configuration",
+        "occurrenceID": "SA-1:BISID-1:0:9",
+        "measurementType": "Antler Configuration",
+        "measurementUnit": "",
+        "measurementValue": "3 or 4 or 5 points"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "measurementID": "SA-1:BISID-1:0:antler-configuration",
+        "occurrenceID": "SA-1:BISID-1:0:10",
+        "measurementType": "Antler Configuration",
+        "measurementUnit": "",
+        "measurementValue": "fewer than 4 points"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "measurementID": "SA-1:BISID-1:0:antler-configuration",
+        "occurrenceID": "SA-1:BISID-1:0:11",
+        "measurementType": "Antler Configuration",
+        "measurementUnit": "",
+        "measurementValue": "4 points or more"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "measurementID": "SA-1:BISID-1:0:antler-configuration",
+        "occurrenceID": "SA-1:BISID-1:0:12",
+        "measurementType": "Antler Configuration",
+        "measurementUnit": "",
+        "measurementValue": "5 points"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "measurementID": "SA-1:BISID-1:0:antler-configuration",
+        "occurrenceID": "SA-1:BISID-1:0:13",
+        "measurementType": "Antler Configuration",
+        "measurementUnit": "",
+        "measurementValue": "5 points or more"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "measurementID": "SA-1:BISID-1:0:antler-configuration",
+        "occurrenceID": "SA-1:BISID-1:0:14",
+        "measurementType": "Antler Configuration",
+        "measurementUnit": "",
+        "measurementValue": "6 points or more"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "measurementID": "SA-1:BISID-1:0:antler-configuration",
+        "occurrenceID": "SA-1:BISID-1:0:15",
+        "measurementType": "Antler Configuration",
+        "measurementUnit": "",
+        "measurementValue": "unknown"
+      },
+      {
+        "eventID": "SA-1:BISID-1:0",
+        "measurementID": "SA-1:BISID-1:0:antler-configuration",
+        "occurrenceID": "SA-1:BISID-1:0:16",
+        "measurementType": "Antler Configuration",
+        "measurementUnit": "",
+        "measurementValue": "unknown"
+      }
+    ]
+  }
+]

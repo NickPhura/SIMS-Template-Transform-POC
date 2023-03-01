@@ -1,0 +1,62 @@
+{
+  "Observations": [
+    {
+      "_data": {
+        "Study Area": "SA-1",
+        "Population Unit": "PU-1",
+        "Block ID/SU ID": "BISID-1",
+        "UTM Zone": "8",
+        "Easting": "1",
+        "Northing": "1",
+        "Datum": "NAD27",
+        "Species": "S-ELK",
+        "Group Label": "GL-1",
+        "Date": "27/Feb/23",
+        "BC RISC Yearling Bulls": "0",
+        "BC RISC Class I Bulls": "1",
+        "BC RISC Class II Bulls": "2",
+        "BC RISC Class III Bulls": "3",
+        "BC RISC Class IV Bulls": "4",
+        "Spike Bulls": "5",
+        "Raghorn Bulls": "6",
+        "<=3 Point Bulls": "7",
+        "3 - 4 Point Bulls": "8",
+        "3 - 5 Point Bulls": "9",
+        "<4 Point Bulls": "10",
+        ">=4 Point Bulls": "11",
+        "5 Point Bulls": "12",
+        ">=5 Point Bulls": "13",
+        ">= 6 Point Bulls": "14",
+        "Adult Bulls - Unclassified": "15",
+        "Unclassified Bulls": "16",
+        "Cows": "17",
+        "Calves": "18",
+        "Adult Unclassified Sex": "19",
+        "Yearling - Unclassified Sex": "20",
+        "Unclassified Age/Sex": "21",
+        "Total Count": "231",
+        "Sign Type": "Body Parts",
+        "Sign Count": "1",
+        "Age of Sign": "Hour",
+        "Topography": "flat",
+        "Habitat": "Avalanche Path",
+        "Veg Cover (%)": "1",
+        "Snow Cover (%)": "1",
+        "Activity": "Moving",
+        "Number of Marked Animals Observed": "1",
+        "Survey or Telemetry Search": "Survey",
+        "Observation Comments": "coments son"
+      },
+      "_name": "Observations",
+      "_key": "SA-1:BISID-1",
+      "_parentKey": "",
+      "_type": "root",
+      "_row": 0,
+      "_childKeys": [
+        "GL-1"
+      ],
+      "_children": []
+    }
+  ],
+  "Marked Animals": []
+}
