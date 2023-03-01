@@ -2,7 +2,7 @@ import Ajv from 'ajv';
 import * as fs from 'fs';
 import path from 'path';
 import xlsx from 'xlsx';
-import { caribouTotalCountchema } from './schema/caribou_total_count_schema';
+import { elkGeneralSchema } from './schema/elk_general_schema';
 //import { goatTotalCountchema } from './schema/goat_total_count_schema';
 //import { sheepTotalCountchema } from './schema/sheep_total_count_schema';
 import { XLSXTransform } from './xlsx-transform';
@@ -16,8 +16,9 @@ import { transformationConfigJSONSchema } from './xlsx-transform-schema';
 // const TEMPLATE_SCHEMA = goatTotalCountchema;
 
 //const TEMPLATE_NAME = 'Central Selkirks Caribou_Aerial_Population_Total_Count_Recuit_Comp_Survey_1.0.xlsx';
-const TEMPLATE_NAME = 'cariboo_sample_test.xlsx';
-const TEMPLATE_SCHEMA = caribouTotalCountchema;
+const TEMPLATE_NAME = 'Elk_Aerial_General_Recruit_Comp_Survey_2.0.xlsx';
+// const TEMPLATE_NAME = 'Elk_Aerial_StratifiedRandomBlock_Recruit_Comp_Survey_2.0.xlsx';
+const TEMPLATE_SCHEMA = elkGeneralSchema;
 
 fs.writeFileSync(path.join(__dirname, 'output', 'schema.json'), JSON.stringify(TEMPLATE_SCHEMA, null, 2));
 
@@ -60,5 +61,6 @@ Object.entries(preparedRowObjectsForJSONToSheet).map(([key, value]) => {
 
 const buffer = xlsx.write(dwcWorkbook, { type: 'buffer', bookType: 'xlsx' });
 fs.writeFileSync(path.join(__dirname, 'output', 'dwcWorkbook_fixed_with_mark_2.xlsx'), buffer);
+console.log("ALL DONE!")
 
 export {};
